@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { Card } from "./ui/card";
 import { Skeleton } from "./ui/skeleton";
 
@@ -44,6 +45,15 @@ export default function AuthenticatedWindow() {
               </div>
             </Card>
           ))}
+        </div>
+
+        <div className="mt-8 text-center">
+          <Link
+            href="/courses"
+            className="text-sm font-medium text-blue-600 hover:underline"
+          >
+            Все курсы &rarr;
+          </Link>
         </div>
       </section>
     </main>
