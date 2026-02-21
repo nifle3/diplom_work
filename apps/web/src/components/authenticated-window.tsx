@@ -55,6 +55,15 @@ export default function AuthenticatedWindow() {
             Все курсы &rarr;
           </Link>
         </div>
+        {/* quick link to start an interview */}
+        <div className="mt-4 text-center">
+          <Link
+            href="/interview"
+            className="inline-block px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700"
+          >
+            Начать интервью
+          </Link>
+        </div>
       </section>
     </main>
   );
