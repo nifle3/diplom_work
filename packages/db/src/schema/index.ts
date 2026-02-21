@@ -1,2 +1,1 @@
-export * from "./auth";
-export {};
+import "./scheme.ts";
