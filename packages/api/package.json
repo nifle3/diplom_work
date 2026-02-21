@@ -1,0 +1,27 @@
+{
+  "name": "@diplom_work/api",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "@diplom_work/auth": "workspace:*",
+    "@diplom_work/db": "workspace:*",
+    "@diplom_work/env": "workspace:*",
+    "@trpc/client": "catalog:",
+    "@trpc/server": "catalog:",
+    "dotenv": "catalog:",
+    "next": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@diplom_work/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

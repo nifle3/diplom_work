@@ -1,0 +1,38 @@
+{
+  "name": "diplom_work",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "type": "module",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "check-types": "turbo check-types",
+    "dev:native": "turbo -F native dev",
+    "dev:web": "turbo -F web dev",
+    "db:push": "turbo -F @diplom_work/db db:push",
+    "db:studio": "turbo -F @diplom_work/db db:studio",
+    "db:generate": "turbo -F @diplom_work/db db:generate",
+    "db:migrate": "turbo -F @diplom_work/db db:migrate",
+    "db:start": "turbo -F @diplom_work/db db:start",
+    "db:watch": "turbo -F @diplom_work/db db:watch",
+    "db:stop": "turbo -F @diplom_work/db db:stop",
+    "db:down": "turbo -F @diplom_work/db db:down",
+    "check": "biome check --write ."
+  },
+  "dependencies": {
+    "@diplom_work/env": "workspace:*",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.0",
+    "@diplom_work/config": "workspace:*",
+    "@types/node": "^22.13.14",
+    "turbo": "^2.6.3",
+    "typescript": "catalog:"
+  },
+  "packageManager": "pnpm@10.27.0"
+}
