@@ -53,6 +53,7 @@ export function PublicHeader() {
 export function PrivateHeader() {
   const links = [
     { to: "/dashboard", label: "Dashboard" },
+      { to: "/expert", label: "Кабинет эксперта" },
     // other authenticated links can go here
   ] as const;
 
