@@ -4,8 +4,14 @@ import { Button } from "./ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
 import { trpc } from "../utils/trpc";
 import { toast } from "sonner";
+import { useMutation } from "@tanstack/react-query";
 
-export default function ScenarioConstructor() {
+interface ScenarioConstructorProps {
+  initialCategories: Array<{ id: string; name: string }>;
+  initialCriteriaTypes: Array<{ id: number; name: string }>;
+}
+
+export default function ScenarioConstructor({ initialCategories, initialCriteriaTypes }: ScenarioConstructorProps) {
   const [title, setTitle] = useState("");
   const [context, setContext] = useState("");
   const [categoryId, setCategoryId] = useState<string | undefined>(undefined);
@@ -14,37 +20,8 @@ export default function ScenarioConstructor() {
     { content: "", typeId: undefined },
   ]);
 
-  const criteriaTypesQuery = trpc.script.criteriaTypes.useQuery();
-
-  const categoriesQuery = trpc.script.categories.useQuery();
-  const createCourse = trpc.script.createWithDetails.useMutation();
-
-  async function handleSave() {
-    try {
-      if (title.trim().length < 3) {
-        toast.error("Название должно быть не менее 3 символов");
-        return;
-      }
-      if (context.trim().length < 10) {
-        toast.error("Контекст должен быть не менее 10 символов");
-        return;
-      }
-      if (!categoryId) {
-        toast.error("Выберите категорию");
-        return;
-      }
-
-      const payload = {
-        title: title.trim(),
-        context: context.trim(),
-        categoryId,
-        questions: questions.map((q) => q.trim()).filter(Boolean),
-        criteria: criteria
-          .map((c) => ({ typeId: c.typeId, content: c.content.trim() }))
-          .filter((c) => c.content),
-      };
-
-      await createCourse.mutateAsync(payload);
+  const createCourseMutation = useMutation(trpc.script.createWithDetails.mutationOptions({
+    onSuccess: () => {
       toast.success("Курс успешно создан");
       // Optionally reset form
       setTitle("");
@@ -52,9 +29,39 @@ export default function ScenarioConstructor() {
       setCategoryId(undefined);
       setQuestions([""]);
       setCriteria([{ content: "", typeId: undefined }]);
-    } catch (err: any) {
-      toast.error(err?.message || "Ошибка при создании курса");
+    },
+    onError: (error: any) => {
+      toast.error(error?.message || "Ошибка при создании курса");
+    },
+  }));
+
+  const { mutate: createCourseMutate, isPending } = createCourseMutation;
+
+  function handleSave() {
+    if (title.trim().length < 3) {
+      toast.error("Название должно быть не менее 3 символов");
+      return;
     }
+    if (context.trim().length < 10) {
+      toast.error("Контекст должен быть не менее 10 символов");
+      return;
+    }
+    if (!categoryId) {
+      toast.error("Выберите категорию");
+      return;
+    }
+
+    const payload = {
+      title: title.trim(),
+      context: context.trim(),
+      categoryId,
+      questions: questions.map((q) => q.trim()).filter(Boolean),
+      criteria: criteria
+        .map((c) => ({ typeId: c.typeId, content: c.content.trim() }))
+        .filter((c) => c.content),
+    };
+
+    createCourseMutate(payload);
   }
 
   return (
@@ -68,8 +75,8 @@ export default function ScenarioConstructor() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
-            <Button variant="outline" size="sm" onClick={handleSave} disabled={createCourse.isLoading}>
-              {createCourse.isLoading ? "Сохранение..." : "Сохранить"}
+            <Button variant="outline" size="sm" onClick={handleSave} disabled={isPending}>
+              {isPending ? "Сохранение..." : "Сохранить"}
             </Button>
             <Button variant="ghost" size="sm">Перейти в песочницу</Button>
           </div>
@@ -153,7 +160,7 @@ export default function ScenarioConstructor() {
                       onChange={(e) => setCategoryId(e.target.value || undefined)}
                     >
                       <option value="">-- Выберите категорию --</option>
-                      {categoriesQuery.data?.map((c) => (
+                      {initialCategories.map((c) => (
                         <option key={c.id} value={c.id}>{c.name}</option>
                       ))}
                     </select>
@@ -190,7 +197,7 @@ export default function ScenarioConstructor() {
                                 }}
                               >
                                 <option value="">Тип (по умолчанию)</option>
-                                {criteriaTypesQuery.data?.map((t) => (
+                                {initialCriteriaTypes.map((t) => (
                                   <option key={t.id} value={t.id}>{t.name}</option>
                                 ))}
                               </select>
@@ -200,7 +207,7 @@ export default function ScenarioConstructor() {
                             </div>
                           ))}
                       <div>
-                        <button className="text-sm text-blue-600" onClick={() => setCriteria((s) => [...s, ""])}>
+                        <button className="text-sm text-blue-600" onClick={() => setCriteria((s) => [...s, { content: "", typeId: undefined }])}>
                           + Добавить критерий
                         </button>
                       </div>

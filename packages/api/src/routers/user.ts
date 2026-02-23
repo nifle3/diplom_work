@@ -16,6 +16,7 @@ export const userRouter = router({
         return {
             name: user!.name,
             streak: user!.currentStreak,
+            xp: user!.xp,
         }
     }),
 });
