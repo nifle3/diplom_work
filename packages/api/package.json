@@ -14,9 +14,12 @@
     "@diplom_work/auth": "workspace:*",
     "@diplom_work/db": "workspace:*",
     "@diplom_work/env": "workspace:*",
+    "@langchain/core": "^1.1.27",
+    "@langchain/mistralai": "^1.0.5",
     "@trpc/client": "catalog:",
     "@trpc/server": "catalog:",
     "dotenv": "catalog:",
+    "langchain": "^1.2.25",
     "next": "catalog:",
     "zod": "catalog:"
   },
