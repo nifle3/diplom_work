@@ -1,14 +1,18 @@
-"use client";
-
 import { useState, useCallback } from "react";
-import Header from "../../components/header";
-import { CategoriesFilter } from "../../components/courses-filter";
-import { CourseCard, CourseCardSkeleton } from "../../components/course-card";
-import { SearchCourses } from "../../components/search-courses";
-import { Pagination } from "../../components/pagination";
-import { trpc } from "../../utils/trpc";
+import { CategoriesFilter } from "@/components/courses-filter";
+import { CourseCard, CourseCardSkeleton } from "@/components/course-card";
+import { SearchCourses } from "@/components/search-courses";
+import { Pagination } from "@/components/pagination";
+import { trpc } from "@/utils/trpc";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+
+interface CouresPageSearchParams {
+  page?: number;
+  categoryId?: string;
+  search?: string;
+
+}
 
 export default function CoursesPage() {
   const router = useRouter();
@@ -29,11 +33,6 @@ export default function CoursesPage() {
     isPending: isLoadingCategories,
     error: categoriesError,
   } = useQuery(trpc.courses.categories.queryOptions());
-
-  if (coursesError?.data?.code === "UNAUTHORIZED") {
-    router.push("/sign-in");
-    return null;
-  }
 
   const handlePageChange = useCallback(
     (newPage: number) => {
@@ -58,8 +57,6 @@ export default function CoursesPage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white">
-      <Header />
-
       <main className="max-w-7xl mx-auto py-12 px-6 flex gap-8">
         <aside className="w-64 flex-shrink-0">
           <div className="sticky top-20 space-y-6">
@@ -86,7 +83,7 @@ export default function CoursesPage() {
             )}
           </div>
 
-          {coursesData && coursesData.total === 0 && !isLoadingCourses && (
+          {coursesData && coursesData.total === 0 && (
             <div className="text-center py-12">
               <p className="text-gray-500 dark:text-gray-400 text-lg">
                 По вашему запросу курсы не найдены
@@ -113,22 +110,12 @@ export default function CoursesPage() {
             </div>
           )}
 
-          {coursesData && !isLoadingCourses && (
-            <Pagination
-              currentPage={coursesData.page}
-              totalPages={coursesData.pages}
-              onPageChange={handlePageChange}
-              isLoading={isLoadingCourses}
-            />
-          )}
-
-          {coursesError && coursesError.data?.code !== "UNAUTHORIZED" && (
-            <div className="text-center py-12">
-              <p className="text-red-500">
-                Ошибка загрузки курсов. Пожалуйста, попробуйте снова.
-              </p>
-            </div>
-          )}
+          <Pagination
+            currentPage={coursesData.page}
+            totalPages={coursesData.pages}
+            onPageChange={handlePageChange}
+            isLoading={isLoadingCourses}
+          />
         </section>
       </main>
     </div>

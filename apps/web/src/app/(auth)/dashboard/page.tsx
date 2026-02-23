@@ -7,25 +7,28 @@ import { Card } from "@/components/ui/card";
 
 export default async function DashboardPage() {
   const trpcCaller = await serverTrpc();
-  const data = await trpcCaller.dashboard.getDashboard();
+  
+  const userStats = await trpcCaller.user.getStats();
+  const recentActivity = await trpcCaller.activity.getUserActivity();
+  const latestCourses = await trpcCaller.courses.getLatest({ limit: 5 });
 
   return (
     <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white">
     <main className="max-w-4xl mx-auto py-16 px-6">
       <div className="flex items-center justify-between mb-12">
         <h1 className="text-3xl font-bold">
-          Привет, {data.name}
+          Привет, {userStats.name}
         </h1>
         <div className="text-sm font-medium bg-yellow-200 text-yellow-900 px-3 py-1 rounded-full">
-          Стрик: data.streak дней
+          Стрик: {userStats.streak} дней
         </div>
       </div>
 
       <section className="mb-16">
         <h2 className="text-xl font-semibold mb-4">Последняя активность</h2>
-        {data?.recentActivity?.length ? (
+        {recentActivity?.length ? (
           <div className="grid grid-cols-3 gap-6">
-            {data.recentActivity.map((activity) => (
+            {recentActivity.map((activity) => (
               <Card key={activity.id} className="h-24 flex flex-col justify-between p-4">
                 <div className="font-medium text-base">{activity.title}</div>
                 <div className="text-xs text-gray-500">{new Date(activity.date).toLocaleDateString()}</div>

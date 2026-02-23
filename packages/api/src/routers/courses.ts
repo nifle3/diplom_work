@@ -1,6 +1,13 @@
 import { z } from "zod";
-import { protectedProcedure, publicProcedure, router } from "../index";
-import { getCourses, getCategories, createCourse, createCourseWithDetails, getCriteriaTypes } from "@diplom_work/db";
+
+import { getLatestCourses } from "@diplom_work/db/repo/courses";
+
+import { basicAuthProtectedProcedure, publicProcedure, router } from "../index";
+
+
+export const getLatestCoursesSchema = z.object({
+  limit: z.number().int().min(1).max(20).default(5),
+});
 
 export const createCourseSchema = z.object({
   title: z.string().min(3).max(100),
@@ -21,7 +28,10 @@ export const listCoursesSchema = z.object({
 });
 
 export const coursesRouter = router({
-  list: protectedProcedure
+  getLatest: basicAuthProtectedProcedure.input(getLatestCoursesSchema).query(async ({ input }) => {
+    return await getLatestCourses(input.limit);
+  }),
+  list: basicAuthProtectedProcedure
     .input(listCoursesSchema)
     .query(async ({ input }) => {
       const offset = (input.page - 1) * input.limit;
@@ -48,27 +58,20 @@ export const coursesRouter = router({
     return await getCategories();
   }),
 
-  create: protectedProcedure
+  create: basicAuthProtectedProcedure
     .input(createCourseSchema)
     .mutation(async ({ input, ctx }) => {
-      // ctx.user.id должен быть id эксперта
-      if (!ctx.user || ctx.user.role !== "expert") {
-        throw new Error("Доступ только для экспертов");
-      }
       return await createCourse({
         ...input,
-        expertId: ctx.user.id,
+        expertId: ctx.session.user.id,
       });
     }),
-  createWithDetails: protectedProcedure
+  createWithDetails: basicAuthProtectedProcedure
     .input(createCourseWithDetailsSchema)
     .mutation(async ({ input, ctx }) => {
-      if (!ctx.user || ctx.user.role !== "expert") {
-        throw new Error("Доступ только для экспертов");
-      }
       return await createCourseWithDetails({
         ...input,
-        expertId: ctx.user.id,
+        expertId: ctx.session.user.id,
       });
     }),
   criteriaTypes: publicProcedure.query(async () => {

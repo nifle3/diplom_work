@@ -5,7 +5,7 @@ export * from "./scheme";
 const schema = {
   user: tables.user,
   account: tables.account,
-  session: tables.session,
+  session: tables.sessionsTable,
   verification: tables.verification,
 };
 

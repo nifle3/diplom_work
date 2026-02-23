@@ -1,21 +1,21 @@
 import { authRouter } from "./auth";
-import { dashboardRouter } from "./dashboard";
 import { coursesRouter } from "./courses";
+import { userRouter } from "./user";
 import { interviewRouter } from "./interview";
-import { router, publicProcedure, protectedProcedure } from "..";
+import { router, publicProcedure, basicAuthProtectedProcedure } from "..";
 
 export const appRouter = router({
   healthCheck: publicProcedure.query(() => {
     return "OK";
   }),
-  privateData: protectedProcedure.query(({ ctx }) => {
+  privateData: basicAuthProtectedProcedure.query(({ ctx }) => {
     return {
       message: "This is private",
       user: ctx.session.user,
     };
   }),
   auth: authRouter,
-  dashboard: dashboardRouter,
+  user: userRouter,
   courses: coursesRouter,
   interview: interviewRouter,
 });
