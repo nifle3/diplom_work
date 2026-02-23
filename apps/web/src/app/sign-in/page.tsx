@@ -2,6 +2,9 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type ChangeEvent, type SubmitEvent, useState } from "react";
+
+import { useMutation } from "@tanstack/react-query";
+
 import { toast } from "sonner";
 import Header from "@/components/header";
 import { trpc } from "@/utils/trpc";
@@ -9,14 +12,16 @@ import { trpc } from "@/utils/trpc";
 export default function SignInPage() {
   const router = useRouter();
   const [values, setValues] = useState({ email: "", password: "" });
-  const login = trpc.auth.login.useMutation({
-    onSuccess: () => {
-      router.push("/dashboard");
-    },
-    onError(error: Error) {
-      toast.error(error.message ?? "Не удалось войти");
-    },
-  });
+  const login = useMutation(
+    trpc.auth.login.mutationOptions({
+      onSuccess: () => {
+        router.push("/dashboard");
+      },
+      onError(error) {
+        toast.error(error.message ?? "Не удалось войти");
+      },
+    })
+  );
 
   const handleSubmit = (e: SubmitEvent) => {
     e.preventDefault();
@@ -73,9 +78,9 @@ export default function SignInPage() {
             <button
               type="submit"
               className="px-4 py-2 bg-blue-600 text-white rounded-md"
-              disabled={login.isLoading}
+              disabled={login.isPending}
             >
-              {login.isLoading ? "Входим..." : "Войти"}
+              {login.isPending ? "Входим..." : "Войти"}
             </button>
             <Link href="/forgot-password" className="text-sm text-blue-600 hover:underline">
               Забыли пароль?
