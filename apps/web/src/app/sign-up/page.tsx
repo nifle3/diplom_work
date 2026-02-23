@@ -1,7 +1,10 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { type ChangeEvent, type SubmitEvent, useState } from "react";
+
+import { useMutation } from "@tanstack/react-query";
+
 import { toast } from "sonner";
 import Header from "@/components/header";
 import { trpc } from "@/utils/trpc";
@@ -9,17 +12,19 @@ import { trpc } from "@/utils/trpc";
 export default function SignUpPage() {
   const router = useRouter();
   const [values, setValues] = useState({ name: "", email: "", password: "" });
-  const register = trpc.auth.register.useMutation({
-    onSuccess: () => {
-      router.push("/dashboard");
-    },
-    onError(error) {
-      toast.error(error.message ?? "Не удалось создать аккаунт");
-    },
-  });
+  const register = useMutation(
+    trpc.auth.register.mutationOptions({
+      onSuccess: () => {
+        router.push("/dashboard");
+      },
+      onError(error) {
+        toast.error(error.message ?? "Не удалось создать аккаунт");
+      },
+    })
+  );
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleSubmit = (e: SubmitEvent) => {
+    e.preventDefault();
     register.mutate(values);
   };
 
@@ -92,9 +97,9 @@ export default function SignUpPage() {
             <button
               type="submit"
               className="px-4 py-2 bg-green-600 text-white rounded-md"
-              disabled={register.isLoading}
+              disabled={register.isPending}
             >
-              {register.isLoading ? "Создаём..." : "Зарегистрироваться"}
+              {register.isPending ? "Создаём..." : "Зарегистрироваться"}
             </button>
           </div>
         </form>

@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { type ChangeEvent, type SubmitEvent, useState } from "react";
 import { toast } from "sonner";
 import Header from "@/components/header";
 import { trpc } from "@/utils/trpc";
@@ -13,13 +13,13 @@ export default function SignInPage() {
     onSuccess: () => {
       router.push("/dashboard");
     },
-    onError(error) {
+    onError(error: Error) {
       toast.error(error.message ?? "Не удалось войти");
     },
   });
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleSubmit = (e: SubmitEvent) => {
+    e.preventDefault();
     login.mutate(values);
   };
 
