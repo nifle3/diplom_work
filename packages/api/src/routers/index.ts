@@ -1,7 +1,8 @@
 import { authRouter } from "./auth";
-import { scenariosRouter } from "./scenarios";
+import { scenariosRouter } from "./script";
 import { userRouter } from "./user";
 import { interviewRouter } from "./interview";
+import { activityRouter } from "./activity";
 import { router, publicProcedure, basicAuthProtectedProcedure } from "..";
 
 export const appRouter = router({
@@ -16,8 +17,9 @@ export const appRouter = router({
   }),
   auth: authRouter,
   user: userRouter,
-  scenarios: scenariosRouter,
+  script: scenariosRouter,
   interview: interviewRouter,
+  activity: activityRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -9,8 +9,8 @@ export default async function DashboardPage() {
   const trpcCaller = await serverTrpc();
 
   const userStats = await trpcCaller.user.getStats();
-  const recentActivity = await trpcCaller.activity.getUserActivity();
-  const latestCourses = await trpcCaller.scenarios.getLatest({ limit: 5 });
+  const recentActivity = await trpcCaller.activity.getLatestUserActivity();
+  const latestCourses = await trpcCaller.script.getLatest({ limit: 5 });
 
   return (
     <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white">
@@ -31,7 +31,6 @@ export default async function DashboardPage() {
             {recentActivity.map((activity) => (
               <Card key={activity.id} className="h-24 flex flex-col justify-between p-4">
                 <div className="font-medium text-base">{activity.title}</div>
-                <div className="text-xs text-gray-500">{new Date(activity.date).toLocaleDateString()}</div>
               </Card>
             ))}
           </div>
@@ -44,12 +43,12 @@ export default async function DashboardPage() {
         <h2 className="text-xl font-semibold mb-6">Новые курсы</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {
-            data.latestCourses?.map((course) => (
+            latestCourses?.map((course) => (
               <Card key={course.id} className="h-40 flex flex-col">
                 <div className="bg-gray-200 dark:bg-gray-700 h-20" />
                 <div className="px-4 py-2 flex-1 flex flex-col justify-between">
                   <div className="text-sm font-medium">{course.title}</div>
-                  <Link href={`/courses/${course.id}`} className="text-xs text-blue-600 hover:underline">
+                  <Link href={{pathname: `/courses/${course.id}`}} className="text-xs text-blue-600 hover:underline">
                     Открыть
                   </Link>
                 </div>

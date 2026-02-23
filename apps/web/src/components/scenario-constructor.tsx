@@ -14,10 +14,10 @@ export default function ScenarioConstructor() {
     { content: "", typeId: undefined },
   ]);
 
-  const criteriaTypesQuery = trpc.scenarios.criteriaTypes.useQuery();
+  const criteriaTypesQuery = trpc.script.criteriaTypes.useQuery();
 
-  const categoriesQuery = trpc.scenarios.categories.useQuery();
-  const createCourse = trpc.scenarios.createWithDetails.useMutation();
+  const categoriesQuery = trpc.script.categories.useQuery();
+  const createCourse = trpc.script.createWithDetails.useMutation();
 
   async function handleSave() {
     try {
