@@ -1,5 +1,5 @@
-import Header from "../../components/header";
-import ExpertWindow from "../../components/expert-window";
+import Header from "@/components/header";
+import ExpertWindow from "@/components/expert-window";
 
 export default function ExpertPage() {
   return (

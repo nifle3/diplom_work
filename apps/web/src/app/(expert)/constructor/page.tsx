@@ -1,5 +1,5 @@
-import Header from "../../components/header";
-import ScenarioConstructor from "../../components/scenario-constructor";
+import Header from "../../../components/header";
+import ScenarioConstructor from "../../../components/scenario-constructor";
 
 export const metadata = {
   title: "Конструктор сценария",

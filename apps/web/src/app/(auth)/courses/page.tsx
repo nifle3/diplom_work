@@ -8,6 +8,7 @@ import { SearchCourses } from "../../components/search-courses";
 import { Pagination } from "../../components/pagination";
 import { trpc } from "../../utils/trpc";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 
 export default function CoursesPage() {
   const router = useRouter();
@@ -15,26 +16,20 @@ export default function CoursesPage() {
   const [categoryId, setCategoryId] = useState<string | undefined>();
   const [search, setSearch] = useState("");
 
-  // Fetch courses
   const {
     data: coursesData,
-    isLoading: isLoadingCourses,
+    isPending: isLoadingCourses,
     error: coursesError,
-  } = trpc.courses.list.useQuery({
-    page,
-    categoryId,
-    search,
-    limit: 12,
-  });
+  } = useQuery(
+    trpc.courses.list.queryOptions({ page, categoryId, search, limit: 12 })
+  );
 
-  // Fetch categories
   const {
     data: categories = [],
-    isLoading: isLoadingCategories,
+    isPending: isLoadingCategories,
     error: categoriesError,
-  } = trpc.courses.categories.useQuery();
+  } = useQuery(trpc.courses.categories.queryOptions());
 
-  // Handle redirect if not authenticated
   if (coursesError?.data?.code === "UNAUTHORIZED") {
     router.push("/sign-in");
     return null;
@@ -66,18 +61,12 @@ export default function CoursesPage() {
       <Header />
 
       <main className="max-w-7xl mx-auto py-12 px-6 flex gap-8">
-        {/* Sidebar with filters */}
         <aside className="w-64 flex-shrink-0">
           <div className="sticky top-20 space-y-6">
-            {/* Search */}
-            <div>
-              <SearchCourses
-                onSearch={handleSearch}
-                isLoading={isLoadingCourses}
-              />
-            </div>
-
-            {/* Categories filter */}
+            <SearchCourses
+              onSearch={handleSearch}
+              isLoading={isLoadingCourses}
+            />
             <CategoriesFilter
               categories={categories}
               selectedCategory={categoryId}
@@ -87,9 +76,7 @@ export default function CoursesPage() {
           </div>
         </aside>
 
-        {/* Main content */}
         <section className="flex-1">
-          {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold mb-2">Все курсы</h1>
             {coursesData && (
@@ -99,7 +86,6 @@ export default function CoursesPage() {
             )}
           </div>
 
-          {/* Empty state */}
           {coursesData && coursesData.total === 0 && !isLoadingCourses && (
             <div className="text-center py-12">
               <p className="text-gray-500 dark:text-gray-400 text-lg">
@@ -108,7 +94,6 @@ export default function CoursesPage() {
             </div>
           )}
 
-          {/* Courses grid */}
           {(isLoadingCourses || (coursesData && coursesData.courses.length > 0)) && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               {isLoadingCourses
@@ -128,7 +113,6 @@ export default function CoursesPage() {
             </div>
           )}
 
-          {/* Pagination */}
           {coursesData && !isLoadingCourses && (
             <Pagination
               currentPage={coursesData.page}
@@ -138,7 +122,6 @@ export default function CoursesPage() {
             />
           )}
 
-          {/* Error state */}
           {coursesError && coursesError.data?.code !== "UNAUTHORIZED" && (
             <div className="text-center py-12">
               <p className="text-red-500">

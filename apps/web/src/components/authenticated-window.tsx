@@ -1,10 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { Card } from "./ui/card";
+import Link from "next/link";
 import { Skeleton } from "./ui/skeleton";
 import { trpc } from "../utils/trpc";
 
+export default function AuthenticatedWindow() {
   const { data, isLoading } = trpc.dashboard.getDashboard.useQuery();
 
   return (

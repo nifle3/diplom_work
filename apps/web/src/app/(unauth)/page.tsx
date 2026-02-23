@@ -1,9 +1,9 @@
-"use client";
 import Link from "next/link";
 
-export default function UnauthenticatedWindow() {
+export default function NonAuthDashboardPage() {
   return (
-    <main className="max-w-4xl mx-auto py-16 px-6 text-center">
+    <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white">
+      <main className="max-w-4xl mx-auto py-16 px-6 text-center">
       <h1 className="text-4xl font-extrabold mb-4">Interview Master AI</h1>
       <p className="text-lg text-muted-foreground mb-6">
         Подготовьтесь к собеседованию с помощью интерактивного ИИ: симулируйте реальные
@@ -36,5 +36,6 @@ export default function UnauthenticatedWindow() {
         </ul>
       </section>
     </main>
+    </div>
   );
 }

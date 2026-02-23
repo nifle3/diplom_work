@@ -1,4 +1,3 @@
-"use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type ChangeEvent, type SubmitEvent, useState } from "react";
@@ -34,8 +33,6 @@ export default function SignUpPage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white">
-      <Header />
-
       <div className="max-w-md mx-auto mt-16 p-6 bg-white dark:bg-gray-900 rounded-lg shadow-md">
         <h1 className="text-2xl font-semibold mb-4">Создать аккаунт</h1>
 

@@ -10,7 +10,6 @@ export const metadata = {
 };
 
 export default function ResultsPage() {
-  // static placeholders; real values will come from props/queries later
   const scorePercent = 78;
   const experience = 150;
   const feedbackText =
