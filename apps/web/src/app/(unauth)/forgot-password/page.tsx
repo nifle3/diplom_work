@@ -1,12 +1,8 @@
-"use client";
 import Link from "next/link";
-import Header from "../../components/header";
 
 export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white">
-      <Header />
-
       <div className="max-w-md mx-auto mt-16 p-6 bg-white dark:bg-gray-900 rounded-lg shadow-md">
         <h1 className="text-2xl font-semibold mb-4">Восстановление пароля</h1>
 
