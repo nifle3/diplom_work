@@ -2,7 +2,18 @@ import { initTRPC, TRPCError } from "@trpc/server";
 
 import type { Context } from "./context";
 
-export const t = initTRPC.context<Context>().create();
+export const t = initTRPC.context<Context>().create({
+  responseMeta({ ctx }) {
+    if (!ctx?.setCookieHeaders?.length) {
+      return {};
+    }
+    const headers = new Headers();
+    ctx.setCookieHeaders.forEach((value) => {
+      headers.append("set-cookie", value);
+    });
+    return { headers };
+  },
+});
 
 export const router = t.router;
 

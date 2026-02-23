@@ -1,8 +1,32 @@
 "use client";
 import Link from "next/link";
-import Header from "../../components/header";
+import { useRouter } from "next/navigation";
+import { ChangeEvent, FormEvent, useState } from "react";
+import { toast } from "sonner";
+import Header from "@/components/header";
+import { trpc } from "@/utils/trpc";
 
 export default function SignUpPage() {
+  const router = useRouter();
+  const [values, setValues] = useState({ name: "", email: "", password: "" });
+  const register = trpc.auth.register.useMutation({
+    onSuccess: () => {
+      router.push("/dashboard");
+    },
+    onError(error) {
+      toast.error(error.message ?? "Не удалось создать аккаунт");
+    },
+  });
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    register.mutate(values);
+  };
+
+  const handleChange = (field: "name" | "email" | "password") => (event: ChangeEvent<HTMLInputElement>) => {
+    setValues((prev) => ({ ...prev, [field]: event.target.value }));
+  };
+
   return (
     <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white">
       <Header />
@@ -10,24 +34,68 @@ export default function SignUpPage() {
       <div className="max-w-md mx-auto mt-16 p-6 bg-white dark:bg-gray-900 rounded-lg shadow-md">
         <h1 className="text-2xl font-semibold mb-4">Создать аккаунт</h1>
 
-        <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+        <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
-            <label className="block text-sm mb-1">Имя</label>
-            <input className="w-full rounded-md border px-3 py-2" type="text" />
+            <label className="block text-sm mb-1" htmlFor="name">
+              Имя
+            </label>
+            <input
+              id="name"
+              name="name"
+              required
+              value={values.name}
+              onChange={handleChange("name")}
+              className="w-full rounded-md border px-3 py-2"
+              type="text"
+              autoComplete="name"
+            />
           </div>
 
           <div>
-            <label className="block text-sm mb-1">Email</label>
-            <input className="w-full rounded-md border px-3 py-2" type="email" />
+            <label className="block text-sm mb-1" htmlFor="email">
+              Email
+            </label>
+            <input
+              id="email"
+              name="email"
+              required
+              value={values.email}
+              onChange={handleChange("email")}
+              className="w-full rounded-md border px-3 py-2"
+              type="email"
+              autoComplete="email"
+            />
           </div>
 
           <div>
-            <label className="block text-sm mb-1">Пароль</label>
-            <input className="w-full rounded-md border px-3 py-2" type="password" />
+            <label className="block text-sm mb-1" htmlFor="password">
+              Пароль
+            </label>
+            <input
+              id="password"
+              name="password"
+              required
+              minLength={8}
+              value={values.password}
+              onChange={handleChange("password")}
+              className="w-full rounded-md border px-3 py-2"
+              type="password"
+              autoComplete="new-password"
+            />
           </div>
+
+          {register.error && (
+            <p className="text-sm text-red-600">{register.error.message}</p>
+          )}
 
           <div className="flex items-center justify-between">
-            <button className="px-4 py-2 bg-green-600 text-white rounded-md">Зарегистрироваться</button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-green-600 text-white rounded-md"
+              disabled={register.isLoading}
+            >
+              {register.isLoading ? "Создаём..." : "Зарегистрироваться"}
+            </button>
           </div>
         </form>
 

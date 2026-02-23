@@ -1,49 +1,152 @@
-import Link from "next/link";
+"use client";
+
+import { useState, useCallback } from "react";
 import Header from "../../components/header";
-import { Card } from "../../components/ui/card";
+import { CategoriesFilter } from "../../components/courses-filter";
+import { CourseCard, CourseCardSkeleton } from "../../components/course-card";
+import { SearchCourses } from "../../components/search-courses";
+import { Pagination } from "../../components/pagination";
+import { trpc } from "../../utils/trpc";
+import { useRouter } from "next/navigation";
 
 export default function CoursesPage() {
-  // simple static markup for all-courses page
-  const dummyCourses = Array.from({ length: 12 }, (_, i) => ({
-    id: i + 1,
-    title: `Курс ${i + 1}`,
-  }));
+  const router = useRouter();
+  const [page, setPage] = useState(1);
+  const [categoryId, setCategoryId] = useState<string | undefined>();
+  const [search, setSearch] = useState("");
+
+  // Fetch courses
+  const {
+    data: coursesData,
+    isLoading: isLoadingCourses,
+    error: coursesError,
+  } = trpc.courses.list.useQuery({
+    page,
+    categoryId,
+    search,
+    limit: 12,
+  });
+
+  // Fetch categories
+  const {
+    data: categories = [],
+    isLoading: isLoadingCategories,
+    error: categoriesError,
+  } = trpc.courses.categories.useQuery();
+
+  // Handle redirect if not authenticated
+  if (coursesError?.data?.code === "UNAUTHORIZED") {
+    router.push("/sign-in");
+    return null;
+  }
+
+  const handlePageChange = useCallback(
+    (newPage: number) => {
+      setPage(newPage);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    },
+    []
+  );
+
+  const handleSearch = useCallback((query: string) => {
+    setSearch(query);
+    setPage(1);
+  }, []);
+
+  const handleCategoryChange = useCallback(
+    (newCategoryId: string | undefined) => {
+      setCategoryId(newCategoryId);
+      setPage(1);
+    },
+    []
+  );
 
   return (
     <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white">
       <Header />
-      <main className="max-w-6xl mx-auto py-16 px-6 flex">
-        {/* content */}
-        <section className="flex-1">
-          <h1 className="text-3xl font-bold mb-8">Все курсы</h1>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {dummyCourses.map((c) => (
-              <Card key={c.id} className="flex flex-col h-40">
-                <div className="bg-gray-200 dark:bg-gray-700 h-20" />
-                <div className="px-4 py-3 flex-1 flex flex-col justify-between">
-                  <div className="text-sm font-medium truncate">{c.title}</div>
-                  <Link
-                    href="#"
-                    className="text-xs text-blue-600 hover:underline"
-                  >
-                    Открыть
-                  </Link>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </section>
+      <main className="max-w-7xl mx-auto py-12 px-6 flex gap-8">
+        {/* Sidebar with filters */}
+        <aside className="w-64 flex-shrink-0">
+          <div className="sticky top-20 space-y-6">
+            {/* Search */}
+            <div>
+              <SearchCourses
+                onSearch={handleSearch}
+                isLoading={isLoadingCourses}
+              />
+            </div>
 
-        {/* sidebar placeholder for filters */}
-        <aside className="hidden lg:block w-64 pl-8">
-          <div className="text-sm font-semibold mb-4">Фильтры:</div>
-          <div className="space-y-2">
-            <div className="h-4 bg-gray-100 dark:bg-gray-800 rounded w-3/4" />
-            <div className="h-4 bg-gray-100 dark:bg-gray-800 rounded w-1/2" />
-            <div className="h-4 bg-gray-100 dark:bg-gray-800 rounded w-2/3" />
+            {/* Categories filter */}
+            <CategoriesFilter
+              categories={categories}
+              selectedCategory={categoryId}
+              onSelectCategory={handleCategoryChange}
+              isLoading={isLoadingCategories || isLoadingCourses}
+            />
           </div>
         </aside>
+
+        {/* Main content */}
+        <section className="flex-1">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold mb-2">Все курсы</h1>
+            {coursesData && (
+              <p className="text-gray-600 dark:text-gray-400">
+                Найдено курсов: <strong>{coursesData.total}</strong>
+              </p>
+            )}
+          </div>
+
+          {/* Empty state */}
+          {coursesData && coursesData.total === 0 && !isLoadingCourses && (
+            <div className="text-center py-12">
+              <p className="text-gray-500 dark:text-gray-400 text-lg">
+                По вашему запросу курсы не найдены
+              </p>
+            </div>
+          )}
+
+          {/* Courses grid */}
+          {(isLoadingCourses || (coursesData && coursesData.courses.length > 0)) && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {isLoadingCourses
+                ? Array.from({ length: 12 }).map((_, i) => (
+                    <CourseCardSkeleton key={i} />
+                  ))
+                : coursesData?.courses.map((course) => (
+                    <CourseCard
+                      key={course.id}
+                      id={course.id}
+                      title={course.title}
+                      context={course.context}
+                      categoryName={course.categoryName}
+                      expertName={course.expertName}
+                    />
+                  ))}
+            </div>
+          )}
+
+          {/* Pagination */}
+          {coursesData && !isLoadingCourses && (
+            <Pagination
+              currentPage={coursesData.page}
+              totalPages={coursesData.pages}
+              onPageChange={handlePageChange}
+              isLoading={isLoadingCourses}
+            />
+          )}
+
+          {/* Error state */}
+          {coursesError && coursesError.data?.code !== "UNAUTHORIZED" && (
+            <div className="text-center py-12">
+              <p className="text-red-500">
+                Ошибка загрузки курсов. Пожалуйста, попробуйте снова.
+              </p>
+            </div>
+          )}
+        </section>
       </main>
     </div>
   );
