@@ -1,6 +1,16 @@
 import { z } from "zod";
 import { protectedProcedure, publicProcedure, router } from "../index";
-import { getCourses, getCategories } from "@diplom_work/db";
+import { getCourses, getCategories, createCourse, createCourseWithDetails, getCriteriaTypes } from "@diplom_work/db";
+const createCourseSchema = z.object({
+  title: z.string().min(3).max(100),
+  context: z.string().min(10).max(1000),
+  categoryId: z.string().uuid(),
+});
+
+const createCourseWithDetailsSchema = createCourseSchema.extend({
+  questions: z.array(z.string().min(1)).optional(),
+  criteria: z.array(z.object({ typeId: z.number().int().optional(), content: z.string().min(1) })).optional(),
+});
 
 const listCoursesSchema = z.object({
   categoryId: z.string().uuid().optional(),
@@ -35,5 +45,32 @@ export const coursesRouter = router({
 
   categories: publicProcedure.query(async () => {
     return await getCategories();
+  }),
+
+  create: protectedProcedure
+    .input(createCourseSchema)
+    .mutation(async ({ input, ctx }) => {
+      // ctx.user.id должен быть id эксперта
+      if (!ctx.user || ctx.user.role !== "expert") {
+        throw new Error("Доступ только для экспертов");
+      }
+      return await createCourse({
+        ...input,
+        expertId: ctx.user.id,
+      });
+    }),
+  createWithDetails: protectedProcedure
+    .input(createCourseWithDetailsSchema)
+    .mutation(async ({ input, ctx }) => {
+      if (!ctx.user || ctx.user.role !== "expert") {
+        throw new Error("Доступ только для экспертов");
+      }
+      return await createCourseWithDetails({
+        ...input,
+        expertId: ctx.user.id,
+      });
+    }),
+  criteriaTypes: publicProcedure.query(async () => {
+    return await getCriteriaTypes();
   }),
 });

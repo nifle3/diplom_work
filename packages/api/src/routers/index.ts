@@ -1,9 +1,6 @@
 
-import { protectedProcedure, publicProcedure, router } from "../index";
-import { authRouter } from "./auth";
-import { dashboardRouter } from "./dashboard";
-import { coursesRouter } from "./courses";
 
+export const appRouter = router({
   healthCheck: publicProcedure.query(() => {
     return "OK";
   }),
@@ -17,4 +14,5 @@ import { coursesRouter } from "./courses";
   dashboard: dashboardRouter,
   courses: coursesRouter,
 });
+
 export type AppRouter = typeof appRouter;

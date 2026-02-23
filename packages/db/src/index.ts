@@ -7,3 +7,4 @@ export const db = drizzle(env.DATABASE_URL, { schema });
 
 export * from "./courses";
 export * from "./categories";
+export * from "./criteria";
