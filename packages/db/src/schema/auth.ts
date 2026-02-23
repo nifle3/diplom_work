@@ -3,10 +3,10 @@ import * as tables from "./scheme";
 export * from "./scheme";
 
 const schema = {
-  user: tables.user,
-  account: tables.account,
+  user: tables.usersTable,
+  account: tables.accountsTable,
   session: tables.sessionsTable,
-  verification: tables.verification,
+  verification: tables.verificationsTable,
 };
 
 export const authSchema = schema;

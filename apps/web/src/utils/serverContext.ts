@@ -8,7 +8,7 @@ export async function serverContext() {
 
   const session = await auth.api.getSession({
     headers: headersObj,
-  });s
+  });
 
   return {
     session,
