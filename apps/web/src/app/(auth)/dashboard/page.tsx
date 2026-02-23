@@ -7,10 +7,10 @@ import { Card } from "@/components/ui/card";
 
 export default async function DashboardPage() {
   const trpcCaller = await serverTrpc();
-  
+
   const userStats = await trpcCaller.user.getStats();
   const recentActivity = await trpcCaller.activity.getUserActivity();
-  const latestCourses = await trpcCaller.courses.getLatest({ limit: 5 });
+  const latestCourses = await trpcCaller.scenarios.getLatest({ limit: 5 });
 
   return (
     <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white">

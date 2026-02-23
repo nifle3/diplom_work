@@ -1,19 +1,21 @@
-import { getUserById } from "@diplom_work/db/repo/users";
+import { eq } from "drizzle-orm";
+
+import { db } from "@diplom_work/db";
+import { usersTable } from "@diplom_work/db/schema/scheme";
 
 import { router, basicAuthProtectedProcedure } from "../index";
 
-// Не нравится код потому что мы тут не используем eq а делаем функцю в db репо которая возврашает всё равно то же тип, и выходит так что бы всё равно зависим от drizzle
 export const userRouter = router({
     getStats: basicAuthProtectedProcedure.query(async ({ ctx }) => {
         const userId = ctx.session?.user.id;
-        const user = await getUserById(userId);
-        if (!user) {
+        const users = await db.select().from(usersTable).where(eq(usersTable.id, userId)).limit(1);
+        if (!users || users.length === 0) {
             throw new Error("User not found");
         }
-
+        const user = users[0];
         return {
-            name: user.name,
-            streak: user.currentStreak,
+            name: user!.name,
+            streak: user!.currentStreak,
         }
     }),
 });

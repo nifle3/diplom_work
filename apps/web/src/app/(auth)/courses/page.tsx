@@ -25,14 +25,14 @@ export default function CoursesPage() {
     isPending: isLoadingCourses,
     error: coursesError,
   } = useQuery(
-    trpc.courses.list.queryOptions({ page, categoryId, search, limit: 12 })
+    trpc.scenarios.list.queryOptions({ page, categoryId, search, limit: 12 })
   );
 
   const {
     data: categories = [],
     isPending: isLoadingCategories,
     error: categoriesError,
-  } = useQuery(trpc.courses.categories.queryOptions());
+  } = useQuery(trpc.scenarios.categories.queryOptions());
 
   const handlePageChange = useCallback(
     (newPage: number) => {

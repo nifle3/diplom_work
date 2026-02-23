@@ -21,7 +21,8 @@
     "dotenv": "catalog:",
     "langchain": "^1.2.25",
     "next": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "drizzle-orm": "catalog:"
   },
   "devDependencies": {
     "@diplom_work/config": "workspace:*",

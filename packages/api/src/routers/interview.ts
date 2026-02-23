@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { basicAuthProtectedProcedure, router } from "../index";
+import { protectedProcedure, router } from "../index";
 import {
   getScenarioWithDetails,
   createInterviewSession,
@@ -19,7 +19,6 @@ import {
 } from "../lib/langchain";
 import { calculateFinalScoreFromMessages, extractAllFeedbacks } from "../lib/score-parser";
 
-// Хранилище цепочек в памяти (в продакшене использовать Redis)
 const sessionChains = new Map<
   string,
   {
@@ -54,7 +53,7 @@ export const interviewRouter = router({
   /**
    * Начать новую сессию интервью
    */
-  startSession: basicAuthProtectedProcedure
+  startSession: protectedProcedure
     .input(startSessionSchema)
     .mutation(async ({ input, ctx }) => {
       if (!ctx.session?.user) {
@@ -127,7 +126,7 @@ export const interviewRouter = router({
   /**
    * Отправить ответ на вопрос интервьюера
    */
-  submitAnswer: basicAuthProtectedProcedure
+  submitAnswer: protectedProcedure
     .input(submitAnswerSchema)
     .mutation(async ({ input, ctx }) => {
       if (!ctx.session?.user) {
@@ -230,7 +229,7 @@ export const interviewRouter = router({
   /**
    * Завершить сессию интервью
    */
-  endSession: basicAuthProtectedProcedure
+  endSession: protectedProcedure
     .input(endSessionSchema)
     .mutation(async ({ input, ctx }) => {
       if (!ctx.session?.user) {
@@ -301,7 +300,7 @@ export const interviewRouter = router({
   /**
    * Получить историю чата сессии
    */
-  getSessionHistory: basicAuthProtectedProcedure
+  getSessionHistory: protectedProcedure
     .input(getSessionHistorySchema)
     .query(async ({ input, ctx }) => {
       if (!ctx.session?.user) {
@@ -342,7 +341,7 @@ export const interviewRouter = router({
   /**
    * Получить результаты завершенной сессии интервью
    */
-  getResults: basicAuthProtectedProcedure
+  getResults: protectedProcedure
     .input(getSessionResultsSchema)
     .query(async ({ input, ctx }) => {
       if (!ctx.session?.user) {

@@ -1,5 +1,5 @@
 import { authRouter } from "./auth";
-import { coursesRouter } from "./courses";
+import { scenariosRouter } from "./scenarios";
 import { userRouter } from "./user";
 import { interviewRouter } from "./interview";
 import { router, publicProcedure, basicAuthProtectedProcedure } from "..";
@@ -16,7 +16,7 @@ export const appRouter = router({
   }),
   auth: authRouter,
   user: userRouter,
-  courses: coursesRouter,
+  scenarios: scenariosRouter,
   interview: interviewRouter,
 });
 
