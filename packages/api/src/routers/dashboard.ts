@@ -1,16 +1,15 @@
-import { publicProcedure, protectedProcedure, router } from "./trpc";
+import { protectedProcedure, router } from "../index";
 import { z } from "zod";
 
 import { getDashboardData } from "@diplom_work/db/dashboard";
 
-// Типы для recentActivity и latestCourses
-const RecentActivitySchema = z.object({
+export const RecentActivitySchema = z.object({
   id: z.string(),
   title: z.string(),
-  date: z.string(), // ISO string
+  date: z.string(),
 });
 
-const CourseSchema = z.object({
+export const CourseSchema = z.object({
   id: z.string(),
   title: z.string(),
 });

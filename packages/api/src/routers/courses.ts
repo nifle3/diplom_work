@@ -1,18 +1,19 @@
 import { z } from "zod";
 import { protectedProcedure, publicProcedure, router } from "../index";
 import { getCourses, getCategories, createCourse, createCourseWithDetails, getCriteriaTypes } from "@diplom_work/db";
-const createCourseSchema = z.object({
+
+export const createCourseSchema = z.object({
   title: z.string().min(3).max(100),
   context: z.string().min(10).max(1000),
   categoryId: z.string().uuid(),
 });
 
-const createCourseWithDetailsSchema = createCourseSchema.extend({
+export const createCourseWithDetailsSchema = createCourseSchema.extend({
   questions: z.array(z.string().min(1)).optional(),
   criteria: z.array(z.object({ typeId: z.number().int().optional(), content: z.string().min(1) })).optional(),
 });
 
-const listCoursesSchema = z.object({
+export const listCoursesSchema = z.object({
   categoryId: z.string().uuid().optional(),
   search: z.string().max(100).optional(),
   page: z.number().int().positive().default(1),

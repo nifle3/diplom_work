@@ -1,4 +1,4 @@
-import { PublicHeader } from "@/components/header";
+import { PrivateHeader } from "@/components/header";
 
 export default function UnauthLayout({
   children,
@@ -7,7 +7,7 @@ export default function UnauthLayout({
 }>) {
     return (
         <>
-            <PublicHeader/>
+            <PrivateHeader/>
             {children}
         </>
     );

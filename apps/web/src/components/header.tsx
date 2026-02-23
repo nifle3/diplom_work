@@ -90,6 +90,3 @@ export function PrivateHeader() {
     </header>
   );
 }
-
-// default export remains PublicHeader for backwards compatibility
-export default PublicHeader;

@@ -3,13 +3,11 @@ import { user, interviewSessions, scenarios } from "./schema/scheme";
 import { desc, eq } from "drizzle-orm";
 
 export async function getDashboardData(userId: string) {
-  // Получаем пользователя
   const userRows = await db.select().from(user).where(eq(user.id, userId)).limit(1);
   const userData = userRows[0];
   const name = userData?.name || "Пользователь";
   const streak = userData?.currentStreak || 0;
 
-  // Последняя активность (интервью)
   const activityRows = await db
     .select({
       id: interviewSessions.id,
@@ -30,7 +28,6 @@ export async function getDashboardData(userId: string) {
       date: a.date?.toISOString() ?? "",
     }));
 
-  // Последние курсы (сценарии)
   const latestCoursesRows = await db
     .select({ id: scenarios.id, title: scenarios.title })
     .from(scenarios)
