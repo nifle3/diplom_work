@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { ModeToggle } from "./mode-toggle";
+import { ThemeToggle } from "./themeToggle";
 import UserMenu from "./user-menu";
 
 export default function PrivateHeader() {
@@ -26,7 +26,7 @@ export default function PrivateHeader() {
         </div>
 
         <div className="flex items-center gap-3">
-          <ModeToggle />
+          <ThemeToggle />
           <UserMenu />
         </div>
       </div>

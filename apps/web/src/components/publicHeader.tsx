@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { ModeToggle } from "./mode-toggle";
+import { ThemeToggle } from "./themeToggle";
 
 export default function PublicHeader() {
   return (
@@ -13,7 +13,7 @@ export default function PublicHeader() {
         </div>
 
         <div className="flex items-center gap-3">
-          <ModeToggle />
+          <ThemeToggle />
           <Link
             href="/sign-in"
             className="px-3 py-1 rounded-md text-sm border border-gray-300 hover:bg-gray-100"
