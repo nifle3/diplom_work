@@ -1,11 +1,13 @@
 "use client";
+
 import * as React from "react";
+
 import { useRouter } from "next/navigation";
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 import { trpc } from "../utils/trpc";
-import { Loader } from "./loader";
+import Loader from "./loader";
 
 interface Message {
   id: string;

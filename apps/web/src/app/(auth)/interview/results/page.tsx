@@ -1,8 +1,7 @@
-import Header from "../../../components/header";
-import { serverTrpc } from "../../../utils/trpcServer";
-import { Card, CardHeader, CardTitle, CardContent } from "../../../components/ui/card";
-import { ProgressBar } from "../../../components/ui/progress-bar";
-import { Button } from "../../../components/ui/button";
+import { serverTrpc } from "@/utils/trpcServer";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { ProgressBar } from "@/components/ui/progress-bar";
+import { Button } from "@/components/ui/button";
 import { Trophy, Star, MessageSquare, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -34,7 +33,6 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
 
   const { session, messages } = sessionData;
 
-  // Extract feedback from AI messages
   const feedbacks = messages
     .filter(msg => msg.isAi && msg.analysisNote)
     .map(msg => {
@@ -53,7 +51,6 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
 
   return (
     <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white">
-      <Header />
       <main className="max-w-4xl mx-auto py-16 px-6 space-y-10">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold">Результаты интервью</h1>
@@ -72,7 +69,6 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* score card */}
           <Card className="flex flex-col items-center justify-center text-center">
             <CardHeader>
               <Trophy className="size-6 text-yellow-500" />
@@ -89,7 +85,6 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
             </CardContent>
           </Card>
 
-          {/* experience card */}
           <Card className="flex flex-col items-center justify-center text-center">
             <CardHeader>
               <Star className="size-6 text-yellow-400" />
@@ -101,7 +96,6 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
           </Card>
         </div>
 
-        {/* feedback section */}
         {feedbacks.length > 0 && (
           <Card>
             <CardHeader>
@@ -127,7 +121,6 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
           </Card>
         )}
 
-        {/* actions */}
         <div className="flex justify-center gap-4">
           <Link href={`/interview?scenario=${session.scenarioId}`}>
             <Button variant="outline" size="sm">
