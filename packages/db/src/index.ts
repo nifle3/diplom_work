@@ -1,5 +1,5 @@
 import { env } from "@diplom_work/env/server";
-import { drizzle } from "drizzle-orm/node-postgres";
+import { drizzle } from "drizzle-orm/pglite";
 
 import * as schema from "./schema";
 

@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@diplom_work/env": "workspace:*",
+    "@electric-sql/pglite": "^0.3.15",
     "dotenv": "catalog:",
     "drizzle-orm": "catalog:",
     "pg": "^8.17.1",
