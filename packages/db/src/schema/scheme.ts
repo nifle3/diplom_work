@@ -39,14 +39,14 @@ export const sessionsTable = pgTable("sessions", {
   updatedAt: timestamp("updated_at").notNull(),
   ipAddress: text("ip_address"),
   userAgent: text("user_agent"),
-  userId: text("user_id").notNull().references(() => usersTable.id),
+  userId: uuid("user_id").notNull().references(() => usersTable.id),
 });
 
 export const accountsTable = pgTable("accounts", {
   id: uuid("id").primaryKey(),
-  accountId: text("account_id").notNull(),
+  accountId: uuid("account_id").notNull(),
   providerId: text("provider_id").notNull(),
-  userId: text("user_id").notNull().references(() => usersTable.id),
+  userId: uuid("user_id").notNull().references(() => usersTable.id),
   accessToken: text("access_token"),
   refreshToken: text("refresh_token"),
   idToken: text("id_token"),
@@ -74,10 +74,10 @@ export const categoriesTable = pgTable("categories", {
   deletedAt: timestamp("deleted_at"),
 });
 
-export const scenariosTable = pgTable("scenarios", {
+export const scriptsTable = pgTable("scripts", {
   id: uuid("id").primaryKey().defaultRandom(),
   categoryId: uuid("category_id").notNull().references(() => categoriesTable.id),
-  expertId: text("expert_id").notNull().references(() => usersTable.id),
+  expertId: uuid("expert_id").notNull().references(() => usersTable.id),
   title: varchar("title", { length: 150 }).notNull(),
   context: text("context").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -92,7 +92,7 @@ export const criteriaTypesTable = pgTable("criteria_types", {
 
 export const scenarioCriteriaTable = pgTable("scenario_criteria", {
   id: uuid("id").primaryKey().defaultRandom(),
-  scenarioId: uuid("scenario_id").notNull().references(() => scenariosTable.id),
+  scenarioId: uuid("scenario_id").notNull().references(() => scriptsTable.id),
   typeId: integer("type_id").notNull().references(() => criteriaTypesTable.id),
   content: text("content").notNull(),
   deletedAt: timestamp("deleted_at"),
@@ -100,7 +100,7 @@ export const scenarioCriteriaTable = pgTable("scenario_criteria", {
 
 export const questionTemplatesTable = pgTable("question_templates", {
   id: uuid("id").primaryKey().defaultRandom(),
-  scenarioId: uuid("scenario_id").notNull().references(() => scenariosTable.id),
+  scenarioId: uuid("scenario_id").notNull().references(() => scriptsTable.id),
   text: text("text").notNull(),
   deletedAt: timestamp("deleted_at"),
 });
@@ -113,8 +113,8 @@ export const specificCriteriaTable = pgTable("specific_criteria", {
 
 export const interviewSessionsTable = pgTable("interview_sessions", {
   id: uuid("id").primaryKey().defaultRandom(),
-  userId: text("user_id").notNull().references(() => usersTable.id),
-  scenarioId: uuid("scenario_id").notNull().references(() => scenariosTable.id),
+  userId: uuid("user_id").notNull().references(() => usersTable.id),
+  scriptId: uuid("script_id").notNull().references(() => scriptsTable.id),
   status: varchar("status", { length: 20 }).default("active").notNull(),
   finalScore: integer("final_score"),
   expertFeedback: text("expert_feedback"),
@@ -139,7 +139,7 @@ export const achievementsTable = pgTable("achievements", {
 });
 
 export const userAchievementsTable = pgTable("user_achievements", {
-  userId: text("user_id").notNull().references(() => usersTable.id),
+  userId: uuid("user_id").notNull().references(() => usersTable.id),
   achievementId: uuid("achievement_id").notNull().references(() => achievementsTable.id),
   awardedAt: timestamp("awarded_at").defaultNow().notNull(),
 }, (t) => ({
@@ -148,8 +148,8 @@ export const userAchievementsTable = pgTable("user_achievements", {
 
 export const reportsTable = pgTable("reports", {
   id: uuid("id").primaryKey().defaultRandom(),
-  reporterId: text("reporter_id").notNull().references(() => usersTable.id),
-  scenarioId: uuid("scenario_id").notNull().references(() => scenariosTable.id),
+  reporterId: uuid("reporter_id").notNull().references(() => usersTable.id),
+  scriptId: uuid("script_id").notNull().references(() => scriptsTable.id),
   reason: text("reason").notNull(),
   status: varchar("status", { length: 20 }).default("new").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -159,26 +159,26 @@ export const reportsTable = pgTable("reports", {
 export const userRelations = relations(usersTable, ({ one, many }) => ({
   role: one(rolesTable, { fields: [usersTable.roleId], references: [rolesTable.id] }),
   sessions: many(interviewSessionsTable),
-  scenarios: many(scenariosTable),
+  scripts: many(scriptsTable),
   achievements: many(userAchievementsTable),
   reports: many(reportsTable),
 }));
 
-export const scenariosRelations = relations(scenariosTable, ({ one, many }) => ({
-  category: one(categoriesTable, { fields: [scenariosTable.categoryId], references: [categoriesTable.id] }),
-  expert: one(usersTable, { fields: [scenariosTable.expertId], references: [usersTable.id] }),
+export const scenariosRelations = relations(scriptsTable, ({ one, many }) => ({
+  category: one(categoriesTable, { fields: [scriptsTable.categoryId], references: [categoriesTable.id] }),
+  expert: one(usersTable, { fields: [scriptsTable.expertId], references: [usersTable.id] }),
   globalCriteria: many(scenarioCriteriaTable),
   questions: many(questionTemplatesTable),
   sessions: many(interviewSessionsTable),
 }));
 
 export const scenarioCriteriaRelations = relations(scenarioCriteriaTable, ({ one }) => ({
-  scenario: one(scenariosTable, { fields: [scenarioCriteriaTable.scenarioId], references: [scenariosTable.id] }),
+  scenario: one(scriptsTable, { fields: [scenarioCriteriaTable.scenarioId], references: [scriptsTable.id] }),
   type: one(criteriaTypesTable, { fields: [scenarioCriteriaTable.typeId], references: [criteriaTypesTable.id] }),
 }));
 
 export const questionTemplatesRelations = relations(questionTemplatesTable, ({ one, many }) => ({
-  scenario: one(scenariosTable, { fields: [questionTemplatesTable.scenarioId], references: [scenariosTable.id] }),
+  scenario: one(scriptsTable, { fields: [questionTemplatesTable.scenarioId], references: [scriptsTable.id] }),
   specificCriteria: many(specificCriteriaTable),
 }));
 
@@ -188,7 +188,7 @@ export const specificCriteriaRelations = relations(specificCriteriaTable, ({ one
 
 export const interviewSessionsRelations = relations(interviewSessionsTable, ({ one, many }) => ({
   usersTable: one(usersTable, { fields: [interviewSessionsTable.userId], references: [usersTable.id] }),
-  scenario: one(scenariosTable, { fields: [interviewSessionsTable.scenarioId], references: [scenariosTable.id] }),
+  scenario: one(scriptsTable, { fields: [interviewSessionsTable.scriptId], references: [scriptsTable.id] }),
   messages: many(chatMessagesTable),
 }));
 
@@ -203,5 +203,5 @@ export const userAchievementsRelations = relations(userAchievementsTable, ({ one
 
 export const reportsRelations = relations(reportsTable, ({ one }) => ({
   reporter: one(usersTable, { fields: [reportsTable.reporterId], references: [usersTable.id] }),
-  scenario: one(scenariosTable, { fields: [reportsTable.scenarioId], references: [scenariosTable.id] }),
+  scenario: one(scriptsTable, { fields: [reportsTable.scriptId], references: [scriptsTable.id] }),
 }));
