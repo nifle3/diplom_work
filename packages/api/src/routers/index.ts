@@ -1,4 +1,3 @@
-import { authRouter } from "./auth";
 import { scenariosRouter } from "./script";
 import { userRouter } from "./user";
 import { activityRouter } from "./activity";
@@ -8,7 +7,6 @@ export const appRouter = router({
   healthCheck: publicProcedure.query(() => {
     return "OK";
   }),
-  auth: authRouter,
   user: userRouter,
   script: scenariosRouter,
   activity: activityRouter,

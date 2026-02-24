@@ -1,31 +1,43 @@
 "use client";
+import { type ChangeEvent, type SubmitEvent, useState } from "react"; 
 
 import { useRouter } from "next/navigation";
-import { type ChangeEvent, type SubmitEvent, useState } from "react"; 
-import { useMutation } from "@tanstack/react-query";
+
 import { toast } from "sonner";
-import { trpc } from "@/utils/trpc";
+import { authClient } from "@/lib/auth-client";
 
 export default function SignUpForm() {
   const router = useRouter();
+  const [isPending, setIsPending] = useState(false);
   const [values, setValues] = useState({ name: "", email: "", password: "" });
-  const register = useMutation(
-    trpc.auth.register.mutationOptions({
-      onSuccess: () => {
-        router.push("/dashboard");
-      },
-      onError(error) {
-        toast.error(error.message ?? "Не удалось создать аккаунт");
-      },
-    })
-  );
-  const handleSubmit = (e: SubmitEvent) => {
+
+  const handleSubmit = async (e: SubmitEvent) => {
     e.preventDefault();
-    register.mutate(values);
+
+    await authClient.signUp.email({
+      name: values.name,
+      email: values.email,
+      password: values.password,
+    }, {
+      onSuccess() {
+        router.push("/sign-in");
+      },
+      onError(ctx) {
+        toast.error(ctx.error.message);
+      },
+      onRequest() {
+        setIsPending(true);
+      },
+      onResponse() {
+        setIsPending(false);
+      },
+    });
   };
+
   const handleChange = (field: "name" | "email" | "password") => (event: ChangeEvent<HTMLInputElement>) => {
     setValues((prev) => ({ ...prev, [field]: event.target.value }));
   };
+
   return (
     <form className="space-y-4" onSubmit={handleSubmit}>
       <div>
@@ -74,16 +86,13 @@ export default function SignUpForm() {
           autoComplete="new-password"
         />
       </div>
-      {register.error && (
-        <p className="text-sm text-red-600">{register.error.message}</p>
-      )}
       <div className="flex items-center justify-between">
         <button
           type="submit"
-          className="px-4 py-2 bg-green-600 text-white rounded-md"
-          disabled={register.isPending}
+          className="px-4 py-2 bg-green-600` text-white rounded-md"
+          disabled={isPending}
         >
-          {register.isPending ? "Создаём..." : "Зарегистрироваться"}
+          {isPending ? "Создаём..." : "Зарегистрироваться"}
         </button>
       </div>
     </form>

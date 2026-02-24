@@ -2,7 +2,7 @@ name: diplom_work
 
 services:
   postgres:
-    image: postgres
+    image: postgres:18
     container_name: diplom_work-postgres
     environment:
       POSTGRES_DB: diplom_work
