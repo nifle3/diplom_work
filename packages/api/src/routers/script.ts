@@ -2,7 +2,7 @@ import { z } from "zod";
 import { desc, eq, ilike, isNull, count, and } from "drizzle-orm";
 
 import { db } from "@diplom_work/db";
-import { scenariosTable, categoriesTable, usersTable, criteriaTypesTable, scenarioCriteriaTable, questionTemplatesTable } from "@diplom_work/db/schema/scheme";
+import { scriptsTable, categoriesTable, usersTable, criteriaTypesTable, scenarioCriteriaTable, questionTemplatesTable } from "@diplom_work/db/schema/scheme";
 
 import { basicAuthProtectedProcedure, router } from "../index";
 
@@ -31,7 +31,7 @@ export const createWithDetailsSchema = z.object({
 
 export const scenariosRouter = router({
   getLatest: basicAuthProtectedProcedure.input(getLatestScenariosSchema).query(async ({ input }) => {
-    const scenarios = await db.select().from(scenariosTable).orderBy(desc(scenariosTable.createdAt)).limit(input.limit);
+    const scenarios = await db.select().from(scriptsTable).orderBy(desc(scriptsTable.createdAt)).limit(input.limit);
     
     return scenarios.map((scenario) => ({
       id: scenario.id,
@@ -53,14 +53,14 @@ export const scenariosRouter = router({
     const offset = (page - 1) * limit;
 
     const whereClause = and(
-      isNull(scenariosTable.deletedAt),
-      categoryId ? eq(scenariosTable.categoryId, categoryId) : undefined,
-      search ? ilike(scenariosTable.title, `%${search}%`) : undefined
+      isNull(scriptsTable.deletedAt),
+      categoryId ? eq(scriptsTable.categoryId, categoryId) : undefined,
+      search ? ilike(scriptsTable.title, `%${search}%`) : undefined
     );
 
     const totalResult = await db
       .select({ count: count() })
-      .from(scenariosTable)
+      .from(scriptsTable)
       .where(whereClause);
 
     const total = totalResult[0]?.count ?? 0;
@@ -68,17 +68,17 @@ export const scenariosRouter = router({
 
     const courses = await db
       .select({
-        id: scenariosTable.id,
-        title: scenariosTable.title,
-        context: scenariosTable.context,
+        id: scriptsTable.id,
+        title: scriptsTable.title,
+        context: scriptsTable.context,
         categoryName: categoriesTable.name,
         expertName: usersTable.name,
       })
-      .from(scenariosTable)
-      .leftJoin(categoriesTable, eq(scenariosTable.categoryId, categoriesTable.id))
-      .leftJoin(usersTable, eq(scenariosTable.expertId, usersTable.id))
+      .from(scriptsTable)
+      .leftJoin(categoriesTable, eq(scriptsTable.categoryId, categoriesTable.id))
+      .leftJoin(usersTable, eq(scriptsTable.expertId, usersTable.id))
       .where(whereClause)
-      .orderBy(desc(scenariosTable.createdAt))
+      .orderBy(desc(scriptsTable.createdAt))
       .limit(limit)
       .offset(offset);
 
@@ -93,15 +93,15 @@ export const scenariosRouter = router({
   getMyScenarios: basicAuthProtectedProcedure.query(async ({ ctx }) => {
     const scenarios = await db
       .select({
-        id: scenariosTable.id,
-        title: scenariosTable.title,
-        context: scenariosTable.context,
+        id: scriptsTable.id,
+        title: scriptsTable.title,
+        context: scriptsTable.context,
         categoryName: categoriesTable.name,
       })
-      .from(scenariosTable)
-      .leftJoin(categoriesTable, eq(scenariosTable.categoryId, categoriesTable.id))
-      .where(and(eq(scenariosTable.expertId, ctx.session.user.id), isNull(scenariosTable.deletedAt)))
-      .orderBy(desc(scenariosTable.createdAt));
+      .from(scriptsTable)
+      .leftJoin(categoriesTable, eq(scriptsTable.categoryId, categoriesTable.id))
+      .where(and(eq(scriptsTable.expertId, ctx.session.user.id), isNull(scriptsTable.deletedAt)))
+      .orderBy(desc(scriptsTable.createdAt));
 
     return scenarios;
   }),
@@ -119,12 +119,12 @@ export const scenariosRouter = router({
 
     return await db.transaction(async (tx) => {
       // Insert scenario
-      const scenarioResult = await tx.insert(scenariosTable).values({
+      const scenarioResult = await tx.insert(scriptsTable).values({
         title,
         context,
         categoryId,
         expertId: ctx.session.user.id,
-      }).returning({ id: scenariosTable.id });
+      }).returning({ id: scriptsTable.id });
 
       if (!scenarioResult || scenarioResult.length === 0) {
         throw new Error("Failed to create scenario");

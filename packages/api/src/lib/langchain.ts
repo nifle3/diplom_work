@@ -1,6 +1,6 @@
 import { ChatMistralAI } from "@langchain/mistralai";
 import { ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate } from "@langchain/core/prompts";
-import { ConversationBufferMemory } from "langchain/memory";
+import { ConversationBufferMemory } from "langchain";
 import { LLMChain } from "langchain/chains";
 import { env } from "@diplom_work/env/server";
 

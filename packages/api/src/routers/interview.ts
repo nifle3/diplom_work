@@ -1,22 +1,24 @@
 import { z } from "zod";
-import { router, basicAuthProtectedProcedure } from "..";
+import { eq, and, isNull } from "drizzle-orm";
+
 import { db } from "@diplom_work/db";
 import {
   interviewSessionsTable,
   chatMessagesTable,
-  scenariosTable,
+  scriptsTable,
   scenarioCriteriaTable,
   questionTemplatesTable,
   usersTable,
   criteriaTypesTable,
 } from "@diplom_work/db/schema/scheme";
-import { eq, and, desc } from "drizzle-orm";
 import {
   generateInterviewSystemPrompt,
   createInterviewLLM,
   createMemory,
   parseAIResponse,
 } from "../lib/langchain";
+
+import { router, basicAuthProtectedProcedure } from "..";
 import { calculateFinalScore } from "../lib/score-parser";
 
 export const interviewRouter = router({
@@ -26,11 +28,10 @@ export const interviewRouter = router({
       const { scenarioId } = input;
       const userId = ctx.session.user.id;
 
-      // Verify scenario exists and is not deleted
       const scenario = await db
         .select()
-        .from(scenariosTable)
-        .where(and(eq(scenariosTable.id, scenarioId), eq(scenariosTable.deletedAt, null)))
+        .from(scriptsTable)
+        .where(and(eq(scriptsTable.id, scenarioId), isNull(scriptsTable.deletedAt)))
         .limit(1);
 
       if (!scenario.length) {
@@ -44,12 +45,12 @@ export const interviewRouter = router({
         })
         .from(scenarioCriteriaTable)
         .innerJoin(criteriaTypesTable, eq(scenarioCriteriaTable.typeId, criteriaTypesTable.id))
-        .where(and(eq(scenarioCriteriaTable.scenarioId, scenarioId), eq(scenarioCriteriaTable.deletedAt, null)));
+        .where(and(eq(scenarioCriteriaTable.scenarioId, scenarioId), isNull(scenarioCriteriaTable.deletedAt)));
 
       const questions = await db
         .select({ text: questionTemplatesTable.text })
         .from(questionTemplatesTable)
-        .where(and(eq(questionTemplatesTable.scenarioId, scenarioId), eq(questionTemplatesTable.deletedAt, null)));
+        .where(and(eq(questionTemplatesTable.scenarioId, scenarioId), isNull(questionTemplatesTable.deletedAt)));
 
       const sessionResult = await db
         .insert(interviewSessionsTable)
@@ -71,7 +72,6 @@ export const interviewRouter = router({
         questionList: questions.map(q => `- ${q.text}`).join('\n'),
       });
 
-      // Generate first AI message
       const llm = createInterviewLLM();
       const memory = createMemory();
 
@@ -82,7 +82,6 @@ export const interviewRouter = router({
 
       const aiMessage = response.content as string;
 
-      // Save AI message
       await db.insert(chatMessagesTable).values({
         sessionId,
         isAi: true,
@@ -99,7 +98,6 @@ export const interviewRouter = router({
       const { sessionId, userMessage } = input;
       const userId = ctx.session.user.id;
 
-      // Verify session ownership and status
       const session = await db
         .select()
         .from(interviewSessionsTable)
@@ -114,7 +112,6 @@ export const interviewRouter = router({
         throw new Error("Session not found or not active");
       }
 
-      // Save user message
       await db.insert(chatMessagesTable).values({
         sessionId,
         isAi: false,
@@ -122,18 +119,16 @@ export const interviewRouter = router({
         createdAt: new Date(),
       });
 
-      // Load scenario for system prompt
       const scenarioData = await db
         .select({
-          title: scenariosTable.title,
-          context: scenariosTable.context,
+          title: scriptsTable.title,
+          context: scriptsTable.context,
         })
-        .from(scenariosTable)
-        .innerJoin(interviewSessionsTable, eq(scenariosTable.id, interviewSessionsTable.scenarioId))
+        .from(scriptsTable)
+        .innerJoin(interviewSessionsTable, eq(scriptsTable.id, interviewSessionsTable.scenarioId))
         .where(eq(interviewSessionsTable.id, sessionId))
         .limit(1);
 
-      // Load criteria
       const criteria = await db
         .select({
           content: scenarioCriteriaTable.content,
@@ -141,25 +136,23 @@ export const interviewRouter = router({
         })
         .from(scenarioCriteriaTable)
         .innerJoin(criteriaTypesTable, eq(scenarioCriteriaTable.typeId, criteriaTypesTable.id))
-        .innerJoin(scenariosTable, eq(scenarioCriteriaTable.scenarioId, scenariosTable.id))
-        .innerJoin(interviewSessionsTable, eq(scenariosTable.id, interviewSessionsTable.scenarioId))
+        .innerJoin(scriptsTable, eq(scenarioCriteriaTable.scenarioId, scriptsTable.id))
+        .innerJoin(interviewSessionsTable, eq(scriptsTable.id, interviewSessionsTable.scriptId))
         .where(and(
           eq(interviewSessionsTable.id, sessionId),
-          eq(scenarioCriteriaTable.deletedAt, null)
+          isNull(scenarioCriteriaTable.deletedAt)
         ));
 
-      // Load questions
       const questions = await db
         .select({ text: questionTemplatesTable.text })
         .from(questionTemplatesTable)
-        .innerJoin(scenariosTable, eq(questionTemplatesTable.scenarioId, scenariosTable.id))
-        .innerJoin(interviewSessionsTable, eq(scenariosTable.id, interviewSessionsTable.scenarioId))
+        .innerJoin(scriptsTable, eq(questionTemplatesTable.scenarioId, scriptsTable.id))
+        .innerJoin(interviewSessionsTable, eq(scriptsTable.id, interviewSessionsTable.scriptId))
         .where(and(
           eq(interviewSessionsTable.id, sessionId),
-          eq(questionTemplatesTable.deletedAt, null)
+          isNull(questionTemplatesTable.deletedAt)
         ));
 
-      // Load chat history
       const history = await db
         .select({
           isAi: chatMessagesTable.isAi,
@@ -169,7 +162,6 @@ export const interviewRouter = router({
         .where(eq(chatMessagesTable.sessionId, sessionId))
         .orderBy(chatMessagesTable.createdAt);
 
-      // Build system prompt
       const systemPrompt = generateInterviewSystemPrompt({
         scenarioTitle: scenarioData[0].title,
         scenarioContext: scenarioData[0].context,
@@ -177,10 +169,8 @@ export const interviewRouter = router({
         questionList: questions.map(q => `- ${q.text}`).join('\n'),
       });
 
-      // Create LLM with streaming
       const llm = createInterviewLLM();
 
-      // Prepare messages for streaming
       const messages = [
         { role: "system", content: systemPrompt },
         ...history.map(h => ({
@@ -190,7 +180,6 @@ export const interviewRouter = router({
         { role: "user", content: userMessage },
       ];
 
-      // Stream the response
       const stream = await llm.stream(messages);
       let fullResponse = "";
 
@@ -200,10 +189,8 @@ export const interviewRouter = router({
         yield token;
       }
 
-      // Parse the complete response
       const parsed = parseAIResponse(fullResponse);
 
-      // Save AI message with analysis
       await db.insert(chatMessagesTable).values({
         sessionId,
         isAi: true,
@@ -219,7 +206,6 @@ export const interviewRouter = router({
       const { sessionId } = input;
       const userId = ctx.session.user.id;
 
-      // Verify session ownership
       const session = await db
         .select()
         .from(interviewSessionsTable)
@@ -234,7 +220,6 @@ export const interviewRouter = router({
         throw new Error("Session not found or not active");
       }
 
-      // Get all scores from chat messages
       const messages = await db
         .select({ analysisNote: chatMessagesTable.analysisNote })
         .from(chatMessagesTable)
@@ -324,10 +309,10 @@ export const interviewRouter = router({
           startedAt: interviewSessionsTable.startedAt,
           finishedAt: interviewSessionsTable.finishedAt,
           scenarioId: interviewSessionsTable.scenarioId,
-          scenarioTitle: scenariosTable.title,
+          scenarioTitle: scriptsTable.title,
         })
         .from(interviewSessionsTable)
-        .innerJoin(scenariosTable, eq(interviewSessionsTable.scenarioId, scenariosTable.id))
+        .innerJoin(scriptsTable, eq(interviewSessionsTable.scenarioId, scriptsTable.id))
         .where(and(
           eq(interviewSessionsTable.id, sessionId),
           eq(interviewSessionsTable.userId, userId)

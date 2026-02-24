@@ -1,7 +1,7 @@
 import { eq, desc } from "drizzle-orm";
 
 import { db } from "@diplom_work/db";
-import { interviewSessionsTable, scenariosTable } from "@diplom_work/db/schema/scheme";
+import { interviewSessionsTable, scriptsTable } from "@diplom_work/db/schema/scheme";
 
 import { router, basicAuthProtectedProcedure } from "../index";
 
@@ -12,11 +12,11 @@ export const activityRouter = router({
         const activities = await db
             .select({
                 id: interviewSessionsTable.id,
-                title: scenariosTable.title,
+                title: scriptsTable.title,
                 date: interviewSessionsTable.finishedAt,
             })
             .from(interviewSessionsTable)
-            .innerJoin(scenariosTable, eq(interviewSessionsTable.scenarioId, scenariosTable.id))
+            .innerJoin(scriptsTable, eq(interviewSessionsTable.scriptId, scriptsTable.id))
             .where(eq(interviewSessionsTable.userId, userId))
             .orderBy(desc(interviewSessionsTable.finishedAt))
             .limit(3);
