@@ -4,7 +4,7 @@ import { type ChangeEvent, type SubmitEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { toast } from "sonner";
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/lib/authClient";
 
 export default function SignUpForm() {
   const router = useRouter();
