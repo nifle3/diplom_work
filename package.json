@@ -14,6 +14,7 @@
     "db:push": "turbo -F @diplom_work/db db:push",
     "db:studio": "turbo -F @diplom_work/db db:studio",
     "db:generate": "turbo -F @diplom_work/db db:generate",
+    "db:generate-custom": "turbo -F @diplom_work/db db:generate-custom",
     "db:migrate": "turbo -F @diplom_work/db db:migrate",
     "db:start": "turbo -F @diplom_work/db db:start",
     "db:watch": "turbo -F @diplom_work/db db:watch",

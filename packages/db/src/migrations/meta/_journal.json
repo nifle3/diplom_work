@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1772030083256,
+      "tag": "0000_real_texas_twister",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1772030713427,
+      "tag": "0001_add_roles",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1772031044781,
+      "tag": "0002_sad_kate_bishop",
+      "breakpoints": true
+    }
+  ]
+}
