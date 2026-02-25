@@ -59,7 +59,7 @@ export default async function DashboardPage() {
 
         <div className="mt-8 text-center">
           <Link
-            href="/courses"
+            href={{pathname: "/courses"}}
             className="text-sm font-medium text-blue-600 hover:underline"
           >
             Все курсы &rarr;
