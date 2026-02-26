@@ -5,43 +5,15 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1772030083256,
-      "tag": "0000_real_texas_twister",
+      "when": 1772127069984,
+      "tag": "0000_short_jackal",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1772030713427,
-      "tag": "0001_add_roles",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1772031044781,
-      "tag": "0002_sad_kate_bishop",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1772055811094,
-      "tag": "0003_kind_doctor_strange",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1772122144804,
-      "tag": "0004_messy_cardiac",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1772126287946,
-      "tag": "0005_luxuriant_weapon_omega",
+      "when": 1772127074471,
+      "tag": "0001_seed_roles",
       "breakpoints": true
     }
   ]

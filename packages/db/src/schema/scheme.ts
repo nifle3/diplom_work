@@ -7,7 +7,6 @@ import {
   boolean,
   timestamp,
   primaryKey,
-  serial,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 

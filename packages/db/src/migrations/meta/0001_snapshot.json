@@ -1,6 +1,6 @@
 {
-  "id": "73585712-9b1b-4eba-9666-e27648f5eb65",
-  "prevId": "5beb3f90-d000-45c4-9710-68ec6de6031a",
+  "id": "e53b2728-09ee-4b17-952a-c83c69a8c994",
+  "prevId": "c6b281be-37be-4fc1-b6f8-4ad6cb7d46eb",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -153,29 +153,15 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+          "notNull": true
         },
         "name": {
           "name": "name",
           "type": "varchar(100)",
           "primaryKey": false,
           "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {},
@@ -517,18 +503,7 @@
           "name": "id",
           "type": "integer",
           "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "name": "roles_id_seq",
-            "increment": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "startWith": "1",
-            "cache": "1",
-            "cycle": false,
-            "schema": "public",
-            "type": "always"
-          }
+          "notNull": true
         },
         "name": {
           "name": "name",
@@ -961,7 +936,8 @@
           "name": "role_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": 1
         },
         "xp": {
           "name": "xp",

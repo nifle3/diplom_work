@@ -22,10 +22,8 @@ CREATE TABLE "achievements" (
 );
 --> statement-breakpoint
 CREATE TABLE "categories" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"name" varchar(100) NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"deleted_at" timestamp
+	"id" integer PRIMARY KEY NOT NULL,
+	"name" varchar(100) NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "chat_messages" (
@@ -70,7 +68,7 @@ CREATE TABLE "reports" (
 );
 --> statement-breakpoint
 CREATE TABLE "roles" (
-	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "roles_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
+	"id" integer PRIMARY KEY NOT NULL,
 	"name" varchar(50) NOT NULL,
 	CONSTRAINT "roles_name_unique" UNIQUE("name")
 );
@@ -127,7 +125,7 @@ CREATE TABLE "users" (
 	"image" text,
 	"created_at" timestamp NOT NULL,
 	"updated_at" timestamp NOT NULL,
-	"role_id" integer NOT NULL,
+	"role_id" integer DEFAULT 1 NOT NULL,
 	"xp" integer DEFAULT 0 NOT NULL,
 	"current_streak" integer DEFAULT 0 NOT NULL,
 	"last_activity_date" timestamp,
