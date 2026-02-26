@@ -2,7 +2,7 @@ import { z } from "zod";
 import { desc, eq, ilike, isNull, count, and } from "drizzle-orm";
 
 import { db } from "@diplom_work/db";
-import { scriptsTable, categoriesTable, usersTable, criteriaTypesTable, scenarioCriteriaTable, questionTemplatesTable } from "@diplom_work/db/schema/scheme";
+import { scriptsTable, categoriesTable, usersTable, criteriaTypesTable, scriptCriteriaTable, questionTemplatesTable } from "@diplom_work/db/schema/scheme";
 
 import { protectedProcedure, router } from "../index";
 

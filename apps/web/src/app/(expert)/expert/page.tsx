@@ -1,8 +1,6 @@
-import Link from "next/link";
 import type { Metadata } from "next";
 
 import { serverTrpc } from "@/lib/trpcServer";
-import { Button } from "@/components/ui/button";
 import CreateScriptButton from "./createScriptButton";
 
 export const metadata: Metadata = {
@@ -12,8 +10,8 @@ export const metadata: Metadata = {
 export default async function ExpertPage() {
   const trpc = await serverTrpc();
 
-  const { 0: scripts, 1: draftScripts} = await Promise.all([
-    trpc.expert.getMyScenarios(),
+  const { 0: scripts, 1: drafts} = await Promise.all([
+    trpc.expert.getMyScripts(),
     trpc.expert.getMyDrafts()
   ]);
 
@@ -29,7 +27,19 @@ export default async function ExpertPage() {
             <CreateScriptButton/>
           </div>
           <h2 className="text-xl font-semibold">Мои черновики</h2>
+          {
+            drafts.map((value) =>  (
+              <>
+              </>
+            ))
+          }
           <h2 className="text-xl font-semibold">Мои сценарии</h2>
+                    {
+            scripts.map((value) =>  (
+              <>
+              </>
+            ))
+          }
         </section>
       </main>
     </div>

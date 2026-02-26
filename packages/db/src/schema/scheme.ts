@@ -76,11 +76,14 @@ export const categoriesTable = pgTable("categories", {
 
 export const scriptsTable = pgTable("scripts", {
   id: uuid("id").primaryKey().defaultRandom(),
-  categoryId: integer("category_id").notNull().references(() => categoriesTable.id),
+  categoryId: integer("category_id").references(() => categoriesTable.id),
   expertId: uuid("expert_id").notNull().references(() => usersTable.id),
-  title: varchar("title", { length: 150 }).notNull(),
-  context: text("context").notNull(),
+  title: varchar("title", { length: 150 }),
+  context: text("context"),
+  isDraft: boolean().default(true),
+  description: text(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  draftOverAt: timestamp("draft_over_at"),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
   deletedAt: timestamp("deleted_at"),
 });
@@ -90,9 +93,9 @@ export const criteriaTypesTable = pgTable("criteria_types", {
   name: varchar("name", { length: 50 }).notNull(), 
 });
 
-export const scenarioCriteriaTable = pgTable("scenario_criteria", {
+export const scriptCriteriaTable = pgTable("scenario_criteria", {
   id: uuid("id").primaryKey().defaultRandom(),
-  scenarioId: uuid("scenario_id").notNull().references(() => scriptsTable.id),
+  scriptId: uuid("scenario_id").notNull().references(() => scriptsTable.id),
   typeId: integer("type_id").notNull().references(() => criteriaTypesTable.id),
   content: text("content").notNull(),
   deletedAt: timestamp("deleted_at"),
@@ -100,7 +103,7 @@ export const scenarioCriteriaTable = pgTable("scenario_criteria", {
 
 export const questionTemplatesTable = pgTable("question_templates", {
   id: uuid("id").primaryKey().defaultRandom(),
-  scenarioId: uuid("scenario_id").notNull().references(() => scriptsTable.id),
+  scriptId: uuid("scenario_id").notNull().references(() => scriptsTable.id),
   text: text("text").notNull(),
   deletedAt: timestamp("deleted_at"),
 });
@@ -167,18 +170,18 @@ export const userRelations = relations(usersTable, ({ one, many }) => ({
 export const scenariosRelations = relations(scriptsTable, ({ one, many }) => ({
   category: one(categoriesTable, { fields: [scriptsTable.categoryId], references: [categoriesTable.id] }),
   expert: one(usersTable, { fields: [scriptsTable.expertId], references: [usersTable.id] }),
-  globalCriteria: many(scenarioCriteriaTable),
+  globalCriteria: many(scriptCriteriaTable),
   questions: many(questionTemplatesTable),
   sessions: many(interviewSessionsTable),
 }));
 
-export const scenarioCriteriaRelations = relations(scenarioCriteriaTable, ({ one }) => ({
-  scenario: one(scriptsTable, { fields: [scenarioCriteriaTable.scenarioId], references: [scriptsTable.id] }),
-  type: one(criteriaTypesTable, { fields: [scenarioCriteriaTable.typeId], references: [criteriaTypesTable.id] }),
+export const scenarioCriteriaRelations = relations(scriptCriteriaTable, ({ one }) => ({
+  scenario: one(scriptsTable, { fields: [scriptCriteriaTable.scriptId], references: [scriptsTable.id] }),
+  type: one(criteriaTypesTable, { fields: [scriptCriteriaTable.typeId], references: [criteriaTypesTable.id] }),
 }));
 
 export const questionTemplatesRelations = relations(questionTemplatesTable, ({ one, many }) => ({
-  scenario: one(scriptsTable, { fields: [questionTemplatesTable.scenarioId], references: [scriptsTable.id] }),
+  scenario: one(scriptsTable, { fields: [questionTemplatesTable.scriptId], references: [scriptsTable.id] }),
   specificCriteria: many(specificCriteriaTable),
 }));
 
