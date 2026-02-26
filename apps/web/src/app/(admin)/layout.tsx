@@ -1,6 +1,6 @@
 import { redirect, RedirectType } from "next/navigation";
 
-import { serverTrpc } from "@/utils/trpcServer"
+import { serverTrpc } from "@/lib/trpcServer"
 
 export default async function AdminLayout({
   children

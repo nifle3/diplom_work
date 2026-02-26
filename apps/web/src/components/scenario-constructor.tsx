@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Button } from "./ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
-import { trpc } from "../utils/trpc";
+import { trpc } from "../lib/trpc";
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
 

@@ -1,4 +1,4 @@
-import { serverTrpc } from "@/utils/trpcServer";
+import { serverTrpc } from "@/lib/trpcServer";
 import { CourseCard } from "@/components/course-card";
 import { ScriptsFilters } from "./ScriptsFilters";
 import type { Metadata } from "next";

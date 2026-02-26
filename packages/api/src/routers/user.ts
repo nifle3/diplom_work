@@ -4,7 +4,7 @@ import { z } from "zod";
 import { db } from "@diplom_work/db";
 import { usersTable } from "@diplom_work/db/schema/scheme";
 
-import { router, basicAuthProtectedProcedure } from "../index";
+import { router, protectedProcedure } from "../index";
 
 const roleNameCheckInput = z.enum(["admin", "expert"]);
 const roleNameToRoleId = {
@@ -13,7 +13,7 @@ const roleNameToRoleId = {
 };
 
 export const userRouter = router({
-	getStats: basicAuthProtectedProcedure.query(async ({ ctx }) => {
+	getStats: protectedProcedure.query(async ({ ctx }) => {
 		const userId = ctx.session?.user.id;
 		const users = await db.select().from(usersTable).where(eq(usersTable.id, userId)).limit(1);
 		if (!users || users.length === 0) {
@@ -26,7 +26,7 @@ export const userRouter = router({
 			xp: user!.xp,
 		}
 	}),
-	isUserHasRole: basicAuthProtectedProcedure
+	isUserHasRole: protectedProcedure
 		.input(roleNameCheckInput)
 		.query(async ({ input, ctx }) => {
 		

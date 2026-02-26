@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
-import { trpc } from "../utils/trpc";
+import { trpc } from "../lib/trpc";
 import Loader from "./loader";
 
 interface Message {

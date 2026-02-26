@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { serverTrpc } from "@/utils/trpcServer";
+import { serverTrpc } from "@/lib/trpcServer";
 
 import { Card } from "@/components/ui/card";
 

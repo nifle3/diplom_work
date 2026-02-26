@@ -1,5 +1,5 @@
 import ScenarioConstructor from "@/components/scenario-constructor";
-import { serverTrpc } from "@/utils/trpcServer";
+import { serverTrpc } from "@/lib/trpcServer";
 
 export const metadata = {
   title: "Конструктор сценария",

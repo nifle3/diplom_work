@@ -3,10 +3,10 @@ import { eq, desc } from "drizzle-orm";
 import { db } from "@diplom_work/db";
 import { interviewSessionsTable, scriptsTable } from "@diplom_work/db/schema/scheme";
 
-import { router, basicAuthProtectedProcedure } from "../index";
+import { router, protectedProcedure } from "../index";
 
 export const activityRouter = router({
-    getLatestUserActivity: basicAuthProtectedProcedure.query(async ({ ctx }) => {
+    getLatestUserActivity: protectedProcedure.query(async ({ ctx }) => {
         const userId = ctx.session?.user.id;
 
         const activities = await db

@@ -1,4 +1,4 @@
-import { serverTrpc } from "@/utils/trpcServer";
+import { serverTrpc } from "@/lib/trpcServer";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { Button } from "@/components/ui/button";
