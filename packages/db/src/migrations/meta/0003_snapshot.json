@@ -1,6 +1,6 @@
 {
-  "id": "8ccd82ca-dbbe-47ab-a7cd-8be66b7277a5",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "de999f19-79c9-4a37-8171-aaff4fcf2a8b",
+  "prevId": "34dfe583-9b57-45eb-85c9-575866dc0cda",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -173,6 +173,18 @@
           "type": "varchar(100)",
           "primaryKey": false,
           "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},

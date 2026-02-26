@@ -5,15 +5,36 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1772127069984,
-      "tag": "0000_short_jackal",
+      "when": 1772127842026,
+      "tag": "0000_marvelous_venom",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1772127074471,
+      "when": 1772127850991,
       "tag": "0001_seed_roles",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1772127857763,
+      "tag": "0002_seed_criteria_types",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1772128274264,
+      "tag": "0003_shiny_terrax",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1772128322821,
+      "tag": "0004_old_kingpin",
       "breakpoints": true
     }
   ]

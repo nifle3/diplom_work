@@ -42,8 +42,7 @@ export const scenariosRouter = router({
   categories: basicAuthProtectedProcedure.query(async () => {
     const categories = await db
       .select({ id: categoriesTable.id, name: categoriesTable.name })
-      .from(categoriesTable)
-      .where(isNull(categoriesTable.deletedAt));
+      .from(categoriesTable);
 
     return categories;
   }),

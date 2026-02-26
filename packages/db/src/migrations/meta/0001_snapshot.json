@@ -1,6 +1,6 @@
 {
-  "id": "e53b2728-09ee-4b17-952a-c83c69a8c994",
-  "prevId": "c6b281be-37be-4fc1-b6f8-4ad6cb7d46eb",
+  "id": "77ba81d6-b53f-4051-8e89-8f3460d945e3",
+  "prevId": "8ccd82ca-dbbe-47ab-a7cd-8be66b7277a5",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -155,7 +155,18 @@
           "name": "id",
           "type": "integer",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "identity": {
+            "name": "categories_id_seq",
+            "increment": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "startWith": "1",
+            "cache": "1",
+            "cycle": false,
+            "schema": "public",
+            "type": "always"
+          }
         },
         "name": {
           "name": "name",
@@ -245,18 +256,7 @@
           "name": "id",
           "type": "integer",
           "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "name": "criteria_types_id_seq",
-            "increment": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "startWith": "1",
-            "cache": "1",
-            "cycle": false,
-            "schema": "public",
-            "type": "always"
-          }
+          "notNull": true
         },
         "name": {
           "name": "name",
@@ -612,7 +612,7 @@
         },
         "category_id": {
           "name": "category_id",
-          "type": "uuid",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },

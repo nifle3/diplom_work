@@ -68,13 +68,15 @@ export const verificationsTable = pgTable("verifications", {
 });
 
 export const categoriesTable = pgTable("categories", {
-  id: integer("id").primaryKey(),
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
   name: varchar("name", { length: 100 }).notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  deletedAt: timestamp("deleted_at"),
 });
 
 export const scriptsTable = pgTable("scripts", {
   id: uuid("id").primaryKey().defaultRandom(),
-  categoryId: uuid("category_id").notNull().references(() => categoriesTable.id),
+  categoryId: integer("category_id").notNull().references(() => categoriesTable.id),
   expertId: uuid("expert_id").notNull().references(() => usersTable.id),
   title: varchar("title", { length: 150 }).notNull(),
   context: text("context").notNull(),
@@ -84,7 +86,7 @@ export const scriptsTable = pgTable("scripts", {
 });
 
 export const criteriaTypesTable = pgTable("criteria_types", {
-  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  id: integer("id").primaryKey(),
   name: varchar("name", { length: 50 }).notNull(), 
 });
 

@@ -22,7 +22,7 @@ CREATE TABLE "achievements" (
 );
 --> statement-breakpoint
 CREATE TABLE "categories" (
-	"id" integer PRIMARY KEY NOT NULL,
+	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "categories_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"name" varchar(100) NOT NULL
 );
 --> statement-breakpoint
@@ -36,7 +36,7 @@ CREATE TABLE "chat_messages" (
 );
 --> statement-breakpoint
 CREATE TABLE "criteria_types" (
-	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "criteria_types_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
+	"id" integer PRIMARY KEY NOT NULL,
 	"name" varchar(50) NOT NULL
 );
 --> statement-breakpoint
@@ -83,7 +83,7 @@ CREATE TABLE "scenario_criteria" (
 --> statement-breakpoint
 CREATE TABLE "scripts" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"category_id" uuid NOT NULL,
+	"category_id" integer NOT NULL,
 	"expert_id" uuid NOT NULL,
 	"title" varchar(150) NOT NULL,
 	"context" text NOT NULL,
