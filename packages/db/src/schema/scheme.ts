@@ -24,7 +24,7 @@ export const usersTable = pgTable("users", {
   image: text("image"),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
-  roleId: integer("role_id").notNull().references(() => rolesTable.id).default(0),
+  roleId: integer("role_id").notNull().references(() => rolesTable.id).default(1),
   xp: integer("xp").default(0).notNull(),
   currentStreak: integer("current_streak").default(0).notNull(),
   lastActivityDate: timestamp("last_activity_date"),

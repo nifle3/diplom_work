@@ -32,7 +32,7 @@
     "tailwind-merge": "^3.3.1",
     "tw-animate-css": "^1.3.4",
     "zod": "catalog:",
-    "pino": "catalog"
+    "pino": "catalog:"
   },
   "devDependencies": {
     "@diplom_work/config": "workspace:*",

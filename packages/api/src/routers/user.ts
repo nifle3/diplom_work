@@ -8,8 +8,8 @@ import { router, basicAuthProtectedProcedure } from "../index";
 
 const roleNameCheckInput = z.enum(["admin", "expert"]);
 const roleNameToRoleId = {
-	"expert": 1,
-	"admin": 2,
+	"expert": 2,
+	"admin": 3,
 };
 
 export const userRouter = router({
