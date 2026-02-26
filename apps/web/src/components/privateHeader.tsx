@@ -3,11 +3,12 @@ import Link from "next/link";
 import { serverTrpc } from "@/utils/trpcServer";
 
 import { ThemeToggle } from "./themeToggle";
-import UserMenu from "./user-menu";
+import UserMenu from "./userMenu";
 
 export default async function PrivateHeader() {
   const trpcCaller = await serverTrpc();
   const isUserExpert = await trpcCaller.user.isUserHasRole("expert");
+  const isUserAdmin = await trpcCaller.user.isUserHasRole("admin");
 
   return (
     <header className="bg-transparent">
@@ -23,6 +24,11 @@ export default async function PrivateHeader() {
             {isUserExpert && 
               <Link href={{pathname: "/expert"}} className="hover:underline">
                 Кабинет эксперта
+              </Link>
+            }
+            {isUserAdmin && 
+              <Link href={{pathname: "/adminPanel"}} className="hover:underline">
+                Админ панель
               </Link>
             }
           </nav>

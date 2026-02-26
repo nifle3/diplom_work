@@ -18,6 +18,11 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
-  
+    networks:
+      - diplom_work_network
+
 volumes:
   diplom_work_postgres_data:
+
+networks:
+  diplom_work_network:

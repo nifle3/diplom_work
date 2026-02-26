@@ -24,7 +24,7 @@ export default async function ExpertPage() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Мои сценарии</h2>
             <Button>
-              <Link href={{pathname: "/expert/constructor"}}>Добавить новый</Link>
+              <Link href={{pathname: "/constructor"}}>Добавить новый</Link>
             </Button>
           </div>
           <div className="grid grid-cols-1 gap-4">

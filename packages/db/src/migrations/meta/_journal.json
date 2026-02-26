@@ -36,6 +36,20 @@
       "when": 1772122144804,
       "tag": "0004_messy_cardiac",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1772125452370,
+      "tag": "0005_seed_categories",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1772125473327,
+      "tag": "0006_seed_criteria_type",
+      "breakpoints": true
     }
   ]
 }
