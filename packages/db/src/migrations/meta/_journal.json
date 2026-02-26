@@ -40,15 +40,8 @@
     {
       "idx": 5,
       "version": "7",
-      "when": 1772125452370,
-      "tag": "0005_seed_categories",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1772125473327,
-      "tag": "0006_seed_criteria_type",
+      "when": 1772126287946,
+      "tag": "0005_luxuriant_weapon_omega",
       "breakpoints": true
     }
   ]

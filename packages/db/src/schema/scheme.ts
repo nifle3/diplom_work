@@ -7,12 +7,13 @@ import {
   boolean,
   timestamp,
   primaryKey,
+  serial,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 
 export const rolesTable = pgTable("roles", {
-  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  id: integer("id").primaryKey(),
   name: varchar("name", { length: 50 }).notNull().unique(),
 });
 
@@ -68,10 +69,8 @@ export const verificationsTable = pgTable("verifications", {
 });
 
 export const categoriesTable = pgTable("categories", {
-  id: uuid("id").primaryKey().defaultRandom(),
+  id: integer("id").primaryKey(),
   name: varchar("name", { length: 100 }).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  deletedAt: timestamp("deleted_at"),
 });
 
 export const scriptsTable = pgTable("scripts", {

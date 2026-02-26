@@ -1,5 +1,5 @@
 {
-  "id": "4a92021d-5a11-492f-bac2-5b77b6f17ccc",
+  "id": "af248588-554e-4d00-bdbd-3ae1e185a969",
   "prevId": "c6859f44-20ae-4ce6-b937-70a72adb6693",
   "version": "7",
   "dialect": "postgresql",
@@ -92,15 +92,15 @@
         "accounts_user_id_users_id_fk": {
           "name": "accounts_user_id_users_id_fk",
           "tableFrom": "accounts",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
-          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "no action"
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -153,29 +153,15 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "integer",
           "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+          "notNull": true
         },
         "name": {
           "name": "name",
           "type": "varchar(100)",
           "primaryKey": false,
           "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {},
@@ -234,15 +220,15 @@
         "chat_messages_session_id_interview_sessions_id_fk": {
           "name": "chat_messages_session_id_interview_sessions_id_fk",
           "tableFrom": "chat_messages",
+          "tableTo": "interview_sessions",
           "columnsFrom": [
             "session_id"
           ],
-          "tableTo": "interview_sessions",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "no action"
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -261,15 +247,15 @@
           "primaryKey": true,
           "notNull": true,
           "identity": {
+            "type": "always",
             "name": "criteria_types_id_seq",
+            "schema": "public",
             "increment": "1",
+            "startWith": "1",
             "minValue": "1",
             "maxValue": "2147483647",
-            "startWith": "1",
             "cache": "1",
-            "cycle": false,
-            "schema": "public",
-            "type": "always"
+            "cycle": false
           }
         },
         "name": {
@@ -348,28 +334,28 @@
         "interview_sessions_user_id_users_id_fk": {
           "name": "interview_sessions_user_id_users_id_fk",
           "tableFrom": "interview_sessions",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
-          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "no action"
+          "onDelete": "no action",
+          "onUpdate": "no action"
         },
         "interview_sessions_script_id_scripts_id_fk": {
           "name": "interview_sessions_script_id_scripts_id_fk",
           "tableFrom": "interview_sessions",
+          "tableTo": "scripts",
           "columnsFrom": [
             "script_id"
           ],
-          "tableTo": "scripts",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "no action"
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -413,15 +399,15 @@
         "question_templates_scenario_id_scripts_id_fk": {
           "name": "question_templates_scenario_id_scripts_id_fk",
           "tableFrom": "question_templates",
+          "tableTo": "scripts",
           "columnsFrom": [
             "scenario_id"
           ],
-          "tableTo": "scripts",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "no action"
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -479,28 +465,28 @@
         "reports_reporter_id_users_id_fk": {
           "name": "reports_reporter_id_users_id_fk",
           "tableFrom": "reports",
+          "tableTo": "users",
           "columnsFrom": [
             "reporter_id"
           ],
-          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "no action"
+          "onDelete": "no action",
+          "onUpdate": "no action"
         },
         "reports_script_id_scripts_id_fk": {
           "name": "reports_script_id_scripts_id_fk",
           "tableFrom": "reports",
+          "tableTo": "scripts",
           "columnsFrom": [
             "script_id"
           ],
-          "tableTo": "scripts",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "no action"
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -517,18 +503,7 @@
           "name": "id",
           "type": "integer",
           "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "name": "roles_id_seq",
-            "increment": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "startWith": "1",
-            "cache": "1",
-            "cycle": false,
-            "schema": "public",
-            "type": "always"
-          }
+          "notNull": true
         },
         "name": {
           "name": "name",
@@ -543,10 +518,10 @@
       "uniqueConstraints": {
         "roles_name_unique": {
           "name": "roles_name_unique",
+          "nullsNotDistinct": false,
           "columns": [
             "name"
-          ],
-          "nullsNotDistinct": false
+          ]
         }
       },
       "policies": {},
@@ -594,28 +569,28 @@
         "scenario_criteria_scenario_id_scripts_id_fk": {
           "name": "scenario_criteria_scenario_id_scripts_id_fk",
           "tableFrom": "scenario_criteria",
+          "tableTo": "scripts",
           "columnsFrom": [
             "scenario_id"
           ],
-          "tableTo": "scripts",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "no action"
+          "onDelete": "no action",
+          "onUpdate": "no action"
         },
         "scenario_criteria_type_id_criteria_types_id_fk": {
           "name": "scenario_criteria_type_id_criteria_types_id_fk",
           "tableFrom": "scenario_criteria",
+          "tableTo": "criteria_types",
           "columnsFrom": [
             "type_id"
           ],
-          "tableTo": "criteria_types",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "no action"
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -685,28 +660,28 @@
         "scripts_category_id_categories_id_fk": {
           "name": "scripts_category_id_categories_id_fk",
           "tableFrom": "scripts",
+          "tableTo": "categories",
           "columnsFrom": [
             "category_id"
           ],
-          "tableTo": "categories",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "no action"
+          "onDelete": "no action",
+          "onUpdate": "no action"
         },
         "scripts_expert_id_users_id_fk": {
           "name": "scripts_expert_id_users_id_fk",
           "tableFrom": "scripts",
+          "tableTo": "users",
           "columnsFrom": [
             "expert_id"
           ],
-          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "no action"
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -773,25 +748,25 @@
         "sessions_user_id_users_id_fk": {
           "name": "sessions_user_id_users_id_fk",
           "tableFrom": "sessions",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
-          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "no action"
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "sessions_token_unique": {
           "name": "sessions_token_unique",
+          "nullsNotDistinct": false,
           "columns": [
             "token"
-          ],
-          "nullsNotDistinct": false
+          ]
         }
       },
       "policies": {},
@@ -827,15 +802,15 @@
         "specific_criteria_question_id_question_templates_id_fk": {
           "name": "specific_criteria_question_id_question_templates_id_fk",
           "tableFrom": "specific_criteria",
+          "tableTo": "question_templates",
           "columnsFrom": [
             "question_id"
           ],
-          "tableTo": "question_templates",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "no action"
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -873,28 +848,28 @@
         "user_achievements_user_id_users_id_fk": {
           "name": "user_achievements_user_id_users_id_fk",
           "tableFrom": "user_achievements",
+          "tableTo": "users",
           "columnsFrom": [
             "user_id"
           ],
-          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "no action"
+          "onDelete": "no action",
+          "onUpdate": "no action"
         },
         "user_achievements_achievement_id_achievements_id_fk": {
           "name": "user_achievements_achievement_id_achievements_id_fk",
           "tableFrom": "user_achievements",
+          "tableTo": "achievements",
           "columnsFrom": [
             "achievement_id"
           ],
-          "tableTo": "achievements",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "no action"
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
@@ -996,25 +971,25 @@
         "users_role_id_roles_id_fk": {
           "name": "users_role_id_roles_id_fk",
           "tableFrom": "users",
+          "tableTo": "roles",
           "columnsFrom": [
             "role_id"
           ],
-          "tableTo": "roles",
           "columnsTo": [
             "id"
           ],
-          "onUpdate": "no action",
-          "onDelete": "no action"
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "users_email_unique": {
           "name": "users_email_unique",
+          "nullsNotDistinct": false,
           "columns": [
             "email"
-          ],
-          "nullsNotDistinct": false
+          ]
         }
       },
       "policies": {},
@@ -1073,10 +1048,10 @@
   },
   "enums": {},
   "schemas": {},
-  "views": {},
   "sequences": {},
   "roles": {},
   "policies": {},
+  "views": {},
   "_meta": {
     "columns": {},
     "schemas": {},
