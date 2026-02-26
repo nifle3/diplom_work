@@ -22,7 +22,8 @@
     "langchain": "^1.2.25",
     "next": "catalog:",
     "zod": "catalog:",
-    "drizzle-orm": "catalog:"
+    "drizzle-orm": "catalog:",
+    "pino": "catalog"
   },
   "devDependencies": {
     "@diplom_work/config": "workspace:*",

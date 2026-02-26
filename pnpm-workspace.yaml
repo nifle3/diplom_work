@@ -10,3 +10,4 @@ catalog:
   "@trpc/client": ^11.7.2
   better-auth: ^1.4.18
   drizzle-orm: ^0.45.1
+  pino: ^10.3.1

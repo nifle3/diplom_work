@@ -37,6 +37,9 @@ export const userRouter = router({
 			}
 		});
 
-		return (user && user.roleId == roleNameToRoleId[input]);
+		const requiredRole = roleNameToRoleId[input];
+		console.debug(`finded role ${requiredRole}, userRole ${user.roleId}`)
+
+		return (user && user.roleId == requiredRole);
 	})
 });

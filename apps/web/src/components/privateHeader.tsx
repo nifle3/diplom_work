@@ -1,13 +1,13 @@
 import Link from "next/link";
 
+import { serverTrpc } from "@/utils/trpcServer";
+
 import { ThemeToggle } from "./themeToggle";
 import UserMenu from "./user-menu";
 
-export default function PrivateHeader() {
-  const links = [
-    { to: "/dashboard", label: "Dashboard" },
-      { to: "/expert", label: "Кабинет эксперта" },
-  ] as const;
+export default async function PrivateHeader() {
+  const trpcCaller = await serverTrpc();
+  const isUserExpert = await trpcCaller.user.isUserHasRole("expert");
 
   return (
     <header className="bg-transparent">
@@ -17,11 +17,14 @@ export default function PrivateHeader() {
             Interview Master AI
           </Link>
           <nav className="hidden sm:flex gap-4 text-lg items-center">
-            {links.map(({ to, label }) => (
-              <Link key={to} href={to} className="hover:underline">
-                {label}
+            <Link href={{pathname: "/dashboard"}} className="hover:underline">
+              Dashboard
+            </Link>
+            {isUserExpert && 
+              <Link href={{pathname: "/expert"}} className="hover:underline">
+                Кабинет эксперта
               </Link>
-            ))}
+            }
           </nav>
         </div>
 
