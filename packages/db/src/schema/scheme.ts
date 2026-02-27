@@ -203,7 +203,7 @@ export const userRelations = relations(usersTable, ({ one, many }) => ({
 	reports: many(reportsTable),
 }));
 
-export const scenariosRelations = relations(scriptsTable, ({ one, many }) => ({
+export const scriptsRelations = relations(scriptsTable, ({ one, many }) => ({
 	category: one(categoriesTable, {
 		fields: [scriptsTable.categoryId],
 		references: [categoriesTable.id],
@@ -259,7 +259,7 @@ export const interviewSessionsRelations = relations(
 			fields: [interviewSessionsTable.userId],
 			references: [usersTable.id],
 		}),
-		scenario: one(scriptsTable, {
+		script: one(scriptsTable, {
 			fields: [interviewSessionsTable.scriptId],
 			references: [scriptsTable.id],
 		}),

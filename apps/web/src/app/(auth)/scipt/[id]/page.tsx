@@ -1,3 +1,13 @@
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
 import { serverTrpc } from "@/lib/trpcServer";
 
 export default async function Page({
@@ -9,13 +19,37 @@ export default async function Page({
 	const trpcCaller = await serverTrpc();
 	const data = await trpcCaller.script.getInfo(id);
 
-	// TODO: переделать всё на shadcn/ui
 	return (
-		<>
-			<h2>{data.title}</h2>
-			<span>Создано: {data.draftOverAt?.toDateString()}</span>
-			<span>{data.description}</span>
-			<button>Начать сессию</button>
-		</>
+		<div className="flex justify-center p-8">
+			<Card className="w-full max-w-2xl">
+				<CardHeader>
+					<CardTitle className="text-2xl">{data.title}</CardTitle>
+					<CardDescription className="text-base">
+						{data.category?.name}
+					</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<p className="text-muted-foreground text-sm">{data.description}</p>
+				</CardContent>
+				<CardFooter className="flex flex-col items-start gap-4">
+					<div className="flex flex-col gap-1 text-muted-foreground text-xs">
+						<span>
+							Создано: {data.draftOverAt?.toLocaleDateString("ru-RU")}
+						</span>
+						<span>Автор: {data.expert?.name ?? "Неизвестно"}</span>
+					</div>
+					<div className="flex w-full gap-3">
+						<Link href={{pathname: `/interview/${id}`}} className="flex-1">
+							<Button className="w-full">Начать сессию</Button>
+						</Link>
+						<Link href={{pathname: `/scipt/${id}/myHistory`}} className="flex-1">
+							<Button variant="outline" className="w-full">
+								История
+							</Button>
+						</Link>
+					</div>
+				</CardFooter>
+			</Card>
+		</div>
 	);
 }

@@ -12,6 +12,11 @@ export const expertRouter = router({
 		.query(async ({ input, ctx }) => {
 			const data = await db.query.scriptsTable.findFirst({
 				where: (scriptsTable, { eq }) => eq(scriptsTable.id, input),
+				with: {
+					category: true,
+					globalCriteria: true,
+					questions: true,
+				}
 			});
 
 			if (!data) {

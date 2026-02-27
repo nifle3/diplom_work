@@ -23,7 +23,6 @@ export const listScenariosSchema = z.object({
 
 export const scriptRouter = router({
 	getInfo: protectedProcedure.input(z.uuid()).query(async ({ input }) => {
-		//TODO: Partial result
 		const script = await db.query.scriptsTable.findFirst({
 			where: (scriptsTable, { eq, and, isNull }) =>
 				and(
@@ -31,6 +30,16 @@ export const scriptRouter = router({
 					eq(scriptsTable.isDraft, false),
 					isNull(scriptsTable.deletedAt),
 				),
+			columns: {
+				id: true,
+				title: true,
+				description: true,
+				draftOverAt: true,
+			},
+			with: {
+				expert: true,
+				category: true
+			}
 		});
 
 		if (!script) {
