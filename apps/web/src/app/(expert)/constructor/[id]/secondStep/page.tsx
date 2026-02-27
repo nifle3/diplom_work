@@ -1,16 +1,12 @@
 import { serverTrpc } from "@/lib/trpcServer";
 
 export default async function Page({
-    params
+	params,
 }: {
-    params: Promise<{id: string}>
+	params: Promise<{ id: string }>;
 }) {
-    const draftId = await params;
-    const trpcCaller = await serverTrpc();
+	const draftId = await params;
+	const trpcCaller = await serverTrpc();
 
-    return (
-        <>
-        
-        </>
-    )
-} 
+	return <></>;
+}

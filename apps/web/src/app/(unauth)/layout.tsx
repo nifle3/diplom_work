@@ -1,27 +1,26 @@
-import { headers } from "next/headers";
-import { redirect, RedirectType } from "next/navigation";
-
 import { auth } from "@diplom_work/auth/index";
+import { headers } from "next/headers";
+import { RedirectType, redirect } from "next/navigation";
 
 import PublicHeader from "@/components/publicHeader";
 
 export default async function UnauthLayout({
-  children,
+	children,
 }: Readonly<{
-  children: React.ReactNode;
+	children: React.ReactNode;
 }>) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+	const session = await auth.api.getSession({
+		headers: await headers(),
+	});
 
-  if (session) {
-    redirect("/dashboard", RedirectType.replace);
-  }
+	if (session) {
+		redirect("/dashboard", RedirectType.replace);
+	}
 
-  return (
-    <>
-      <PublicHeader />
-      {children}
-    </>
-  );
+	return (
+		<>
+			<PublicHeader />
+			{children}
+		</>
+	);
 }

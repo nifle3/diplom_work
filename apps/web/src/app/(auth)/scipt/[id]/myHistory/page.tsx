@@ -3,7 +3,8 @@ export default async function Page({
 }: {
 	params: Promise<{ id: string }>;
 }) {
-	const draftId = await params;
+	const id = (await params).id;
+	//TODO
 
 	return <></>;
 }

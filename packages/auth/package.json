@@ -1,25 +1,25 @@
 {
-  "name": "@diplom_work/auth",
-  "type": "module",
-  "exports": {
-    ".": {
-      "default": "./src/index.ts"
-    },
-    "./*": {
-      "default": "./src/*.ts"
-    }
-  },
-  "scripts": {},
-  "dependencies": {
-    "@diplom_work/db": "workspace:*",
-    "@diplom_work/env": "workspace:*",
-    "better-auth": "catalog:",
-    "dotenv": "catalog:",
-    "zod": "catalog:",
-    "drizzle-orm": "catalog:"
-  },
-  "devDependencies": {
-    "@diplom_work/config": "workspace:*",
-    "typescript": "catalog:"
-  }
+	"name": "@diplom_work/auth",
+	"type": "module",
+	"exports": {
+		".": {
+			"default": "./src/index.ts"
+		},
+		"./*": {
+			"default": "./src/*.ts"
+		}
+	},
+	"scripts": {},
+	"dependencies": {
+		"@diplom_work/db": "workspace:*",
+		"@diplom_work/env": "workspace:*",
+		"better-auth": "catalog:",
+		"dotenv": "catalog:",
+		"zod": "catalog:",
+		"drizzle-orm": "catalog:"
+	},
+	"devDependencies": {
+		"@diplom_work/config": "workspace:*",
+		"typescript": "catalog:"
+	}
 }

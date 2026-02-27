@@ -1,22 +1,18 @@
-import { redirect, RedirectType } from "next/navigation";
+import { RedirectType, redirect } from "next/navigation";
 
-import { serverTrpc } from "@/lib/trpcServer"
+import { serverTrpc } from "@/lib/trpcServer";
 
 export default async function ExpertLayout({
-    children
+	children,
 }: Readonly<{
-    children: React.ReactNode
+	children: React.ReactNode;
 }>) {
-    const trpcCaller = await serverTrpc();
+	const trpcCaller = await serverTrpc();
 
-    const isUserExpert = await trpcCaller.user.isUserHasRole("expert");
-    if (!isUserExpert) {
-        redirect("/dashboard", RedirectType.replace);
-    }
+	const isUserExpert = await trpcCaller.user.isUserHasRole("expert");
+	if (!isUserExpert) {
+		redirect("/dashboard", RedirectType.replace);
+	}
 
-    return (
-        <>
-            {children}
-        </>
-    )
+	return <>{children}</>;
 }

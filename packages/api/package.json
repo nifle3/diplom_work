@@ -1,32 +1,32 @@
 {
-  "name": "@diplom_work/api",
-  "type": "module",
-  "exports": {
-    ".": {
-      "default": "./src/index.ts"
-    },
-    "./*": {
-      "default": "./src/*.ts"
-    }
-  },
-  "scripts": {},
-  "dependencies": {
-    "@diplom_work/auth": "workspace:*",
-    "@diplom_work/db": "workspace:*",
-    "@diplom_work/env": "workspace:*",
-    "@langchain/core": "^1.1.27",
-    "@langchain/mistralai": "^1.0.5",
-    "@trpc/client": "catalog:",
-    "@trpc/server": "catalog:",
-    "dotenv": "catalog:",
-    "langchain": "^1.2.25",
-    "next": "catalog:",
-    "zod": "catalog:",
-    "drizzle-orm": "catalog:",
-    "pino": "catalog:"
-  },
-  "devDependencies": {
-    "@diplom_work/config": "workspace:*",
-    "typescript": "catalog:"
-  }
+	"name": "@diplom_work/api",
+	"type": "module",
+	"exports": {
+		".": {
+			"default": "./src/index.ts"
+		},
+		"./*": {
+			"default": "./src/*.ts"
+		}
+	},
+	"scripts": {},
+	"dependencies": {
+		"@diplom_work/auth": "workspace:*",
+		"@diplom_work/db": "workspace:*",
+		"@diplom_work/env": "workspace:*",
+		"@langchain/core": "^1.1.27",
+		"@langchain/mistralai": "^1.0.5",
+		"@trpc/client": "catalog:",
+		"@trpc/server": "catalog:",
+		"dotenv": "catalog:",
+		"langchain": "^1.2.25",
+		"next": "catalog:",
+		"zod": "catalog:",
+		"drizzle-orm": "catalog:",
+		"pino": "catalog:"
+	},
+	"devDependencies": {
+		"@diplom_work/config": "workspace:*",
+		"typescript": "catalog:"
+	}
 }

@@ -6,40 +6,43 @@ import { ThemeToggle } from "./themeToggle";
 import UserMenu from "./userMenu";
 
 export default async function PrivateHeader() {
-  const trpcCaller = await serverTrpc();
-  const isUserExpert = await trpcCaller.user.isUserHasRole("expert");
-  const isUserAdmin = await trpcCaller.user.isUserHasRole("admin");
+	const trpcCaller = await serverTrpc();
+	const isUserExpert = await trpcCaller.user.isUserHasRole("expert");
+	const isUserAdmin = await trpcCaller.user.isUserHasRole("admin");
 
-  return (
-    <header className="bg-transparent">
-      <div className="flex flex-row items-center justify-between px-4 py-3 max-w-6xl mx-auto">
-        <div className="flex items-center gap-6">
-          <Link href="/" className="text-2xl font-semibold">
-            Interview Master AI
-          </Link>
-          <nav className="hidden sm:flex gap-4 text-lg items-center">
-            <Link href={{pathname: "/dashboard"}} className="hover:underline">
-              Dashboard
-            </Link>
-            {isUserExpert && 
-              <Link href={{pathname: "/expert"}} className="hover:underline">
-                Кабинет эксперта
-              </Link>
-            }
-            {isUserAdmin && 
-              <Link href={{pathname: "/adminPanel"}} className="hover:underline">
-                Админ панель
-              </Link>
-            }
-          </nav>
-        </div>
+	return (
+		<header className="bg-transparent">
+			<div className="mx-auto flex max-w-6xl flex-row items-center justify-between px-4 py-3">
+				<div className="flex items-center gap-6">
+					<Link href="/" className="font-semibold text-2xl">
+						Interview Master AI
+					</Link>
+					<nav className="hidden items-center gap-4 text-lg sm:flex">
+						<Link href={{ pathname: "/dashboard" }} className="hover:underline">
+							Dashboard
+						</Link>
+						{isUserExpert && (
+							<Link href={{ pathname: "/expert" }} className="hover:underline">
+								Кабинет эксперта
+							</Link>
+						)}
+						{isUserAdmin && (
+							<Link
+								href={{ pathname: "/adminPanel" }}
+								className="hover:underline"
+							>
+								Админ панель
+							</Link>
+						)}
+					</nav>
+				</div>
 
-        <div className="flex items-center gap-3">
-          <ThemeToggle />
-          <UserMenu />
-        </div>
-      </div>
-      <hr />
-    </header>
-  );
+				<div className="flex items-center gap-3">
+					<ThemeToggle />
+					<UserMenu />
+				</div>
+			</div>
+			<hr />
+		</header>
+	);
 }
