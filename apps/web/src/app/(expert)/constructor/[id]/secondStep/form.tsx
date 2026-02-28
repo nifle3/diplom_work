@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -52,6 +52,7 @@ export default function SecondStepForm({
 	initialData,
 	criteriaTypes,
 }: SecondStepFormProps) {
+	const router = useRouter();
 	const params = useParams();
 	const scriptId = params.id as string;
 
