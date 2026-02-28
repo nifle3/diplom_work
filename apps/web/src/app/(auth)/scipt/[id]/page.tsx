@@ -39,10 +39,13 @@ export default async function Page({
 						<span>Автор: {data.expert?.name ?? "Неизвестно"}</span>
 					</div>
 					<div className="flex w-full gap-3">
-						<Link href={{pathname: `/interview/${id}`}} className="flex-1">
+						<Link href={{ pathname: `/interview/${id}` }} className="flex-1">
 							<Button className="w-full">Начать сессию</Button>
 						</Link>
-						<Link href={{pathname: `/scipt/${id}/myHistory`}} className="flex-1">
+						<Link
+							href={{ pathname: `/scipt/${id}/myHistory` }}
+							className="flex-1"
+						>
 							<Button variant="outline" className="w-full">
 								История
 							</Button>

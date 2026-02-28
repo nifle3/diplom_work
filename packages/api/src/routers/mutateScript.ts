@@ -1,13 +1,11 @@
-import { TRPCError } from "@trpc/server";
-import { and, eq, isNull } from "drizzle-orm";
-import { z } from "zod";
-
 import { db } from "@diplom_work/db";
 import {
 	scriptCriteriaTable,
 	scriptsTable,
 } from "@diplom_work/db/schema/scheme";
-
+import { TRPCError } from "@trpc/server";
+import { and, eq, isNull } from "drizzle-orm";
+import { z } from "zod";
 
 import { protectedProcedure, router } from "..";
 

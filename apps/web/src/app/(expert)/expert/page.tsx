@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { serverTrpc } from "@/lib/trpcServer";
 import CreateScriptButton from "./createScriptButton";
+import {SharedScriptsTable, type ScriptRow} from "./SharedScriptsTable";
 
 export const metadata: Metadata = {
 	title: "Рабочий кабинет эксперта",
@@ -10,10 +11,26 @@ export const metadata: Metadata = {
 export default async function ExpertPage() {
 	const trpc = await serverTrpc();
 
-	const { 0: scripts, 1: drafts } = await Promise.all([
+	const [scripts, drafts] = await Promise.all([
 		trpc.expert.getMyScripts(),
 		trpc.expert.getMyDrafts(),
 	]);
+
+	const scriptsData: ScriptRow[] = scripts.map((s) => ({
+		id: s.id,
+		title: s.title,
+		context: s.context,
+		categoryName: s.categoryName,
+		createdAt: s.createdAt,
+	}));
+
+	const draftsData: ScriptRow[] = drafts.map((d) => ({
+		id: d.id,
+		title: d.title,
+		context: d.context,
+		categoryName: d.categoryName,
+		createdAt: d.createdAt,
+	}));
 
 	return (
 		<div className="min-h-screen bg-white text-black dark:bg-black dark:text-white">
@@ -22,18 +39,17 @@ export default async function ExpertPage() {
 					<h1 className="font-bold text-3xl">Рабочий кабинет эксперта</h1>
 				</div>
 
-				<section className="mb-8">
+				<section className="mb-12">
 					<div className="mb-4 flex items-center justify-between">
 						<CreateScriptButton />
 					</div>
-					<h2 className="font-semibold text-xl">Мои черновики</h2>
-					{drafts.map((value) => (
-						<></>
-					))}
-					<h2 className="font-semibold text-xl">Мои сценарии</h2>
-					{scripts.map((value) => (
-						<></>
-					))}
+					<h2 className="mb-4 font-semibold text-xl">Мои черновики</h2>
+					<SharedScriptsTable data={draftsData} />
+				</section>
+
+				<section>
+					<h2 className="mb-4 font-semibold text-xl">Мои сценарии</h2>
+					<SharedScriptsTable data={scriptsData} />
 				</section>
 			</main>
 		</div>

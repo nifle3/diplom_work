@@ -38,8 +38,8 @@ export const scriptRouter = router({
 			},
 			with: {
 				expert: true,
-				category: true
-			}
+				category: true,
+			},
 		});
 
 		if (!script) {

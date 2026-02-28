@@ -11,7 +11,8 @@ export default async function CreateScriptButton() {
 	const createDraft = useMutation(
 		trpc.expert.createNewDraft.mutationOptions({
 			onSuccess: (data) => {
-				router.push(`/constructor/${data}/firstStep`);
+				// biome-ignore lint/suspicious/noExplicitAny: Needed for Next.js router.push type compatibility
+				router.push(`/constructor/${data}/firstStep` as any);
 			},
 			onError: (error) => {
 				toast(error.message);

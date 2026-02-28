@@ -16,7 +16,7 @@ export const expertRouter = router({
 					category: true,
 					globalCriteria: true,
 					questions: true,
-				}
+				},
 			});
 
 			if (!data) {
@@ -62,6 +62,7 @@ export const expertRouter = router({
 				title: scriptsTable.title,
 				context: scriptsTable.context,
 				categoryName: categoriesTable.name,
+				createdAt: scriptsTable.createdAt,
 			})
 			.from(scriptsTable)
 			.leftJoin(
@@ -86,6 +87,7 @@ export const expertRouter = router({
 				title: scriptsTable.title,
 				context: scriptsTable.context,
 				categoryName: categoriesTable.name,
+				createdAt: scriptsTable.createdAt,
 			})
 			.from(scriptsTable)
 			.leftJoin(

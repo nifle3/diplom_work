@@ -1,6 +1,3 @@
 export default function MyAchivementsTable() {
-    return (
-        <>
-        </>
-    )
+	return <></>;
 }
