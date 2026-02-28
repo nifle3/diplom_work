@@ -15,7 +15,11 @@ export const expertRouter = router({
 				with: {
 					category: true,
 					globalCriteria: true,
-					questions: true,
+					questions: {
+						with: {
+							specificCriteria: true,
+						},
+					},
 				},
 			});
 

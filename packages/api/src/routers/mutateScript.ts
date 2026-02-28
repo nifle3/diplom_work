@@ -1,7 +1,9 @@
 import { db } from "@diplom_work/db";
 import {
+	questionTemplatesTable,
 	scriptCriteriaTable,
 	scriptsTable,
+	specificCriteriaTable,
 } from "@diplom_work/db/schema/scheme";
 import { TRPCError } from "@trpc/server";
 import { and, eq, isNull } from "drizzle-orm";
@@ -39,12 +41,21 @@ export const secondStepScheme = z.object({
 
 export type SecondStepScheme = z.infer<typeof secondStepScheme>;
 
-export const questionTemplateScheme = z.object({
-	id: z.uuid(),
+const specificCriteriaSchema = z.object({
+	id: z.uuid().nullable(),
+	content: z.string().min(1, "Содержание критерия обязательно"),
+});
+
+const questionTemplateSchema = z.object({
+	id: z.uuid().nullable(),
+	text: z.string().min(1, "Текст вопроса обязателен"),
+	specificCriteria: z.array(specificCriteriaSchema),
 });
 
 export const thirdStepScheme = z.object({
 	scriptId: z.uuid(),
+	questions: z.array(questionTemplateSchema),
+	deletedQuestions: z.array(z.uuid()).nullable(),
 });
 
 export type ThirdStepScheme = z.infer<typeof thirdStepScheme>;
@@ -135,5 +146,103 @@ export const mutateScriptRouter = router({
 		}),
 	mutateThirdStep: protectedProcedure
 		.input(thirdStepScheme)
-		.mutation(async ({ ctx, input }) => {}),
+		.mutation(async ({ ctx, input }) => {
+			const script = await db.query.scriptsTable.findFirst({
+				where: (scriptsTable, { eq, and, isNull }) =>
+					and(
+						eq(scriptsTable.id, input.scriptId),
+						isNull(scriptsTable.deletedAt),
+					),
+			});
+
+			if (!script) {
+				throw new TRPCError({ code: "NOT_FOUND" });
+			}
+
+			if (script.expertId !== ctx.session.user.id) {
+				throw new TRPCError({ code: "FORBIDDEN" });
+			}
+
+			await db.transaction(async (tx) => {
+				for (const question of input.questions) {
+					let questionId: string;
+
+					if (question.id) {
+						await tx
+							.update(questionTemplatesTable)
+							.set({
+								text: question.text,
+							})
+							.where(eq(questionTemplatesTable.id, question.id));
+						questionId = question.id;
+					} else {
+						const [newQuestion] = await tx
+							.insert(questionTemplatesTable)
+							.values({
+								scriptId: input.scriptId,
+								text: question.text,
+							})
+							.returning();
+						if (!newQuestion) {
+							throw new TRPCError({
+								code: "INTERNAL_SERVER_ERROR",
+								message: "Ошибка при создании вопроса",
+							});
+						}
+						questionId = newQuestion.id;
+					}
+
+					const existingCriteria = await tx
+						.select()
+						.from(specificCriteriaTable)
+						.where(eq(specificCriteriaTable.questionId, questionId));
+
+					const existingIds = new Set(existingCriteria.map((c) => c.id));
+					const inputIds = new Set(
+						question.specificCriteria.filter((c) => c.id).map((c) => c.id),
+					);
+
+					const toDelete = [...existingIds].filter((id) => !inputIds.has(id));
+					for (const id of toDelete) {
+						await tx
+							.delete(specificCriteriaTable)
+							.where(eq(specificCriteriaTable.id, id));
+					}
+
+					for (const criterion of question.specificCriteria) {
+						if (criterion.id) {
+							await tx
+								.update(specificCriteriaTable)
+								.set({
+									content: criterion.content,
+								})
+								.where(eq(specificCriteriaTable.id, criterion.id));
+						} else {
+							await tx.insert(specificCriteriaTable).values({
+								questionId,
+								content: criterion.content,
+							});
+						}
+					}
+				}
+
+				if (input.deletedQuestions) {
+					for (const questionId of input.deletedQuestions) {
+						await tx
+							.update(questionTemplatesTable)
+							.set({
+								deletedAt: new Date(),
+							})
+							.where(eq(questionTemplatesTable.id, questionId));
+					}
+				}
+
+				await tx
+					.update(scriptsTable)
+					.set({
+						isDraft: false,
+					})
+					.where(eq(scriptsTable.id, input.scriptId));
+			});
+		}),
 });
