@@ -7,14 +7,17 @@ export default async function Page({
 }: {
 	params: Promise<{ id: string }>;
 }) {
-	const draft = await params;
-	const trpcCaller = await serverTrpc();
-	const data = await trpcCaller.expert.getFullScript(draft.id);
-	const categories = await trpcCaller.script.categories();
+	const scriptId = (await params).id;
 
-	return (
-		<>
-			<FirstStepForm initialData={data} categories={categories} />
-		</>
-	);
+	console.debug(`scriptId is ${scriptId}`);
+
+	const trpcCaller = await serverTrpc();
+	const { 0: data, 1: categories } = await Promise.all([
+		trpcCaller.expert.getFullScript(scriptId),
+		trpcCaller.script.categories()
+	]);
+
+	console.debug(`getFullScript id is ${data.id}`);
+
+	return <FirstStepForm initialData={data} categories={categories} />
 }

@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import {
 	Field,
 	FieldError,
-	FieldGroup,
 	FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -56,7 +55,7 @@ export default function ThirdStepForm({ initialData }: ThirdStepFormProps) {
 		trpc.createScript.mutateThirdStep.mutationOptions({
 			onSuccess: () => {
 				toast.success("Скрипт успешно создан");
-				window.location.href = "/constructor/my-scripts";
+				router.replace("/expert");
 			},
 			onError: (error: unknown) => {
 				const message =

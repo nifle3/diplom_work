@@ -38,7 +38,7 @@ interface FirstStepFormProps {
 		title: string | null;
 		description: string | null;
 		categoryId: number | null;
-	} | null;
+	};
 	categories: Array<{ id: number; name: string }>;
 }
 
@@ -46,15 +46,13 @@ export default function FirstStepForm({
 	initialData,
 	categories,
 }: FirstStepFormProps) {
-	const params = useParams();
 	const router = useRouter();
-	const scriptId = params.id as string;
 
 	const mutation = useMutation(
 		trpc.createScript.mutateFirstStep.mutationOptions({
 			onSuccess: () => {
 				toast.success("Сохранено");
-				window.location.href = `/constructor/${scriptId}/secondStep`;
+				router.replace(`/constructor/${initialData.id}/secondStep`);
 			},
 			onError: (error: unknown) => {
 				toast.error((error as Error).message);
@@ -64,7 +62,7 @@ export default function FirstStepForm({
 
 	const handleSubmit = (values: FormValues) => {
 		mutation.mutate({
-			scriptId,
+			scriptId: initialData.id,
 			title: values.title,
 			descripton: values.description,
 			categoryId: values.categoryId,

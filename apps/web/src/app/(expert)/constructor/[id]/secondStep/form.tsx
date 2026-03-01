@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -53,14 +53,12 @@ export default function SecondStepForm({
 	criteriaTypes,
 }: SecondStepFormProps) {
 	const router = useRouter();
-	const params = useParams();
-	const scriptId = params.id as string;
 
 	const mutation = useMutation(
 		trpc.createScript.mutateSecondStep.mutationOptions({
 			onSuccess: () => {
 				toast.success("Сохранено");
-				window.location.href = `/constructor/${scriptId}/thirdStep`;
+				router.replace(`/constructor/${initialData.id}/thirdStep`)
 			},
 			onError: (error: unknown) => {
 				const message =
@@ -72,7 +70,7 @@ export default function SecondStepForm({
 
 	const handleSubmit = (values: FormValues) => {
 		mutation.mutate({
-			scriptId,
+			scriptId: initialData.id,
 			context: values.context,
 			criteria: values.criteria,
 			deletedCriteria: values.deletedCriteria,
@@ -81,7 +79,7 @@ export default function SecondStepForm({
 
 	return (
 		<SecondStepFormInner
-			scriptId={scriptId}
+			scriptId={initialData.id}
 			defaultValues={{
 				context: initialData.context ?? "",
 				criteria: initialData.globalCriteria.map((c) => ({

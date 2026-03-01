@@ -7,11 +7,12 @@ export default async function Page({
 }: {
 	params: Promise<{ id: string }>;
 }) {
-	const draftId = (await params).id;
+	const scriptId = (await params).id;
 	
 	const trpcCaller = await serverTrpc();
+
 	const { 0: data, 1: criteriaTypes} = await Promise.all([
-		trpcCaller.expert.getFullScript(draftId),
+		trpcCaller.expert.getFullScript(scriptId),
 		trpcCaller.script.criteriaTypes()
 	]);
 

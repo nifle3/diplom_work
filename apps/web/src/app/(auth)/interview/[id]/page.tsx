@@ -5,23 +5,20 @@ export const metadata = {
 	title: "Интервью",
 };
 
-interface InterviewPageProps {
-	searchParams: Promise<{ scenario?: string }>;
-}
-
 export default async function InterviewPage({
-	searchParams,
-}: InterviewPageProps) {
-	const params = await searchParams;
-	const scenarioId = params.scenario;
+	params,
+}: {
+	params: Promise<{id: string}>
+}) {
+	const id = (await params).id;
 
-	if (!scenarioId) {
+	if (!id) {
 		redirect("/scripts");
 	}
 
 	return (
 		<div className="min-h-screen bg-white text-black dark:bg-black dark:text-white">
-			<InterviewWindow scenarioId={scenarioId} />
+			<InterviewWindow scenarioId={id} />
 		</div>
 	);
 }
