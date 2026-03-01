@@ -34,13 +34,49 @@ export default function FirstStepForm({
 	const { form, isPending } = useFirstStepForm({ initialData, categories });
 
 	return (
-		<form
-			onSubmit={(e) => {
-				e.preventDefault();
-				form.handleSubmit();
-			}}
-		>
-			<FieldGroup>
+		<>
+			<div className="mb-6 flex items-center gap-4">
+				<div className="font-medium text-lg">Шаг 1 из 3: Основная информация</div>
+				<div className="ml-auto flex gap-2">
+					<Button
+						type="button"
+						variant="ghost"
+						size="sm"
+						onClick={() => {
+							window.location.href = `/createScript/${initialData.id}/firstStep`;
+						}}
+					>
+						1
+					</Button>
+					<Button
+						type="button"
+						variant="ghost"
+						size="sm"
+						onClick={() => {
+							window.location.href = `/createScript/${initialData.id}/secondStep`;
+						}}
+					>
+						2
+					</Button>
+					<Button
+						type="button"
+						variant="ghost"
+						size="sm"
+						onClick={() => {
+							window.location.href = `/createScript/${initialData.id}/thirdStep`;
+						}}
+					>
+						3
+					</Button>
+				</div>
+			</div>
+			<form
+				onSubmit={(e) => {
+					e.preventDefault();
+					form.handleSubmit();
+				}}
+			>
+				<FieldGroup>
 				<form.Field
 					name="title"
 					children={(field) => {
@@ -58,6 +94,7 @@ export default function FirstStepForm({
 									aria-invalid={isInvalid}
 									placeholder="Название сценария"
 									autoComplete="off"
+									maxLength={50}
 								/>
 								{isInvalid && <FieldError errors={field.state.meta.errors} />}
 							</Field>
@@ -82,6 +119,7 @@ export default function FirstStepForm({
 										rows={10}
 										className="min-h-24 resize-none"
 										aria-invalid={isInvalid}
+										maxLength={1000}
 									/>
 									<InputGroupAddon align="block-end">
 										<InputGroupText className="tabular-nums">
@@ -129,5 +167,5 @@ export default function FirstStepForm({
 				</Button>
 			</div>
 		</form>
-	);
+		</>
 }

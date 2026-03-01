@@ -58,11 +58,21 @@ const defaultColumns = (
 	{
 		accessorKey: "title",
 		header: "Название",
-		cell: ({ row }) => (
-			<span className="font-medium">
-				{row.original.title ?? "Без названия"}
-			</span>
-		),
+		cell: ({ row }) => {
+			if (isDraftTable) {
+				return (
+					<span className="font-medium">
+						{row.original.title ?? "Без названия"}
+					</span>
+				)
+			}
+
+			return (
+				<Link className="font-medium" href={{pathname: `/script/${row.original.id}`}}>
+					{row.original.title ?? "Без названия"}
+				</Link>
+			)
+		},
 	},
 	{
 		accessorKey: "categoryName",

@@ -38,124 +38,165 @@ export default function SecondStepForm({
 		useSecondStepForm({ initialData, criteriaTypes });
 
 	return (
-		<form
-			onSubmit={(e) => {
-				e.preventDefault();
-				form.handleSubmit();
-			}}
-		>
-			<FieldGroup>
-				<form.Field
-					name="context"
-					children={(field) => {
-						const isInvalid =
-							field.state.meta.isTouched && !field.state.meta.isValid;
-						return (
-							<Field data-invalid={isInvalid}>
-								<FieldLabel htmlFor={field.name}>Контекст сценария</FieldLabel>
-								<InputGroup>
-									<InputGroupTextarea
-										id={field.name}
-										name={field.name}
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(e) => field.handleChange(e.target.value)}
-										rows={10}
-										className="min-h-24 resize-none"
-										aria-invalid={isInvalid}
-										placeholder="Опишите контекст интервью, целевую аудиторию, какие навыки нужно продемонстрировать..."
-									/>
-									<InputGroupAddon align="block-end">
-										<InputGroupText className="tabular-nums">
-											{field.state.value.length}/1000
-										</InputGroupText>
-									</InputGroupAddon>
-								</InputGroup>
-								{isInvalid && <FieldError errors={field.state.meta.errors} />}
-							</Field>
-						);
-					}}
-				/>
-			</FieldGroup>
-
-			<div className="mt-8">
-				<FieldLabel>Критерии оценки</FieldLabel>
-				<form.Field
-					name="criteria"
-					children={(field) => {
-						return (
-							<div className="mt-2 space-y-4">
-								{field.state.value.map((criterion, index) => (
-									<div key={index} className="flex items-start gap-2">
-										<select
-											value={criterion.typeId}
-											onChange={(e) => {
-												const newCriteria = [...field.state.value];
-												newCriteria[index] = {
-													...newCriteria[index],
-													typeId: Number(e.target.value),
-												};
-												field.handleChange(newCriteria);
-											}}
-											className="flex h-10 w-40 rounded-none border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:font-medium file:text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-										>
-											{criteriaTypes.map((type) => (
-												<option key={type.id} value={type.id}>
-													{type.name}
-												</option>
-											))}
-										</select>
-										<Input
-											value={criterion.content}
-											onChange={(e) => {
-												const newCriteria = [...field.state.value];
-												newCriteria[index] = {
-													...newCriteria[index],
-													content: e.target.value,
-												};
-												field.handleChange(newCriteria);
-											}}
-											placeholder="Содержание критерия"
-											className="flex-1"
+		<>
+			<div className="mb-6 flex items-center gap-4">
+				<div className="font-medium text-lg">
+					Шаг 2 из 3: Контекст и критерии
+				</div>
+				<div className="ml-auto flex gap-2">
+					<Button
+						type="button"
+						variant="ghost"
+						size="sm"
+						onClick={() => {
+							window.location.href = `/createScript/${initialData.id}/firstStep`;
+						}}
+					>
+						1
+					</Button>
+					<Button
+						type="button"
+						variant="ghost"
+						size="sm"
+						onClick={() => {
+							window.location.href = `/createScript/${initialData.id}/secondStep`;
+						}}
+					>
+						2
+					</Button>
+					<Button
+						type="button"
+						variant="ghost"
+						size="sm"
+						onClick={() => {
+							window.location.href = `/createScript/${initialData.id}/thirdStep`;
+						}}
+					>
+						3
+					</Button>
+				</div>
+			</div>
+			<form
+				onSubmit={(e) => {
+					e.preventDefault();
+					form.handleSubmit();
+				}}
+			>
+				<FieldGroup>
+					<form.Field
+						name="context"
+						children={(field) => {
+							const isInvalid =
+								field.state.meta.isTouched && !field.state.meta.isValid;
+							return (
+								<Field data-invalid={isInvalid}>
+									<FieldLabel htmlFor={field.name}>
+										Контекст сценария
+									</FieldLabel>
+									<InputGroup>
+										<InputGroupTextarea
+											id={field.name}
+											name={field.name}
+											value={field.state.value}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+											rows={10}
+											className="min-h-24 resize-none"
+											aria-invalid={isInvalid}
+											placeholder="Опишите контекст интервью, целевую аудиторию, какие навыки нужно продемонстрировать..."
 										/>
-										<Button
-											type="button"
-											variant="ghost"
-											size="sm"
-											onClick={() => removeCriterion(index)}
-										>
-											Удалить
-										</Button>
-									</div>
-								))}
-								<Button
-									type="button"
-									variant="outline"
-									size="sm"
-									onClick={addCriterion}
-								>
-									+ Добавить критерий
-								</Button>
-							</div>
-						);
-					}}
-				/>
-			</div>
+										<InputGroupAddon align="block-end">
+											<InputGroupText className="tabular-nums">
+												{field.state.value.length}/1000
+											</InputGroupText>
+										</InputGroupAddon>
+									</InputGroup>
+									{isInvalid && <FieldError errors={field.state.meta.errors} />}
+								</Field>
+							);
+						}}
+					/>
+				</FieldGroup>
 
-			<div className="mt-6 flex justify-end gap-4">
-				<Button
-					type="button"
-					variant="outline"
-					onClick={() => {
-						window.location.href = `/createScript/${scriptId}/firstStep`;
-					}}
-				>
-					Назад
-				</Button>
-				<Button type="submit" disabled={isPending}>
-					{isPending ? "Сохранение..." : "Сохранить и продолжить"}
-				</Button>
-			</div>
-		</form>
+				<div className="mt-8">
+					<FieldLabel>Критерии оценки</FieldLabel>
+					<form.Field
+						name="criteria"
+						children={(field) => {
+							return (
+								<div className="mt-2 space-y-4">
+									{field.state.value.map((criterion, index) => (
+										<div key={index} className="flex items-start gap-2">
+											<select
+												value={criterion.typeId}
+												onChange={(e) => {
+													const newCriteria = [...field.state.value];
+													newCriteria[index] = {
+														...newCriteria[index],
+														typeId: Number(e.target.value),
+													};
+													field.handleChange(newCriteria);
+												}}
+												className="flex h-10 w-40 rounded-none border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:font-medium file:text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+											>
+												{criteriaTypes.map((type) => (
+													<option key={type.id} value={type.id}>
+														{type.name}
+													</option>
+												))}
+											</select>
+											<Input
+												value={criterion.content}
+												onChange={(e) => {
+													const newCriteria = [...field.state.value];
+													newCriteria[index] = {
+														...newCriteria[index],
+														content: e.target.value,
+													};
+													field.handleChange(newCriteria);
+												}}
+												placeholder="Содержание критерия"
+												className="flex-1"
+											/>
+											<Button
+												type="button"
+												variant="ghost"
+												size="sm"
+												onClick={() => removeCriterion(index)}
+											>
+												Удалить
+											</Button>
+										</div>
+									))}
+									<Button
+										type="button"
+										variant="outline"
+										size="sm"
+										onClick={addCriterion}
+									>
+										+ Добавить критерий
+									</Button>
+								</div>
+							);
+						}}
+					/>
+				</div>
+
+				<div className="mt-6 flex justify-end gap-4">
+					<Button
+						type="button"
+						variant="outline"
+						onClick={() => {
+							window.location.href = `/createScript/${scriptId}/firstStep`;
+						}}
+					>
+						Назад
+					</Button>
+					<Button type="submit" disabled={isPending}>
+						{isPending ? "Сохранение..." : "Сохранить и продолжить"}
+					</Button>
+				</div>
+			</form>
+		</>
 	);
 }

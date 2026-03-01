@@ -117,10 +117,16 @@ export function useThirdStepForm({ initialData }: UseThirdStepFormOptions) {
 		questionIndex: number,
 		criteriaIndex: number,
 	) => {
-		const questions = [...form.getFieldValue("questions")];
-		questions[questionIndex].specificCriteria = questions[
-			questionIndex
-		].specificCriteria.filter((_: unknown, i: number) => i !== criteriaIndex);
+		const questions = form.getFieldValue("questions").map((q, i) =>
+			i === questionIndex
+				? {
+						...q,
+						specificCriteria: q.specificCriteria.filter(
+							(_: unknown, ci: number) => ci !== criteriaIndex,
+						),
+					}
+				: q,
+		);
 		form.setFieldValue("questions", questions);
 	};
 
