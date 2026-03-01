@@ -61,6 +61,64 @@ export const thirdStepScheme = z.object({
 export type ThirdStepScheme = z.infer<typeof thirdStepScheme>;
 
 export const mutateScriptRouter = router({
+	postDraft: protectedProcedure
+		.input(z.string())
+		.mutation(async ({ctx, input}) => {
+			const script = await db.query.scriptsTable.findFirst({
+				where: (scriptsTable, {eq, isNull, and}) => and(
+					eq(scriptsTable.id, input),
+					isNull(scriptsTable.deletedAt)
+				)
+			});
+			if (!script) {
+				throw new TRPCError({code: "NOT_FOUND"});
+			}
+
+			if (script.expertId != ctx.session.user.id) {
+				throw new TRPCError({code: "FORBIDDEN"});
+			}
+
+			if (!script.context ||
+				!script.categoryId || 
+				!script.title ||
+				!script.isDraft) {
+				throw new TRPCError({code: "BAD_REQUEST"});
+			}
+
+			await db.update(scriptsTable).set({
+				isDraft: false,
+				updatedAt: new Date(),
+				draftOverAt: new Date(),
+			}).where(and(
+				eq(scriptsTable.id, input),
+				isNull(scriptsTable.deletedAt),
+				eq(scriptsTable.isDraft, true)
+			));
+		}),
+	deleteScript: protectedProcedure
+		.input(z.string())
+		.mutation(async ({ctx, input}) => {
+			const script = await db.query.scriptsTable.findFirst({
+				where: (scriptsTable, {eq, and, isNull}) => and(
+					eq(scriptsTable.id, input),
+					isNull(scriptsTable.deletedAt)
+				)
+			});
+			if (!script) {
+				throw new TRPCError({code: "NOT_FOUND"});
+			}
+
+			if (script.expertId != ctx.session.user.id) {
+				throw new TRPCError({code: "FORBIDDEN"});
+			}
+
+			await db.update(scriptsTable).set({
+				deletedAt: new Date(),
+			}).where(and(
+				eq(scriptsTable.id, input), 
+				isNull(scriptsTable.deletedAt))
+			);
+		}),
 	mutateFirstStep: protectedProcedure
 		.input(firstStepScheme)
 		.mutation(async ({ ctx, input }) => {
@@ -70,6 +128,7 @@ export const mutateScriptRouter = router({
 					title: input.title,
 					description: input.descripton,
 					categoryId: input.categoryId,
+					updatedAt: new Date(),
 				})
 				.where(
 					and(
