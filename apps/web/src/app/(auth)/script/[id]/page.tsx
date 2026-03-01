@@ -9,6 +9,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { serverTrpc } from "@/lib/trpcServer";
+import NewSessionButton from "./newSessionButton";
 
 export default async function Page({
 	params,
@@ -39,11 +40,9 @@ export default async function Page({
 						<span>Автор: {data.expert?.name ?? "Неизвестно"}</span>
 					</div>
 					<div className="flex w-full gap-3">
-						<Link href={{ pathname: `/interview/${id}` }} className="flex-1">
-							<Button className="w-full">Начать сессию</Button>
-						</Link>
+						<NewSessionButton scriptId={id}/>
 						<Link
-							href={{ pathname: `/scipt/${id}/myHistory` }}
+							href={{ pathname: `/script/${id}/myHistory` }}
 							className="flex-1"
 						>
 							<Button variant="outline" className="w-full">

@@ -4,6 +4,7 @@ import { expertRouter } from "./expert";
 import { mutateScriptRouter } from "./mutateScript";
 import { profileRouter } from "./profile";
 import { scriptRouter } from "./script";
+import { sessionRouter } from "./session";
 import { userRouter } from "./user";
 
 export const appRouter = router({
@@ -16,6 +17,7 @@ export const appRouter = router({
 	expert: expertRouter,
 	createScript: mutateScriptRouter,
 	profile: profileRouter,
+	session: sessionRouter,
 });
 
 export type AppRouter = typeof appRouter;
