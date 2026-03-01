@@ -1,5 +1,7 @@
 import { RedirectType, redirect } from "next/navigation";
 
+import PrivateHeader from "@/components/privateHeader";
+
 import { serverTrpc } from "@/lib/trpcServer";
 
 export default async function ExpertLayout({
@@ -14,5 +16,10 @@ export default async function ExpertLayout({
 		redirect("/dashboard", RedirectType.replace);
 	}
 
-	return <>{children}</>;
+	return (
+		<>
+			<PrivateHeader/>
+			{children}
+		</>
+	);
 }

@@ -44,7 +44,7 @@ export default async function ExpertPage() {
 						<CreateScriptButton />
 					</div>
 					<h2 className="mb-4 font-semibold text-xl">Мои черновики</h2>
-					<SharedScriptsTable data={draftsData} />
+					<SharedScriptsTable data={draftsData} isDraftTable={true}/>
 				</section>
 
 				<section>

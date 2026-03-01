@@ -82,7 +82,7 @@ export const mutateScriptRouter = router({
 				!script.categoryId || 
 				!script.title ||
 				!script.isDraft) {
-				throw new TRPCError({code: "BAD_REQUEST"});
+				throw new TRPCError({code: "BAD_REQUEST", message: "Сценарий должен быть заполненным"});
 			}
 
 			await db.update(scriptsTable).set({

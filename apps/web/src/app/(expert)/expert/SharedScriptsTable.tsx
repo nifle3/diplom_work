@@ -1,14 +1,17 @@
 "use client";
 
+import { useMutation } from "@tanstack/react-query";
 import {
 	type ColumnDef,
 	flexRender,
 	getCoreRowModel,
 	useReactTable,
 } from "@tanstack/react-table";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Upload } from "lucide-react";
 import Link from "next/link";
-
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -21,6 +24,7 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
 	Table,
 	TableBody,
@@ -29,9 +33,8 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { useMutation } from "@tanstack/react-query";
 import { trpc } from "@/lib/trpc";
-import { toast } from "sonner";
+import Modal from "@/components/modal";
 
 export interface ScriptRow {
 	id: string;
@@ -44,11 +47,13 @@ export interface ScriptRow {
 interface SharedTableProps {
 	data: ScriptRow[];
 	columns?: ColumnDef<ScriptRow>[];
-	onDelete?: (id: string) => void;
+	isDraftTable?: boolean;
 }
 
 const defaultColumns = (
 	onDelete: (id: string) => void,
+	onPublish: (id: string) => void,
+	isDraftTable?: boolean,
 ): ColumnDef<ScriptRow>[] => [
 	{
 		accessorKey: "title",
@@ -79,39 +84,41 @@ const defaultColumns = (
 		id: "actions",
 		header: "Действия",
 		cell: ({ row }) => {
-			const href = `/constructor/${row.original.id}/firstStep`;
-			// biome-ignore lint/suspicious/noExplicitAny: Needed for Next.js Link type compatibility
-			const linkProps = href as any;
 			const scriptTitle = row.original.title ?? "Без названия";
 			return (
 				<div className="flex gap-2">
-					<Link href={linkProps}>
-						<Button variant="ghost" size="icon">
-							<Pencil className="h-4 w-4" />
-						</Button>
+					{isDraftTable && (
+						<Modal
+							header={"Опубликовать сценарий"} 
+							description={`Вы хотите сделать сценарий ${row.original.title} публичным?`} 
+							actionName={"Опубликовать"}  
+							action={() => onPublish(row.original.id)}
+						>
+							<Button
+							variant="ghost"
+							size="icon">
+								<Upload className="h-4 w-4" />
+							</Button>
+						</Modal>
+					)}
+					<Link
+						href={`/constructor/${row.original.id}/firstStep`}
+						className="inline-flex size-8 items-center justify-center rounded-none hover:bg-muted"
+					>
+						<Pencil className="h-4 w-4" />
 					</Link>
-					<AlertDialog>
-						<AlertDialogTrigger>
+					<Modal 
+						header={"Удалить сценарий"} 
+						description={
+							`Вы уверены, что хотите удалить сценарий ${scriptTitle}? Это
+							действие нельзя отменить.`
+						} 
+						actionName={"Удалить"}
+						action={() => onDelete(row.original.id)}>
 							<Button variant="ghost" size="icon">
 								<Trash2 className="h-4 w-4 text-destructive" />
 							</Button>
-						</AlertDialogTrigger>
-						<AlertDialogContent>
-							<AlertDialogHeader>
-								<AlertDialogTitle>Удалить сценарий</AlertDialogTitle>
-								<AlertDialogDescription>
-									Вы уверены, что хотите удалить сценарий "{scriptTitle}"? Это
-									действие нельзя отменить.
-								</AlertDialogDescription>
-							</AlertDialogHeader>
-							<AlertDialogFooter>
-								<AlertDialogCancel>Отмена</AlertDialogCancel>
-								<AlertDialogAction onClick={() => onDelete(row.original.id)}>
-									Удалить
-								</AlertDialogAction>
-							</AlertDialogFooter>
-						</AlertDialogContent>
-					</AlertDialog>
+						</Modal>
 				</div>
 			);
 		},
@@ -121,25 +128,85 @@ const defaultColumns = (
 export function SharedScriptsTable({
 	data,
 	columns,
+	isDraftTable,
 }: SharedTableProps) {
-	const deleteScript = useMutation(trpc.createScript.deleteScript.mutationOptions({
+	const router = useRouter();
+	const [mounted, setMounted] = useState(false);
+
+	useEffect(() => {
+		setMounted(true);
+	}, []);
+
+	const deleteScript = useMutation(
+		trpc.createScript.deleteScript.mutationOptions({
+			onSuccess: () => {
+				toast("Удаление успешно");
+				router.refresh();
+			},
+			onError: () => {
+				toast("Удаление не успешно");
+			},
+		}),
+	);
+
+	const publishScript = useMutation(trpc.createScript.postDraft.mutationOptions({
 		onSuccess: () => {
-			toast("Удаление успешно");
+			toast("Опубликовано");
+			router.refresh();
 		},
-		onError: () => {
-			toast("Удаление не успешно");
+		onError: (error) => {
+			toast(error.message);
 		}
-	}));
+	}))
 
 	const onDelete = async (scriptId: string) => {
 		await deleteScript.mutateAsync(scriptId);
-	}
+	};
+
+	const onPublish = async (scriptId: string) => {
+		await publishScript.mutateAsync(scriptId);
+	};
 
 	const table = useReactTable({
 		data,
-		columns: columns ?? defaultColumns(onDelete),
+		columns:
+			columns ??
+			defaultColumns(onDelete, onPublish, isDraftTable),
 		getCoreRowModel: getCoreRowModel(),
 	});
+
+	if (!mounted) {
+		return (
+			<Table>
+				<TableHeader>
+					<TableRow>
+						<TableHead>Название</TableHead>
+						<TableHead>Категория</TableHead>
+						<TableHead>Дата создания</TableHead>
+						<TableHead>Действия</TableHead>
+					</TableRow>
+				</TableHeader>
+				<TableBody>
+					{Array.from({ length: 3 }).map((_, i) => (
+						<TableRow key={`skeleton-row-${i}`}>
+							<TableCell>
+								<Skeleton className="h-4 w-32" />
+							</TableCell>
+							<TableCell>
+								<Skeleton className="h-4 w-24" />
+							</TableCell>
+							<TableCell>
+								<Skeleton className="h-4 w-28" />
+							</TableCell>
+							<TableCell>
+								<Skeleton className="h-8 w-16" />
+							</TableCell>
+						</TableRow>
+					))}
+				</TableBody>
+			</Table>
+		);
+	}
 
 	return (
 		<Table>
