@@ -4,9 +4,11 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { protectedProcedure, router } from "../index";
+import { TRPCError } from "@trpc/server";
 
 const roleNameCheckInput = z.enum(["admin", "expert"]);
 const roleNameToRoleId = {
+	user: 1,
 	expert: 2,
 	admin: 3,
 };
@@ -39,6 +41,10 @@ export const userRouter = router({
 				},
 			});
 
+			if (!user) {
+				throw new TRPCError({code:"UNAUTHORIZED"});
+			}
+			
 			const requiredRole = roleNameToRoleId[input];
 			console.debug(`finded role ${requiredRole}, userRole ${user.roleId}`);
 

@@ -55,23 +55,6 @@ export default async function DashboardPage() {
 							</Card>
 						))}
 					</div>
-
-					<div className="mt-8 text-center">
-						<Link
-							href={{ pathname: "/courses" }}
-							className="font-medium text-blue-600 text-sm hover:underline"
-						>
-							Все курсы &rarr;
-						</Link>
-					</div>
-					<div className="mt-4 text-center">
-						<Link
-							href="/interview"
-							className="inline-block rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
-						>
-							Начать интервью
-						</Link>
-					</div>
 				</section>
 			</main>
 		</div>

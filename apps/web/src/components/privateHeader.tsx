@@ -21,25 +21,16 @@ export default async function PrivateHeader() {
 						<Link href={{ pathname: "/dashboard" }} className="hover:underline">
 							Dashboard
 						</Link>
-						{isUserExpert && (
-							<Link href={{ pathname: "/expert" }} className="hover:underline">
-								Кабинет эксперта
-							</Link>
-						)}
-						{isUserAdmin && (
-							<Link
-								href={{ pathname: "/adminPanel" }}
-								className="hover:underline"
-							>
-								Админ панель
-							</Link>
-						)}
+
+						<Link href={{ pathname: "/courses" }} className="hover:underline">
+							Все курсы
+						</Link>
 					</nav>
 				</div>
 
 				<div className="flex items-center gap-3">
 					<ThemeToggle />
-					<UserMenu />
+					<UserMenu isUserAdmin={isUserAdmin} isUserExpert={isUserExpert}/>
 				</div>
 			</div>
 			<hr />

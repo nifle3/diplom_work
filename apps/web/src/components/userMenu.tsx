@@ -15,7 +15,12 @@ import {
 } from "./ui/dropdown-menu";
 import { Skeleton } from "./ui/skeleton";
 
-export default function UserMenu() {
+type UserMenuProps = {
+	isUserAdmin: boolean;
+	isUserExpert: boolean;
+}
+
+export default function UserMenu({ isUserAdmin, isUserExpert } : UserMenuProps) {
 	const router = useRouter();
 	const { data: session, isPending } = authClient.useSession();
 
@@ -43,6 +48,17 @@ export default function UserMenu() {
 					<DropdownMenuLabel>My Account</DropdownMenuLabel>
 					<DropdownMenuSeparator />
 					<DropdownMenuItem>{session!.user.email}</DropdownMenuItem>
+					<DropdownMenuItem>Мой профиль</DropdownMenuItem>
+					{isUserAdmin && 
+						<DropdownMenuItem onClick={() => router.push("/adminPanel")}>
+							Главное меню админа
+						</DropdownMenuItem>
+					}
+					{isUserExpert && 
+						<DropdownMenuItem onClick={() => router.push("/expert")}>
+							Главное меню эксперта
+						</DropdownMenuItem>
+					}
 					<DropdownMenuItem variant="destructive" onClick={onLogout}>
 						Sign Out
 					</DropdownMenuItem>
