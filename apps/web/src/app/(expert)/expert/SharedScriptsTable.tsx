@@ -8,6 +8,18 @@ import {
 } from "@tanstack/react-table";
 import { Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
+
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
 	Table,
@@ -17,6 +29,9 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import { useMutation } from "@tanstack/react-query";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 
 export interface ScriptRow {
 	id: string;
@@ -29,9 +44,12 @@ export interface ScriptRow {
 interface SharedTableProps {
 	data: ScriptRow[];
 	columns?: ColumnDef<ScriptRow>[];
+	onDelete?: (id: string) => void;
 }
 
-const defaultColumns: ColumnDef<ScriptRow>[] = [
+const defaultColumns = (
+	onDelete: (id: string) => void,
+): ColumnDef<ScriptRow>[] => [
 	{
 		accessorKey: "title",
 		header: "Название",
@@ -64,6 +82,7 @@ const defaultColumns: ColumnDef<ScriptRow>[] = [
 			const href = `/constructor/${row.original.id}/firstStep`;
 			// biome-ignore lint/suspicious/noExplicitAny: Needed for Next.js Link type compatibility
 			const linkProps = href as any;
+			const scriptTitle = row.original.title ?? "Без названия";
 			return (
 				<div className="flex gap-2">
 					<Link href={linkProps}>
@@ -71,9 +90,28 @@ const defaultColumns: ColumnDef<ScriptRow>[] = [
 							<Pencil className="h-4 w-4" />
 						</Button>
 					</Link>
-					<Button variant="ghost" size="icon">
-						<Trash2 className="h-4 w-4 text-destructive" />
-					</Button>
+					<AlertDialog>
+						<AlertDialogTrigger>
+							<Button variant="ghost" size="icon">
+								<Trash2 className="h-4 w-4 text-destructive" />
+							</Button>
+						</AlertDialogTrigger>
+						<AlertDialogContent>
+							<AlertDialogHeader>
+								<AlertDialogTitle>Удалить сценарий</AlertDialogTitle>
+								<AlertDialogDescription>
+									Вы уверены, что хотите удалить сценарий "{scriptTitle}"? Это
+									действие нельзя отменить.
+								</AlertDialogDescription>
+							</AlertDialogHeader>
+							<AlertDialogFooter>
+								<AlertDialogCancel>Отмена</AlertDialogCancel>
+								<AlertDialogAction onClick={() => onDelete(row.original.id)}>
+									Удалить
+								</AlertDialogAction>
+							</AlertDialogFooter>
+						</AlertDialogContent>
+					</AlertDialog>
 				</div>
 			);
 		},
@@ -82,11 +120,24 @@ const defaultColumns: ColumnDef<ScriptRow>[] = [
 
 export function SharedScriptsTable({
 	data,
-	columns = defaultColumns,
+	columns,
 }: SharedTableProps) {
+	const deleteScript = useMutation(trpc.createScript.deleteScript.mutationOptions({
+		onSuccess: () => {
+			toast("Удаление успешно");
+		},
+		onError: () => {
+			toast("Удаление не успешно");
+		}
+	}));
+
+	const onDelete = async (scriptId: string) => {
+		await deleteScript.mutateAsync(scriptId);
+	}
+
 	const table = useReactTable({
 		data,
-		columns,
+		columns: columns ?? defaultColumns(onDelete),
 		getCoreRowModel: getCoreRowModel(),
 	});
 
@@ -121,7 +172,7 @@ export function SharedScriptsTable({
 					))
 				) : (
 					<TableRow>
-						<TableCell colSpan={columns.length} className="h-24 text-center">
+						<TableCell colSpan={columns?.length} className="h-24 text-center">
 							Нет данных
 						</TableCell>
 					</TableRow>

@@ -1,10 +1,5 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { z } from "zod";
-
 import { Button } from "@/components/ui/button";
 import {
 	Field,
@@ -19,21 +14,8 @@ import {
 	InputGroupText,
 	InputGroupTextarea,
 } from "@/components/ui/input-group";
-import { trpc } from "@/lib/trpc";
 
-const criteriaSchema = z.object({
-	id: z.uuid().nullable(),
-	typeId: z.number().int().positive(),
-	content: z.string().min(1, "Содержание критерия обязательно"),
-});
-
-const formSchema = z.object({
-	context: z.string().max(1000, "Максимальное количество символов 1000"),
-	criteria: z.array(criteriaSchema).min(1, "Добавьте хотя бы один критерий"),
-	deletedCriteria: z.array(z.uuid()).nullable(),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+import { useSecondStepForm } from "./useSecondStepForm";
 
 interface SecondStepFormProps {
 	initialData: {
@@ -52,96 +34,8 @@ export default function SecondStepForm({
 	initialData,
 	criteriaTypes,
 }: SecondStepFormProps) {
-	const router = useRouter();
-
-	const mutation = useMutation(
-		trpc.createScript.mutateSecondStep.mutationOptions({
-			onSuccess: () => {
-				toast.success("Сохранено");
-				router.replace(`/constructor/${initialData.id}/thirdStep`)
-			},
-			onError: (error: unknown) => {
-				const message =
-					error instanceof Error ? error.message : "Ошибка при сохранении";
-				toast.error(message);
-			},
-		}),
-	);
-
-	const handleSubmit = (values: FormValues) => {
-		mutation.mutate({
-			scriptId: initialData.id,
-			context: values.context,
-			criteria: values.criteria,
-			deletedCriteria: values.deletedCriteria,
-		});
-	};
-
-	return (
-		<SecondStepFormInner
-			scriptId={initialData.id}
-			defaultValues={{
-				context: initialData.context ?? "",
-				criteria: initialData.globalCriteria.map((c) => ({
-					id: c.id,
-					typeId: c.typeId,
-					content: c.content,
-				})),
-				deletedCriteria: [],
-			}}
-			criteriaTypes={criteriaTypes}
-			onSubmit={handleSubmit}
-			isPending={mutation.isPending}
-		/>
-	);
-}
-
-interface SecondStepFormInnerProps {
-	scriptId: string;
-	defaultValues: FormValues;
-	criteriaTypes: Array<{ id: number; name: string }>;
-	onSubmit: (values: FormValues) => void;
-	isPending: boolean;
-}
-
-import { useForm } from "@tanstack/react-form";
-
-function SecondStepFormInner({
-	scriptId,
-	defaultValues,
-	criteriaTypes,
-	onSubmit,
-	isPending,
-}: SecondStepFormInnerProps) {
-	const form = useForm({
-		defaultValues,
-		validators: {
-			onSubmit: formSchema,
-		},
-		onSubmit: async ({ value }) => {
-			onSubmit(value);
-		},
-	});
-
-	const addCriterion = () => {
-		form.setFieldValue("criteria", [
-			...form.getFieldValue("criteria"),
-			{ id: null, typeId: criteriaTypes[0]?.id ?? 1, content: "" },
-		]);
-	};
-
-	const removeCriterion = (index: number) => {
-		const criteria = form.getFieldValue("criteria");
-		const removed = criteria[index];
-		if (removed.id) {
-			const currentDeleted = form.getFieldValue("deletedCriteria") ?? [];
-			form.setFieldValue("deletedCriteria", [...currentDeleted, removed.id]);
-		}
-		form.setFieldValue(
-			"criteria",
-			criteria.filter((_: unknown, i: number) => i !== index),
-		);
-	};
+	const { form, scriptId, isPending, addCriterion, removeCriterion } =
+		useSecondStepForm({ initialData, criteriaTypes });
 
 	return (
 		<form

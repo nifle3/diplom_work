@@ -1,10 +1,5 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
-import { useParams, useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { z } from "zod";
-
 import { Button } from "@/components/ui/button";
 import {
 	Field,
@@ -19,18 +14,8 @@ import {
 	InputGroupText,
 	InputGroupTextarea,
 } from "@/components/ui/input-group";
-import { trpc } from "@/lib/trpc";
 
-const formSchema = z.object({
-	title: z
-		.string()
-		.min(5, "Название должно быть больше 5 символов")
-		.max(50, "Название должно быть меньше 50 символов"),
-	description: z.string().max(500).nullable(),
-	categoryId: z.number().positive("Выберите категорию"),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+import { useFirstStepForm } from "./useFirstStepForm";
 
 interface FirstStepFormProps {
 	initialData: {
@@ -46,67 +31,7 @@ export default function FirstStepForm({
 	initialData,
 	categories,
 }: FirstStepFormProps) {
-	const router = useRouter();
-
-	const mutation = useMutation(
-		trpc.createScript.mutateFirstStep.mutationOptions({
-			onSuccess: () => {
-				toast.success("Сохранено");
-				router.replace(`/constructor/${initialData.id}/secondStep`);
-			},
-			onError: (error: unknown) => {
-				toast.error((error as Error).message);
-			},
-		}),
-	);
-
-	const handleSubmit = (values: FormValues) => {
-		mutation.mutate({
-			scriptId: initialData.id,
-			title: values.title,
-			descripton: values.description,
-			categoryId: values.categoryId,
-		});
-	};
-
-	return (
-		<FirstStepFormInner
-			defaultValues={{
-				title: initialData?.title ?? "",
-				description: initialData?.description ?? null,
-				categoryId: initialData?.categoryId ?? 0,
-			}}
-			categories={categories}
-			onSubmit={handleSubmit}
-			isPending={mutation.isPending}
-		/>
-	);
-}
-
-interface FirstStepFormInnerProps {
-	defaultValues: FormValues;
-	categories: Array<{ id: number; name: string }>;
-	onSubmit: (values: FormValues) => void;
-	isPending: boolean;
-}
-
-import { useForm } from "@tanstack/react-form";
-
-function FirstStepFormInner({
-	defaultValues,
-	categories,
-	onSubmit,
-	isPending,
-}: FirstStepFormInnerProps) {
-	const form = useForm({
-		defaultValues,
-		validators: {
-			onSubmit: formSchema,
-		},
-		onSubmit: async ({ value }) => {
-			onSubmit(value);
-		},
-	});
+	const { form, isPending } = useFirstStepForm({ initialData, categories });
 
 	return (
 		<form

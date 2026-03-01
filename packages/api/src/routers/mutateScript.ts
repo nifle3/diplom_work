@@ -17,7 +17,7 @@ export const firstStepScheme = z.object({
 		.string()
 		.min(5, "Название должно быть больше 5 символов")
 		.max(50, "Название должно быть меньше 50 символов"),
-	descripton: z
+	description: z
 		.string()
 		.max(500, "Описание может содержать только 500 символов")
 		.nullable(),
@@ -126,7 +126,7 @@ export const mutateScriptRouter = router({
 				.update(scriptsTable)
 				.set({
 					title: input.title,
-					description: input.descripton,
+					description: input.description,
 					categoryId: input.categoryId,
 					updatedAt: new Date(),
 				})

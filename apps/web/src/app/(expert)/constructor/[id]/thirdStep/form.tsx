@@ -1,36 +1,11 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
-import { useParams, useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { z } from "zod";
-
 import { Button } from "@/components/ui/button";
-import {
-	Field,
-	FieldError,
-	FieldLabel,
-} from "@/components/ui/field";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { trpc } from "@/lib/trpc";
 
-const specificCriteriaSchema = z.object({
-	id: z.uuid().nullable(),
-	content: z.string().min(1, "Содержание критерия обязательно"),
-});
-
-const questionTemplateSchema = z.object({
-	id: z.uuid().nullable(),
-	text: z.string().min(1, "Текст вопроса обязателен"),
-	specificCriteria: z.array(specificCriteriaSchema),
-});
-
-const formSchema = z.object({
-	questions: z.array(questionTemplateSchema),
-	deletedQuestions: z.array(z.uuid()).nullable(),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+import { useThirdStepForm } from "./useThirdStepForm";
 
 interface ThirdStepFormProps {
 	initialData: {
@@ -47,119 +22,15 @@ interface ThirdStepFormProps {
 }
 
 export default function ThirdStepForm({ initialData }: ThirdStepFormProps) {
-	const router = useRouter();
-	const params = useParams();
-	const scriptId = params.id as string;
-
-	const mutation = useMutation(
-		trpc.createScript.mutateThirdStep.mutationOptions({
-			onSuccess: () => {
-				toast.success("Скрипт успешно создан");
-				router.replace("/expert");
-			},
-			onError: (error: unknown) => {
-				const message =
-					error instanceof Error ? error.message : "Ошибка при сохранении";
-				toast.error(message);
-			},
-		}),
-	);
-
-	const handleSubmit = (values: FormValues) => {
-		mutation.mutate({
-			scriptId,
-			questions: values.questions,
-			deletedQuestions: values.deletedQuestions,
-		});
-	};
-
-	return (
-		<ThirdStepFormInner
-			scriptId={scriptId}
-			defaultValues={{
-				questions: initialData.questions.map((q) => ({
-					id: q.id,
-					text: q.text,
-					specificCriteria: q.specificCriteria.map((c) => ({
-						id: c.id,
-						content: c.content,
-					})),
-				})),
-				deletedQuestions: [],
-			}}
-			onSubmit={handleSubmit}
-			isPending={mutation.isPending}
-		/>
-	);
-}
-
-interface ThirdStepFormInnerProps {
-	scriptId: string;
-	defaultValues: FormValues;
-	onSubmit: (values: FormValues) => void;
-	isPending: boolean;
-}
-
-import { useForm } from "@tanstack/react-form";
-
-function ThirdStepFormInner({
-	scriptId,
-	defaultValues,
-	onSubmit,
-	isPending,
-}: ThirdStepFormInnerProps) {
-	const form = useForm({
-		defaultValues,
-		validators: {
-			onSubmit: formSchema,
-		},
-		onSubmit: async ({ value }) => {
-			onSubmit(value);
-		},
-	});
-
-	const addQuestion = () => {
-		form.setFieldValue("questions", [
-			...form.getFieldValue("questions"),
-			{ id: null, text: "", specificCriteria: [] },
-		]);
-	};
-
-	const removeQuestion = (index: number) => {
-		const questions = form.getFieldValue("questions");
-		const removed = questions[index];
-		if (removed.id) {
-			const currentDeleted = form.getFieldValue("deletedQuestions") ?? [];
-			form.setFieldValue("deletedQuestions", [...currentDeleted, removed.id]);
-		}
-		form.setFieldValue(
-			"questions",
-			questions.filter((_: unknown, i: number) => i !== index),
-		);
-	};
-
-	const addSpecificCriterion = (questionIndex: number) => {
-		const questions = [...form.getFieldValue("questions")];
-		questions[questionIndex] = {
-			...questions[questionIndex],
-			specificCriteria: [
-				...questions[questionIndex].specificCriteria,
-				{ id: null, content: "" },
-			],
-		};
-		form.setFieldValue("questions", questions);
-	};
-
-	const removeSpecificCriterion = (
-		questionIndex: number,
-		criteriaIndex: number,
-	) => {
-		const questions = [...form.getFieldValue("questions")];
-		questions[questionIndex].specificCriteria = questions[
-			questionIndex
-		].specificCriteria.filter((_: unknown, i: number) => i !== criteriaIndex);
-		form.setFieldValue("questions", questions);
-	};
+	const {
+		form,
+		scriptId,
+		isPending,
+		addQuestion,
+		removeQuestion,
+		addSpecificCriterion,
+		removeSpecificCriterion,
+	} = useThirdStepForm({ initialData });
 
 	return (
 		<form
