@@ -44,7 +44,7 @@ export function useSecondStepForm({
 		trpc.createScript.mutateSecondStep.mutationOptions({
 			onSuccess: () => {
 				toast.success("Сохранено");
-				router.replace(`/constructor/${initialData.id}/thirdStep`);
+				router.replace(`/createScript/${initialData.id}/thirdStep`);
 			},
 			onError: (error: unknown) => {
 				const message =

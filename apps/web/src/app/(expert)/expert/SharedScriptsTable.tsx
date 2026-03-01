@@ -102,7 +102,7 @@ const defaultColumns = (
 						</Modal>
 					)}
 					<Link
-						href={`/constructor/${row.original.id}/firstStep`}
+						href={`/createScript/${row.original.id}/firstStep`}
 						className="inline-flex size-8 items-center justify-center rounded-none hover:bg-muted"
 					>
 						<Pencil className="h-4 w-4" />

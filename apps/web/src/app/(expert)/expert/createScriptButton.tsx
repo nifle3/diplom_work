@@ -13,7 +13,7 @@ export default function CreateScriptButton() {
 	const createDraft = useMutation(
 		trpc.expert.createNewDraft.mutationOptions({
 			onSuccess: (data) => {
-				router.push(`/constructor/${data}/firstStep`);
+				router.push(`/createScript/${data}/firstStep`);
 			},
 			onError: (error) => {
 				toast(error.message);

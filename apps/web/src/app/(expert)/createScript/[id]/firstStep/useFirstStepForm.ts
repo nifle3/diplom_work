@@ -38,7 +38,7 @@ export function useFirstStepForm({
 	const mutation = useMutation(
 		trpc.createScript.mutateFirstStep.mutationOptions({
 			onSuccess: () => {
-				router.replace(`/constructor/${initialData.id}/secondStep`);
+				router.replace(`/createScript/${initialData.id}/secondStep`);
 			},
 			onError: (error) => {
 				toast.error(error.message);

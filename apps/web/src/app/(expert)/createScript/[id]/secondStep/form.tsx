@@ -147,7 +147,7 @@ export default function SecondStepForm({
 					type="button"
 					variant="outline"
 					onClick={() => {
-						window.location.href = `/constructor/${scriptId}/firstStep`;
+						window.location.href = `/createScript/${scriptId}/firstStep`;
 					}}
 				>
 					Назад

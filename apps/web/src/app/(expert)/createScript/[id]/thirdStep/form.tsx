@@ -157,7 +157,7 @@ export default function ThirdStepForm({ initialData }: ThirdStepFormProps) {
 					type="button"
 					variant="outline"
 					onClick={() => {
-						window.location.href = `/constructor/${scriptId}/secondStep`;
+						window.location.href = `/createScript/${scriptId}/secondStep`;
 					}}
 				>
 					Назад
