@@ -1,6 +1,7 @@
 import { RedirectType, redirect } from "next/navigation";
 
 import { serverTrpc } from "@/lib/trpcServer";
+import { AdminSidebar } from "./sidebar";
 
 export default async function AdminLayout({
 	children,
@@ -14,5 +15,10 @@ export default async function AdminLayout({
 		redirect("/dashboard", RedirectType.replace);
 	}
 
-	return <>{children}</>;
+	return (
+		<div className="flex min-h-screen">
+			<main className="flex-1">{children}</main>
+			<AdminSidebar />
+		</div>
+	);
 }
