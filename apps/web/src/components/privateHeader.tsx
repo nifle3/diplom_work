@@ -19,7 +19,7 @@ export default async function PrivateHeader() {
 					</Link>
 					<nav className="hidden items-center gap-4 text-lg sm:flex">
 						<Link href={{ pathname: "/dashboard" }} className="hover:underline">
-							Dashboard
+							Главная страница
 						</Link>
 
 						<Link href={{ pathname: "/scripts" }} className="hover:underline">
