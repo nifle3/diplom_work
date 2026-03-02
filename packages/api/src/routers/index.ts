@@ -1,5 +1,6 @@
 import { publicProcedure, router } from "..";
 import { activityRouter } from "./activity";
+import { categoryRouter } from "./category";
 import { expertRouter } from "./expert";
 import { mutateScriptRouter } from "./mutateScript";
 import { profileRouter } from "./profile";
@@ -18,6 +19,7 @@ export const appRouter = router({
 	createScript: mutateScriptRouter,
 	profile: profileRouter,
 	session: sessionRouter,
+	category: categoryRouter,
 });
 
 export type AppRouter = typeof appRouter;

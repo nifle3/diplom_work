@@ -7,19 +7,13 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { CategoriesTable, type CategoryRow } from "./categories-table";
-import { CategoryForm } from "./category-form";
+import { CategoriesTable } from "./categoriesTable";
+import { CategoryForm } from "./categoryForm";
+import { serverTrpc } from "@/lib/trpcServer";
 
-const mockCategories: CategoryRow[] = [
-	{ id: "1", name: "IT", description: "Вопросы для IT специалистов" },
-	{ id: "2", name: "Маркетинг", description: "Вопросы для маркетологов" },
-	{ id: "3", name: "Финансы", description: "Вопросы для финансистов" },
-];
-
-export default function CategoriesPage() {
-	const refetch = () => {
-		console.log("Refetch categories");
-	};
+export default async function CategoriesPage() {
+	const trpcCaller = await serverTrpc();
+	const data = await trpcCaller.category.getAll();
 
 	return (
 		<div className="container mx-auto p-6">
@@ -36,11 +30,11 @@ export default function CategoriesPage() {
 						<DialogHeader>
 							<DialogTitle>Добавить категорию</DialogTitle>
 						</DialogHeader>
-						<CategoryForm category={undefined} onSuccess={refetch} />
+						<CategoryForm category={undefined} />
 					</DialogContent>
 				</Dialog>
 			</div>
-			<CategoriesTable data={mockCategories} refetch={refetch} />
+			<CategoriesTable data={data}/>
 		</div>
 	);
 }

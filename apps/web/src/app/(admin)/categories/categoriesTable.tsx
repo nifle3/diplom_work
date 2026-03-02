@@ -9,17 +9,9 @@ import {
 import { Pencil, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { useRouter } from "next/navigation";
+
+
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -37,31 +29,27 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { CategoryForm } from "./category-form";
+import { CategoryForm } from "./categoryForm";
+import Modal from "@/components/modal";
+import { useMutation } from "@tanstack/react-query";
+import { trpc } from "@/lib/trpc";
 
 export interface CategoryRow {
-	id: string;
+	id: number;
 	name: string;
-	description: string;
 }
 
 interface CategoriesTableProps {
 	data: CategoryRow[];
-	refetch: () => void;
 }
 
 const defaultColumns = (
-	onDelete: (id: string) => void,
+	onDelete: (id: number) => void,
 ): ColumnDef<CategoryRow>[] => [
 	{
 		accessorKey: "name",
 		header: "Название",
 		cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
-	},
-	{
-		accessorKey: "description",
-		header: "Описание",
-		cell: ({ row }) => row.original.description || "—",
 	},
 	{
 		id: "actions",
@@ -80,51 +68,45 @@ const defaultColumns = (
 							<DialogHeader>
 								<DialogTitle>Редактировать категорию</DialogTitle>
 							</DialogHeader>
-							<CategoryForm category={row.original} onSuccess={() => {}} />
+							<CategoryForm category={row.original}/>
 						</DialogContent>
 					</Dialog>
-					<AlertDialog>
-						<AlertDialogTrigger>
-							<Button variant="ghost" size="icon">
-								<Trash2 className="h-4 w-4 text-destructive" />
-							</Button>
-						</AlertDialogTrigger>
-						<AlertDialogContent>
-							<AlertDialogHeader>
-								<AlertDialogTitle>Удалить категорию</AlertDialogTitle>
-								<AlertDialogDescription>
-									Вы уверены, что хотите удалить категорию "{categoryName}"? Это
-									действие нельзя отменить.
-								</AlertDialogDescription>
-							</AlertDialogHeader>
-							<AlertDialogFooter>
-								<AlertDialogCancel>Отмена</AlertDialogCancel>
-								<AlertDialogAction onClick={() => onDelete(row.original.id)}>
-									Удалить
-								</AlertDialogAction>
-							</AlertDialogFooter>
-						</AlertDialogContent>
-					</AlertDialog>
+					<Modal 
+						header={"Удалить категорию"} 
+						description={`Вы уверены, что хотите удалить категорию "${categoryName}"? Это
+									действие нельзя отменить.`} 
+						actionName={"Удалить"} 
+						action={() => onDelete(row.original.id)}
+					>
+						<Button variant="ghost" size="icon">
+							<Trash2 className="h-4 w-4 text-destructive" />
+						</Button>
+					</Modal>
 				</div>
 			);
 		},
 	},
 ];
 
-export function CategoriesTable({ data, refetch }: CategoriesTableProps) {
+export function CategoriesTable({ data }: CategoriesTableProps) {
 	const [mounted, setMounted] = useState(false);
+
+	const router = useRouter();
+	const deleteMutation = useMutation(trpc.category.deleteById.mutationOptions({
+		onError: (error) => {
+			toast(error.message);
+		},
+		onSuccess: () => {
+			router.refresh();
+		}
+	}));
 
 	useEffect(() => {
 		setMounted(true);
 	}, []);
 
-	const onDelete = async (categoryId: string) => {
-		try {
-			toast("Категория удалена");
-			refetch();
-		} catch {
-			toast("Ошибка при удалении");
-		}
+	const onDelete = async (id: number) => {
+		await deleteMutation.mutateAsync(id);
 	};
 
 	const table = useReactTable({
@@ -133,13 +115,12 @@ export function CategoriesTable({ data, refetch }: CategoriesTableProps) {
 		getCoreRowModel: getCoreRowModel(),
 	});
 
-	if (!mounted) {
+	if (!mounted || deleteMutation.isPending) {
 		return (
 			<Table>
 				<TableHeader>
 					<TableRow>
 						<TableHead>Название</TableHead>
-						<TableHead>Описание</TableHead>
 						<TableHead>Действия</TableHead>
 					</TableRow>
 				</TableHeader>

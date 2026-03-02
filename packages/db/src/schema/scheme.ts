@@ -76,7 +76,8 @@ export const verificationsTable = pgTable("verifications", {
 export const categoriesTable = pgTable("categories", {
 	id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
 	name: varchar("name", { length: 100 }).notNull(),
-	createdAt: timestamp("created_at").notNull().defaultNow(),
+	createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+	updatedAt: timestamp("updated_at", { mode: "date" }),
 	deletedAt: timestamp("deleted_at", { mode: "date" }),
 });
 
