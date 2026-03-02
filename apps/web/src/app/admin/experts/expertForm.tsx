@@ -2,34 +2,32 @@
 
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import type { ExpertRow } from "./expertsTable";
+import { useMutation } from "@tanstack/react-query";
+import { trpc } from "@/lib/trpc";
 
-interface ExpertFormProps {
-	expert?: ExpertRow;
-	onSuccess: () => void;
-}
+export function ExpertForm() {
+	const router = useRouter();
+	const setMutation = useMutation(trpc.expertManager.setUserExpert.mutationOptions({
+		onSuccess: () => {
+			toast("Пользователь добавлен");
+			router.refresh();
+		},
+		onError: (error) => {
+			toast(error.message);
+		}
+	}));
 
-export function ExpertForm({ expert, onSuccess }: ExpertFormProps) {
 	const form = useForm({
 		defaultValues: {
-			name: expert?.name ?? "",
-			email: expert?.email ?? "",
-			isActive: expert?.isActive ?? true,
+			email: "",
 		},
 		onSubmit: async ({ value }) => {
-			try {
-				if (expert) {
-					toast("Эксперт обновлен");
-				} else {
-					toast("Эксперт добавлен");
-				}
-				onSuccess();
-			} catch {
-				toast("Ошибка");
-			}
+			await setMutation.mutateAsync(value.email);
 		},
 	});
 
@@ -41,27 +39,6 @@ export function ExpertForm({ expert, onSuccess }: ExpertFormProps) {
 			}}
 		>
 			<div className="space-y-4">
-				<form.Field
-					name="name"
-					children={(field) => {
-						const isInvalid =
-							field.state.meta.isTouched && !field.state.meta.isValid;
-						return (
-							<Field data-invalid={isInvalid}>
-								<FieldLabel htmlFor={field.name}>Имя</FieldLabel>
-								<Input
-									id={field.name}
-									name={field.name}
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-									placeholder="Введите имя эксперта"
-								/>
-								{isInvalid && <FieldError errors={field.state.meta.errors} />}
-							</Field>
-						);
-					}}
-				/>
 				<form.Field
 					name="email"
 					children={(field) => {
@@ -84,29 +61,9 @@ export function ExpertForm({ expert, onSuccess }: ExpertFormProps) {
 						);
 					}}
 				/>
-				<form.Field
-					name="isActive"
-					children={(field) => {
-						return (
-							<Field orientation="horizontal">
-								<input
-									type="checkbox"
-									id={field.name}
-									checked={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.checked)}
-									className="size-4"
-								/>
-								<FieldLabel htmlFor={field.name} className="font-normal">
-									Активен
-								</FieldLabel>
-							</Field>
-						);
-					}}
-				/>
 			</div>
 			<div className="flex justify-end gap-2 pt-4">
-				<Button type="submit">{expert ? "Обновить" : "Добавить"}</Button>
+				<Button type="submit">{"Добавить"}</Button>
 			</div>
 		</form>
 	);

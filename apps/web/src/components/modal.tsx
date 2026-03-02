@@ -1,5 +1,3 @@
-import { Trash2 } from "lucide-react";
-
 import { 
     AlertDialog, 
     AlertDialogAction, 
@@ -11,7 +9,6 @@ import {
     AlertDialogTitle, 
     AlertDialogTrigger 
 } from "./ui/alert-dialog";
-import { Button } from "./ui/button";
 
 type ModalWindowProps = {
     header: string;
@@ -21,7 +18,7 @@ type ModalWindowProps = {
     action: () => void;
 };
 
-export default function Modal({
+export function Modal({
     header, 
     description, 
     actionName, 

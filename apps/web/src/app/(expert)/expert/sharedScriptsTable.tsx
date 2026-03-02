@@ -34,7 +34,7 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { trpc } from "@/lib/trpc";
-import Modal from "@/components/modal";
+import { Modal } from "@/components/modal";
 
 export interface ScriptRow {
 	id: string;

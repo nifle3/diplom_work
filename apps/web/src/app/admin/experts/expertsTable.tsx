@@ -10,6 +10,7 @@ import { Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -39,17 +40,18 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { ExpertForm } from "./expertForm";
+import { useMutation } from "@tanstack/react-query";
+import { trpc } from "@/lib/trpc";
+import { Modal } from "@/components/modal";
 
 export interface ExpertRow {
 	id: string;
 	name: string;
 	email: string;
-	isActive: boolean;
 }
 
 interface ExpertsTableProps {
 	data: ExpertRow[];
-	refetch: () => void;
 }
 
 const defaultColumns = (
@@ -66,17 +68,6 @@ const defaultColumns = (
 		cell: ({ row }) => row.original.email,
 	},
 	{
-		accessorKey: "isActive",
-		header: "Статус",
-		cell: ({ row }) => (
-			<span
-				className={row.original.isActive ? "text-green-600" : "text-red-600"}
-			>
-				{row.original.isActive ? "Активен" : "Неактивен"}
-			</span>
-		),
-	},
-	{
 		id: "actions",
 		header: "Действия",
 		cell: ({ row }) => {
@@ -84,63 +75,42 @@ const defaultColumns = (
 			const expertEmail = row.original.email;
 			return (
 				<div className="flex gap-2">
-					<Dialog>
-						<DialogTrigger>
-							<Button variant="ghost" size="icon">
-								<Pencil className="h-4 w-4" />
-							</Button>
-						</DialogTrigger>
-						<DialogContent>
-							<DialogHeader>
-								<DialogTitle>Редактировать эксперта</DialogTitle>
-							</DialogHeader>
-							<ExpertForm expert={row.original} onSuccess={() => {}} />
-						</DialogContent>
-					</Dialog>
-					<AlertDialog>
-						<AlertDialogTrigger>
-							<Button variant="ghost" size="icon">
-								<Trash2 className="h-4 w-4 text-destructive" />
-							</Button>
-						</AlertDialogTrigger>
-						<AlertDialogContent>
-							<AlertDialogHeader>
-								<AlertDialogTitle>Удалить эксперта</AlertDialogTitle>
-								<AlertDialogDescription>
-									Вы уверены, что хотите удалить эксперта {expertName} (
-									{expertEmail})? Это действие нельзя отменить.
-								</AlertDialogDescription>
-							</AlertDialogHeader>
-							<AlertDialogFooter>
-								<AlertDialogCancel>Отмена</AlertDialogCancel>
-								<AlertDialogAction onClick={() => onDelete(row.original.id)}>
-									Удалить
-								</AlertDialogAction>
-							</AlertDialogFooter>
-						</AlertDialogContent>
-					</AlertDialog>
+					<Modal 
+						header={"Удалить эксперта"} 
+						description={`Вы уверены, что хотите удалить эксперта ${expertName} (
+									${expertEmail})? Это действие нельзя отменить.`} 
+						actionName={"Удалить"} 
+						action={() => onDelete(row.original.id)}						>
+						<Button variant="ghost" size="icon">
+							<Trash2 className="h-4 w-4 text-destructive" />
+						</Button>
+					</Modal>
 				</div>
 			);
 		},
 	},
 ];
 
-export function ExpertsTable({ data, refetch }: ExpertsTableProps) {
+export function ExpertsTable({ data }: ExpertsTableProps) {
 	const router = useRouter();
+	const deleteMutation = useMutation(trpc.expertManager.unsetUserExpert.mutationOptions({
+		onSuccess: () => {
+			toast("Эксперт удалён");
+			router.refresh();
+		},
+		onError: (error) => {
+			toast(error.message);
+		}
+	}));
 	const [mounted, setMounted] = useState(false);
 
 	useEffect(() => {
 		setMounted(true);
 	}, []);
 
-	const onDelete = async (expertId: string) => {
-		try {
-			toast("Эксперт удален");
-			refetch();
-		} catch {
-			toast("Ошибка при удалении");
-		}
-	};
+	const onDelete = async (id: string) => {
+		await deleteMutation.mutateAsync(id);
+	}
 
 	const table = useReactTable({
 		data,

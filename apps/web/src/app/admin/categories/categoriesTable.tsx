@@ -30,7 +30,7 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { CategoryForm } from "./categoryForm";
-import Modal from "@/components/modal";
+import { Modal } from "@/components/modal";
 import { useMutation } from "@tanstack/react-query";
 import { trpc } from "@/lib/trpc";
 

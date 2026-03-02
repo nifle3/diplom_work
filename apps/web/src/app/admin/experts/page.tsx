@@ -1,4 +1,5 @@
 import { Plus } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -8,23 +9,12 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { ExpertForm } from "./expertForm";
-import { type ExpertRow, ExpertsTable } from "./expertsTable";
+import { ExpertsTable } from "./expertsTable";
+import { serverTrpc } from "@/lib/trpcServer";
 
-const mockExperts: ExpertRow[] = [
-	{ id: "1", name: "Иван Иванов", email: "ivan@example.com", isActive: true },
-	{ id: "2", name: "Петр Петров", email: "petr@example.com", isActive: true },
-	{
-		id: "3",
-		name: "Сидор Сидоров",
-		email: "sidor@example.com",
-		isActive: false,
-	},
-];
-
-export default function ExpertsPage() {
-	const refetch = () => {
-		console.log("Refetch experts");
-	};
+export default async function ExpertsPage() {
+	const trpcCaller = await serverTrpc();
+	const data = await trpcCaller.expertManager.getAll();
 
 	return (
 		<div className="container mx-auto p-6">
@@ -41,11 +31,11 @@ export default function ExpertsPage() {
 						<DialogHeader>
 							<DialogTitle>Добавить эксперта</DialogTitle>
 						</DialogHeader>
-						<ExpertForm expert={undefined} onSuccess={refetch} />
+						<ExpertForm/>
 					</DialogContent>
 				</Dialog>
 			</div>
-			<ExpertsTable data={mockExperts} refetch={refetch} />
+			<ExpertsTable data={data}/>
 		</div>
 	);
 }
