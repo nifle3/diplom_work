@@ -22,7 +22,7 @@ export default async function PrivateHeader() {
 							Dashboard
 						</Link>
 
-						<Link href={{ pathname: "/courses" }} className="hover:underline">
+						<Link href={{ pathname: "/scripts" }} className="hover:underline">
 							Все курсы
 						</Link>
 					</nav>

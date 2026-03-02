@@ -20,18 +20,15 @@ export function CourseCard({
 	expertName,
 }: CourseCardProps) {
 	return (
-		<Link href={`/interview?scenario=${id}`}>
+		<Link href={{ pathname: `/script/${id}` }}>
 			<Card className="flex h-full cursor-pointer flex-col overflow-hidden transition-shadow hover:shadow-lg">
-				{/* Header image placeholder */}
 				<div className="flex h-24 items-center justify-center bg-gradient-to-r from-blue-500 to-purple-500">
 					<span className="font-bold text-2xl text-white opacity-50">
 						{title.charAt(0)}
 					</span>
 				</div>
 
-				{/* Content */}
 				<div className="flex flex-1 flex-col justify-between px-4 py-4">
-					{/* Title and category */}
 					<div>
 						<h3 className="mb-2 line-clamp-2 font-semibold text-sm">{title}</h3>
 						<p className="mb-3 line-clamp-2 text-gray-500 text-xs dark:text-gray-400">

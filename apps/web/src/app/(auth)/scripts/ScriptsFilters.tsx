@@ -2,12 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
+
 import { CategoriesFilter } from "@/components/courses-filter";
 import { Pagination } from "@/components/pagination";
 import { SearchCourses } from "@/components/search-courses";
 
 interface ScriptsFiltersProps {
-	categories: { id: string; name: string }[];
+	categories: { id: number; name: string }[];
 	currentPage: number;
 	currentCategoryId?: string;
 	currentSearch?: string;
@@ -27,12 +28,10 @@ export function ScriptsFilters({
 	const updateQueryParams = (updates: Record<string, string | undefined>) => {
 		const params = new URLSearchParams();
 
-		// Preserve existing params
 		if (currentSearch) params.set("search", currentSearch);
 		if (currentCategoryId) params.set("categoryId", currentCategoryId);
 		params.set("page", currentPage.toString());
 
-		// Apply updates
 		Object.entries(updates).forEach(([key, value]) => {
 			if (value === undefined || value === "") {
 				params.delete(key);
@@ -41,7 +40,6 @@ export function ScriptsFilters({
 			}
 		});
 
-		// Reset page to 1 if search or category changes
 		if (updates.search !== undefined || updates.categoryId !== undefined) {
 			params.set("page", "1");
 		}

@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+
 import { CourseCard } from "@/components/course-card";
 import { serverTrpc } from "@/lib/trpcServer";
 import { ScriptsFilters } from "./ScriptsFilters";
 
-const metadata: Metadata = {
+export const metadata: Metadata = {
 	title: "Все сценарии",
 };
 
@@ -16,15 +17,13 @@ interface ScriptsPageProps {
 }
 
 export default async function ScriptsPage({ searchParams }: ScriptsPageProps) {
-	const params = await searchParams;
-	const page = Number.parseInt(params.page || "1", 10) || 1;
-	const categoryId = params.categoryId;
-	const search = params.search;
+	const { page, categoryId, search } = await searchParams;
+	const pageInt = Number.parseInt(page || "1", 10) || 1;
 
 	const trpcCaller = await serverTrpc();
 
-	const [coursesData, categories] = await Promise.all([
-		trpcCaller.script.list({ page, limit: 12, categoryId, search }),
+	const { 0: coursesData, 1: categories} = await Promise.all([
+		trpcCaller.script.list({ page: pageInt, limit: 12, categoryId, search }),
 		trpcCaller.script.categories(),
 	]);
 
@@ -61,8 +60,8 @@ export default async function ScriptsPage({ searchParams }: ScriptsPageProps) {
 								<CourseCard
 									key={course.id}
 									id={course.id}
-									title={course.title}
-									context={course.context}
+									title={course.title!}
+									context={course.description!}
 									categoryName={course.categoryName!}
 									expertName={course.expertName!}
 								/>

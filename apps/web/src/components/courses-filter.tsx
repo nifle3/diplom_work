@@ -4,7 +4,7 @@ import { Checkbox } from "./ui/checkbox";
 import { Label } from "./ui/label";
 
 interface CategoriesFilterProps {
-	categories: Array<{ id: string; name: string }>;
+	categories: Array<{ id: number; name: string }>;
 	selectedCategory: string | undefined;
 	onSelectCategory: (categoryId: string | undefined) => void;
 	isLoading?: boolean;
@@ -21,7 +21,6 @@ export function CategoriesFilter({
 			<h3 className="font-semibold text-sm">Категории</h3>
 
 			<div className="space-y-3" role="group" aria-label="Фильтр по категориям">
-				{/* Показать все */}
 				<div className="flex items-center space-x-2">
 					<Checkbox
 						id="category-all"

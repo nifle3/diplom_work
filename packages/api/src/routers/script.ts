@@ -17,7 +17,7 @@ export const getLatestScenariosSchema = z.object({
 export const listScenariosSchema = z.object({
 	page: z.number().int().min(1).default(1),
 	limit: z.number().int().min(1).max(50).default(12),
-	categoryId: z.uuid().optional(),
+	categoryId: z.number().optional(),
 	search: z.string().optional(),
 });
 
@@ -83,6 +83,7 @@ export const scriptRouter = router({
 
 			const whereClause = and(
 				isNull(scriptsTable.deletedAt),
+				eq(scriptsTable.isDraft, false),
 				categoryId ? eq(scriptsTable.categoryId, categoryId) : undefined,
 				search ? ilike(scriptsTable.title, `%${search}%`) : undefined,
 			);
@@ -99,7 +100,7 @@ export const scriptRouter = router({
 				.select({
 					id: scriptsTable.id,
 					title: scriptsTable.title,
-					context: scriptsTable.context,
+					description: scriptsTable.description,
 					categoryName: categoriesTable.name,
 					expertName: usersTable.name,
 				})
