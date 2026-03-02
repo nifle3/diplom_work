@@ -38,7 +38,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { ExpertForm } from "./expert-form";
+import { ExpertForm } from "./expertForm";
 
 export interface ExpertRow {
 	id: string;

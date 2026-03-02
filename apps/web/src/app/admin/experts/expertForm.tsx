@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import type { ExpertRow } from "./experts-table";
+import type { ExpertRow } from "./expertsTable";
 
 interface ExpertFormProps {
 	expert?: ExpertRow;

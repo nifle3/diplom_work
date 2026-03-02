@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import { authClient } from "@/lib/authClient";
 import { Button } from "./ui/button";
@@ -30,6 +31,9 @@ export default function UserMenu({ isUserAdmin, isUserExpert } : UserMenuProps) 
 				onSuccess: () => {
 					router.push("/");
 				},
+				onError: (error) => {
+					toast(error.error.message);
+				}
 			},
 		});
 	};
@@ -45,12 +49,12 @@ export default function UserMenu({ isUserAdmin, isUserExpert } : UserMenuProps) 
 			</DropdownMenuTrigger>
 			<DropdownMenuContent className="bg-card">
 				<DropdownMenuGroup>
-					<DropdownMenuLabel>My Account</DropdownMenuLabel>
+					<DropdownMenuLabel>Мой аккаунт</DropdownMenuLabel>
 					<DropdownMenuSeparator />
 					<DropdownMenuItem>{session!.user.email}</DropdownMenuItem>
 					<DropdownMenuItem>Мой профиль</DropdownMenuItem>
 					{isUserAdmin && 
-						<DropdownMenuItem onClick={() => router.push("/adminPanel")}>
+						<DropdownMenuItem onClick={() => router.push("/admin/categories")}>
 							Главное меню админа
 						</DropdownMenuItem>
 					}
@@ -60,7 +64,7 @@ export default function UserMenu({ isUserAdmin, isUserExpert } : UserMenuProps) 
 						</DropdownMenuItem>
 					}
 					<DropdownMenuItem variant="destructive" onClick={onLogout}>
-						Sign Out
+						Выйти из аккаунта
 					</DropdownMenuItem>
 				</DropdownMenuGroup>
 			</DropdownMenuContent>

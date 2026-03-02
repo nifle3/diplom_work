@@ -7,8 +7,8 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { ExpertForm } from "./expert-form";
-import { type ExpertRow, ExpertsTable } from "./experts-table";
+import { ExpertForm } from "./expertForm";
+import { type ExpertRow, ExpertsTable } from "./expertsTable";
 
 const mockExperts: ExpertRow[] = [
 	{ id: "1", name: "Иван Иванов", email: "ivan@example.com", isActive: true },

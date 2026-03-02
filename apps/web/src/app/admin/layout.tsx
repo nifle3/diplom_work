@@ -1,5 +1,6 @@
 import { RedirectType, redirect } from "next/navigation";
 
+import PrivateHeader from "@/components/privateHeader";
 import { serverTrpc } from "@/lib/trpcServer";
 import { AdminSidebar } from "./sidebar";
 
@@ -16,9 +17,12 @@ export default async function AdminLayout({
 	}
 
 	return (
+		<>
+		<PrivateHeader/>
 		<div className="flex min-h-screen">
-			<main className="flex-1">{children}</main>
 			<AdminSidebar />
+			<main className="flex-1">{children}</main>
 		</div>
+		</>
 	);
 }

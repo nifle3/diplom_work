@@ -2,6 +2,7 @@ import { publicProcedure, router } from "..";
 import { activityRouter } from "./activity";
 import { categoryRouter } from "./category";
 import { expertRouter } from "./expert";
+import { expertManagerRouter } from "./expertManager";
 import { mutateScriptRouter } from "./mutateScript";
 import { profileRouter } from "./profile";
 import { scriptRouter } from "./script";
@@ -20,6 +21,7 @@ export const appRouter = router({
 	profile: profileRouter,
 	session: sessionRouter,
 	category: categoryRouter,
+	expertManager: expertManagerRouter,
 });
 
 export type AppRouter = typeof appRouter;
