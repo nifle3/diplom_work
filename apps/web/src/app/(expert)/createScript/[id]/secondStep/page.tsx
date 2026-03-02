@@ -1,6 +1,6 @@
 import { serverTrpc } from "@/lib/trpcServer";
 
-import SecondStepForm from "./form";
+import SecondStepForm from "./_components/form";
 
 export default async function Page({
 	params,

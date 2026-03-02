@@ -1,22 +1,22 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import SignUpForm from "./signupForm";
+import SignInForm from "./_components/signInForm";
 
 export const metadata: Metadata = {
-	title: "Создать аккаунт",
+	title: "Войти в аккаунт",
 };
 
-export default function SignUpPage() {
+export default function SignInPage() {
 	return (
 		<div className="min-h-screen bg-white text-black dark:bg-black dark:text-white">
 			<div className="mx-auto mt-16 max-w-md rounded-lg bg-white p-6 shadow-md dark:bg-gray-900">
-				<h1 className="mb-4 font-semibold text-2xl">Создать аккаунт</h1>
-				<SignUpForm />
+				<h1 className="mb-4 font-semibold text-2xl">Войти в аккаунт</h1>
+				<SignInForm />
 				<p className="mt-6 text-center text-sm">
-					Уже есть аккаунт?
-					<Link href="/sign-in" className="text-blue-600 hover:underline">
-						Войти
+					Нет аккаунта?
+					<Link href={{pathname: "/signUp"}} className="text-blue-600 hover:underline">
+						Зарегистрироваться
 					</Link>
 				</p>
 			</div>

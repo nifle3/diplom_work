@@ -9,7 +9,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { serverTrpc } from "@/lib/trpcServer";
-import NewSessionButton from "./newSessionButton";
+import NewSessionButton from "./_components/newSessionButton";
 
 export default async function Page({
 	params,

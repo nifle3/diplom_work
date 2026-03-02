@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { serverTrpc } from "@/lib/trpcServer";
-import TableSelector from "./tableSelector";
+import TableSelector from "./_components/tableSelector";
 
 export const metadata: Metadata = {
 	title: "Мой профиль",

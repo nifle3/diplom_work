@@ -15,7 +15,7 @@ import {
 	InputGroupTextarea,
 } from "@/components/ui/input-group";
 
-import { useSecondStepForm } from "./useSecondStepForm";
+import { useSecondStepForm } from "../_hooks/useSecondStepForm";
 
 interface SecondStepFormProps {
 	initialData: {

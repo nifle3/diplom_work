@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 import { serverTrpc } from "@/lib/trpcServer";
-import CreateScriptButton from "./createScriptButton";
-import { SharedScriptsTable, type ScriptRow } from "./sharedScriptsTable";
+import CreateScriptButton from "./_components/createScriptButton";
+import { SharedScriptsTable, type ScriptRow } from "./_components/sharedScriptsTable";
 
 export const metadata: Metadata = {
 	title: "Рабочий кабинет эксперта",

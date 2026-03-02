@@ -1,4 +1,5 @@
 import { Plus } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -7,8 +8,8 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { CategoriesTable } from "./categoriesTable";
-import { CategoryForm } from "./categoryForm";
+import { CategoriesTable } from "./_components/categoriesTable";
+import { CategoryForm } from "./_components/categoryForm";
 import { serverTrpc } from "@/lib/trpcServer";
 
 export default async function CategoriesPage() {

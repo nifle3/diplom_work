@@ -1,4 +1,4 @@
-import InterviewWindow from "./interviewWindow";
+import InterviewWindow from "./_components/interviewWindow";
 
 export const metadata = {
 	title: "Интервью",

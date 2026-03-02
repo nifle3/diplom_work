@@ -39,7 +39,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { ExpertForm } from "./expertForm";
+import { ExpertForm } from "../expertForm";
 import { useMutation } from "@tanstack/react-query";
 import { trpc } from "@/lib/trpc";
 import { Modal } from "@/components/modal";

@@ -8,8 +8,8 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { ExpertForm } from "./expertForm";
-import { ExpertsTable } from "./expertsTable";
+import { ExpertForm } from "./_components/expertForm";
+import { ExpertsTable } from "./_components/expertsTable";
 import { serverTrpc } from "@/lib/trpcServer";
 
 export default async function ExpertsPage() {
