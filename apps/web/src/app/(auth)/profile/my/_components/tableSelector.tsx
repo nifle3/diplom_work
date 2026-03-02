@@ -1,35 +1,30 @@
-"use client";
-
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import MyAchivementsTable from "./myAchivementsTable";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import MyAchievementsTable from "./myAchivementsTable";
 import MyHistoryTable from "./myHistoryTable";
 
-enum TableEnum {
-	MyAchivements = 0,
-	MyHistory = 1,
-}
-
 export default function TableSelector() {
-	const [selectedTable, setSelectedTable] = useState<TableEnum>(
-		TableEnum.MyHistory,
-	);
-
-	const selectAchivements = () => {
-		setSelectedTable(TableEnum.MyAchivements);
-	};
-
-	const selectHistory = () => {
-		setSelectedTable(TableEnum.MyHistory);
-	};
-
 	return (
-		<>
-			<Button onClick={selectHistory}>Моя история</Button>
-			<Button onClick={selectAchivements}>Мои достижения</Button>
-
-			{(selectedTable == TableEnum.MyHistory && <MyHistoryTable />) ||
-				(selectedTable == TableEnum.MyAchivements && <MyAchivementsTable />)}
-		</>
+		<Tabs defaultValue="history" className="w-full">
+			<TabsList className="mb-6 grid w-full grid-cols-2 bg-muted/50 p-1">
+				<TabsTrigger
+					value="history"
+					className="data-[active]:bg-gradient-to-r data-[active]:from-violet-600 data-[active]:to-indigo-600 data-[active]:text-white"
+				>
+					Моя история
+				</TabsTrigger>
+				<TabsTrigger
+					value="achievements"
+					className="data-[active]:bg-gradient-to-r data-[active]:from-violet-600 data-[active]:to-indigo-600 data-[active]:text-white"
+				>
+					Мои достижения
+				</TabsTrigger>
+			</TabsList>
+			<TabsContent value="history">
+				<MyHistoryTable data={historyData} />
+			</TabsContent>
+			<TabsContent value="achievements">
+				<MyAchievementsTable data={transformedAchievements} />
+			</TabsContent>
+		</Tabs>
 	);
 }

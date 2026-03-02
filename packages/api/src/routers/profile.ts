@@ -1,4 +1,11 @@
+import { count, eq } from "drizzle-orm";
+
 import { db } from "@diplom_work/db/index";
+import {
+	interviewSessionsTable,
+	userAchievementsTable,
+} from "@diplom_work/db/schema/scheme";
+
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "..";
 
@@ -17,11 +24,30 @@ export const profileRouter = router({
 		}
 
 		return user;
+
+	}),
+	getMyProfileStats: protectedProcedure.query(async ({ ctx }) => {
+		const userId = ctx.session.user.id;
+
+		const { 0: interviewCountResult } = await db
+			.select({ count: count() })
+			.from(interviewSessionsTable)
+			.where(eq(interviewSessionsTable.userId, userId));
+
+		const { 0: achievementCountResult } = await db
+			.select({ count: count() })
+			.from(userAchievementsTable)
+			.where(eq(userAchievementsTable.userId, userId));
+
+		return {
+			interviewCount: interviewCountResult?.count ?? 0,
+			achievementCount: achievementCountResult?.count ?? 0,
+		};
 	}),
 	getMyHistory: protectedProcedure.query(async ({ ctx }) => {
-		await db.query.interviewSessionsTable.findMany({
-			where: (interviewSessionsTable, { eq, and }) =>
-				and(eq(interviewSessionsTable.userId, ctx.session.user.id)),
+		const sessions = await db.query.interviewSessionsTable.findMany({
+			where: (interviewSessionsTable, { eq }) =>
+				eq(interviewSessionsTable.userId, ctx.session.user.id),
 			columns: {
 				id: true,
 				status: true,
@@ -38,7 +64,35 @@ export const profileRouter = router({
 					},
 				},
 			},
+			orderBy: (interviewSessionsTable, { desc }) => [
+				desc(interviewSessionsTable.startedAt),
+			],
 		});
+
+		return sessions;
 	}),
-	getMyAchivements: protectedProcedure.query(async ({ ctx }) => {}),
+	getMyAchivements: protectedProcedure.query(async ({ ctx }) => {
+		const achievements = await db.query.userAchievementsTable.findMany({
+			where: (userAchievementsTable, { eq }) =>
+				eq(userAchievementsTable.userId, ctx.session.user.id),
+			columns: {
+				awardedAt: true,
+			},
+			with: {
+				achievement: {
+					columns: {
+						id: true,
+						name: true,
+						description: true,
+						iconUrl: true,
+					},
+				},
+			},
+			orderBy: (userAchievementsTable, { desc }) => [
+				desc(userAchievementsTable.awardedAt),
+			],
+		});
+
+		return achievements;
+	}),
 });

@@ -1,9 +1,4 @@
-"use client";
-
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-
-import { authClient } from "@/lib/authClient";
+import Link from "next/link";
 import { Button } from "./ui/button";
 import {
 	DropdownMenu,
@@ -14,58 +9,49 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { Skeleton } from "./ui/skeleton";
+import { LogoutButton } from "./logoutButton";
+import { auth } from "@diplom_work/auth";
+import { headers } from "next/headers";
 
 type UserMenuProps = {
 	isUserAdmin: boolean;
 	isUserExpert: boolean;
 }
 
-export default function UserMenu({ isUserAdmin, isUserExpert } : UserMenuProps) {
-	const router = useRouter();
-	const { data: session, isPending } = authClient.useSession();
-
-	const onLogout = () => {
-		authClient.signOut({
-			fetchOptions: {
-				onSuccess: () => {
-					router.push("/");
-				},
-				onError: (error) => {
-					toast(error.error.message);
-				}
-			},
-		});
-	};
-
-	if (isPending) {
-		return <Skeleton className="h-9 w-24" />;
-	}
+export default async function UserMenu({ isUserAdmin, isUserExpert } : UserMenuProps) {
+	const head = await headers();
+	const data = await auth.api.getSession({
+		headers: head
+	});
 
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger render={<Button variant="outline" />}>
-				{session!.user.name}
+				{data!.user.name}
 			</DropdownMenuTrigger>
 			<DropdownMenuContent className="bg-card">
 				<DropdownMenuGroup>
 					<DropdownMenuLabel>Мой аккаунт</DropdownMenuLabel>
 					<DropdownMenuSeparator />
-					<DropdownMenuItem>{session!.user.email}</DropdownMenuItem>
-					<DropdownMenuItem>Мой профиль</DropdownMenuItem>
+					<DropdownMenuItem>{data!.user.email}</DropdownMenuItem>
+					<Link href={{ pathname: "/profile/my" }} passHref>
+						<DropdownMenuItem>Мой профиль</DropdownMenuItem>
+					</Link>
 					{isUserAdmin && 
-						<DropdownMenuItem onClick={() => router.push("/admin/categories")}>
-							Главное меню админа
-						</DropdownMenuItem>
+						<Link href={{ pathname: "/admin/experts" }} passHref>
+							<DropdownMenuItem>
+								Главное меню админа
+							</DropdownMenuItem>
+						</Link>
 					}
 					{isUserExpert && 
-						<DropdownMenuItem onClick={() => router.push("/expert")}>
-							Главное меню эксперта
-						</DropdownMenuItem>
+						<Link href={{ pathname: "/expert" }} passHref>
+							<DropdownMenuItem>
+								Главное меню эксперта
+							</DropdownMenuItem>
+						</Link>
 					}
-					<DropdownMenuItem variant="destructive" onClick={onLogout}>
-						Выйти из аккаунта
-					</DropdownMenuItem>
+					<LogoutButton/>
 				</DropdownMenuGroup>
 			</DropdownMenuContent>
 		</DropdownMenu>
