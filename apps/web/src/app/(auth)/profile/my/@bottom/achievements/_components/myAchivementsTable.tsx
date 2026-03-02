@@ -17,40 +17,8 @@ interface AchievementRow {
 }
 
 interface MyAchievementsTableProps {
-	data?: AchievementRow[];
-	isLoading?: boolean;
+	data: Array<AchievementRow>;
 }
-
-const mockAchievements: AchievementRow[] = [
-	{
-		id: "1",
-		name: "Первое интервью",
-		description: "Пройдите ваше первое интервью",
-		iconUrl: null,
-		awardedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-	},
-	{
-		id: "2",
-		name: "Набираем обороты",
-		description: "Пройдите 5 интервью",
-		iconUrl: null,
-		awardedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-	},
-	{
-		id: "3",
-		name: "Мастер общения",
-		description: "Получите оценку 90% или выше",
-		iconUrl: null,
-		awardedAt: null,
-	},
-	{
-		id: "4",
-		name: "Неделя практики",
-		description: "Maintain a 7-day streak",
-		iconUrl: null,
-		awardedAt: null,
-	},
-];
 
 const iconMap: Record<string, typeof Trophy> = {
 	Trophy: Trophy,
@@ -126,44 +94,13 @@ const columns: ColumnDef<AchievementRow>[] = [
 	},
 ];
 
-export default function MyAchievementsTable({
-	data = mockAchievements,
-	isLoading,
-}: MyAchievementsTableProps) {
+export function MyAchievementsTable({ data }: MyAchievementsTableProps) {
 	const table = useReactTable({
 		data,
 		columns,
 		getCoreRowModel: getCoreRowModel(),
 	});
 
-	if (isLoading) {
-		return (
-			<div className="rounded-xl border bg-card shadow-sm">
-				<div className="border-b">
-					<div className="grid grid-cols-3 gap-4 p-4">
-						{Array.from({ length: 3 }).map((_, i) => (
-							<div
-								key={`header-${i}`}
-								className="h-5 animate-pulse rounded bg-muted"
-							/>
-						))}
-					</div>
-				</div>
-				<div className="divide-y">
-					{Array.from({ length: 4 }).map((_, i) => (
-						<div key={`row-${i}`} className="grid grid-cols-3 gap-4 p-4">
-							{Array.from({ length: 3 }).map((_, j) => (
-								<div
-									key={`cell-${i}-${j}`}
-									className="h-10 animate-pulse rounded bg-muted"
-								/>
-							))}
-						</div>
-					))}
-				</div>
-			</div>
-		);
-	}
 
 	const earnedCount = data.filter((a) => a.awardedAt !== null).length;
 	const totalCount = data.length;

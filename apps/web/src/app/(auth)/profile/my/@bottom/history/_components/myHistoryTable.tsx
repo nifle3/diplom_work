@@ -11,7 +11,6 @@ import {
 	CheckCircle2,
 	ChevronRight,
 	Clock,
-	MessageSquare,
 	XCircle,
 } from "lucide-react";
 import Link from "next/link";
@@ -132,58 +131,12 @@ const columns: ColumnDef<HistoryRow>[] = [
 	},
 ];
 
-export default function MyHistoryTable({
-	data,
-	isLoading,
-}: MyHistoryTableProps) {
+export function MyHistoryTable({ data }: MyHistoryTableProps) {
 	const table = useReactTable({
 		data,
 		columns,
 		getCoreRowModel: getCoreRowModel(),
 	});
-
-	if (isLoading) {
-		return (
-			<div className="rounded-xl border bg-card shadow-sm">
-				<div className="border-b">
-					<div className="grid grid-cols-5 gap-4 p-4">
-						{Array.from({ length: 5 }).map((_, i) => (
-							<div
-								key={`header-${i}`}
-								className="h-5 animate-pulse rounded bg-muted"
-							/>
-						))}
-					</div>
-				</div>
-				<div className="divide-y">
-					{Array.from({ length: 5 }).map((_, i) => (
-						<div key={`row-${i}`} className="grid grid-cols-5 gap-4 p-4">
-							{Array.from({ length: 5 }).map((_, j) => (
-								<div
-									key={`cell-${i}-${j}`}
-									className="h-5 animate-pulse rounded bg-muted"
-								/>
-							))}
-						</div>
-					))}
-				</div>
-			</div>
-		);
-	}
-
-	if (!data || data.length === 0) {
-		return (
-			<div className="flex flex-col items-center justify-center rounded-xl border bg-card py-16 shadow-sm">
-				<div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-					<MessageSquare className="h-8 w-8 text-muted-foreground" />
-				</div>
-				<h3 className="mb-1 font-semibold text-lg">Нет истории интервью</h3>
-				<p className="text-muted-foreground text-sm">
-					Начните проходить интервью, чтобы увидеть их здесь
-				</p>
-			</div>
-		);
-	}
 
 	return (
 		<div className="overflow-hidden rounded-xl border bg-card shadow-sm">

@@ -1,7 +1,8 @@
-import { count, eq, and, isNull } from "drizzle-orm";
+import { count, eq, and, isNull, desc } from "drizzle-orm";
 
-import { db } from "@diplom_work/db/index";
+import { db } from "@diplom_work/db";
 import {
+	achievementsTable,
 	interviewSessionsTable,
 	userAchievementsTable,
 	usersTable,
@@ -80,26 +81,21 @@ export const profileRouter = router({
 		return sessions;
 	}),
 	getMyAchivements: protectedProcedure.query(async ({ ctx }) => {
-		const achievements = await db.query.userAchievementsTable.findMany({
-			where: (userAchievementsTable, { eq }) =>
-				eq(userAchievementsTable.userId, ctx.session.user.id),
-			columns: {
-				awardedAt: true,
-			},
-			with: {
-				achievement: {
-					columns: {
-						id: true,
-						name: true,
-						description: true,
-						iconUrl: true,
-					},
-				},
-			},
-			orderBy: (userAchievementsTable, { desc }) => [
-				desc(userAchievementsTable.awardedAt),
-			],
-		});
+		const achievements = await db
+			.select({
+				awardedAt: userAchievementsTable.awardedAt,
+				id: achievementsTable.id,
+				name: achievementsTable.name,
+				description: achievementsTable.description,
+				iconUrl: achievementsTable.iconUrl,
+			})
+			.from(userAchievementsTable)
+			.innerJoin(
+				achievementsTable,
+				eq(userAchievementsTable.achievementId, achievementsTable.id)
+			)
+			.where(eq(userAchievementsTable.userId, ctx.session.user.id))
+			.orderBy(desc(userAchievementsTable.awardedAt));
 
 		return achievements;
 	}),
