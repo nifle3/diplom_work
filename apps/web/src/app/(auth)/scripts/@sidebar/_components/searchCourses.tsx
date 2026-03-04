@@ -1,19 +1,21 @@
 "use client";
 
 import { Search, X } from "lucide-react";
-import { useCallback, useState } from "react";
-import { Input } from "./ui/input";
+import { useCallback, useState, type ChangeEvent } from "react";
+
+import { Input } from "@/components/ui/input";
 
 interface SearchCoursesProps {
 	onSearch: (query: string) => void;
 	isLoading?: boolean;
+	defaultValue?: string;
 }
 
-export function SearchCourses({ onSearch, isLoading }: SearchCoursesProps) {
-	const [query, setQuery] = useState("");
+export function SearchCourses({ onSearch, isLoading, defaultValue }: SearchCoursesProps) {
+	const [query, setQuery] = useState(defaultValue || "");
 
 	const handleChange = useCallback(
-		(e: React.ChangeEvent<HTMLInputElement>) => {
+		(e: ChangeEvent<HTMLInputElement>) => {
 			const value = e.target.value;
 			setQuery(value);
 			onSearch(value);

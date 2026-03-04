@@ -1,6 +1,6 @@
 import { CourseCard } from "@/components/course-card";
 import { serverTrpc } from "@/lib/trpcServer";
-import { PaginationSection } from "./PaginationSection";
+import { PaginationSection } from "./_components/paginationSection";
 
 interface ListProps {
   searchParams: Promise<{
@@ -13,12 +13,13 @@ interface ListProps {
 export default async function ListSlot({ searchParams }: ListProps) {
   const { page, categoryId, search } = await searchParams;
   const pageInt = Number.parseInt(page || "1", 10) || 1;
+  const categoryIdInt = Number.parseInt(categoryId || "1", 10) || 1;
 
   const trpcCaller = await serverTrpc();
   const coursesData = await trpcCaller.script.list({
     page: pageInt,
     limit: 12,
-    categoryId,
+    categoryId: categoryIdInt,
     search
   });
 
