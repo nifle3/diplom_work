@@ -1,7 +1,7 @@
 "use client";
 
-import { CategoriesFilter } from "@/components/courses-filter";
-import { SearchCourses } from "@/components/search-courses";
+import { CategoriesFilter } from "@/app/(auth)/scripts/@sidebar/_components/categoriesFilter";
+import { SearchCourses } from "@/app/(auth)/scripts/@sidebar/_components/searchCourses";
 import { useScriptsQuery } from "../../_hooks/useScriptsQuery";
 
 interface ScriptsFiltersProps {
