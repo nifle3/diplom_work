@@ -11,6 +11,8 @@
   },
   "scripts": {},
   "dependencies": {
+    "@langchain/core": "^1.1.27",
+    "@langchain/deepseek": "^1.0.16",
     "dotenv": "catalog:",
     "langchain": "^1.2.25",
     "zod": "catalog:"
