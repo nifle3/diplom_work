@@ -8,6 +8,7 @@ interface PaginationSectionProps {
   totalPages: number;
 }
 
+// TODO: refactor pagination to hook and shadcn/ui
 export function PaginationSection({ currentPage, totalPages }: PaginationSectionProps) {
   const { isPending, setPage } = useScriptsQuery();
 
