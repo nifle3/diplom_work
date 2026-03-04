@@ -2,12 +2,12 @@ import { RedirectType, redirect } from "next/navigation";
 
 import PrivateHeader from "@/components/privateHeader";
 import { serverTrpc } from "@/lib/trpcServer";
-import { AdminSidebar } from "./sidebar";
+import { AdminSidebar } from "./_components/sidebar";
 
 export default async function AdminLayout({
-	children,
+	settings,
 }: Readonly<{
-	children: React.ReactNode;
+	settings: React.ReactNode;
 }>) {
 	const trpcCaller = await serverTrpc();
 
@@ -18,11 +18,11 @@ export default async function AdminLayout({
 
 	return (
 		<>
-		<PrivateHeader/>
-		<div className="flex min-h-screen">
-			<AdminSidebar />
-			<main className="flex-1">{children}</main>
-		</div>
+			<PrivateHeader/>
+			<div className="flex min-h-screen">
+				<AdminSidebar />
+				<main className="flex-1">{settings}</main>
+			</div>
 		</>
 	);
 }
