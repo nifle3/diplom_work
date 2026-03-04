@@ -41,7 +41,6 @@ export function CourseCard({
 						</div>
 					</div>
 
-					{/* Footer */}
 					<div className="border-t pt-3 text-gray-500 text-xs dark:text-gray-400">
 						Эксперт: {expertName}
 					</div>

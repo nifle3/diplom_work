@@ -1,4 +1,4 @@
-import { CourseCard } from "@/components/course-card";
+import { CourseCard } from "@/components/courseCard";
 import { serverTrpc } from "@/lib/trpcServer";
 import { PaginationSection } from "./_components/paginationSection";
 
