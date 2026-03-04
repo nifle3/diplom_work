@@ -1,32 +1,34 @@
 "use client";
 
 import { Search, X } from "lucide-react";
-import { useCallback, useState, type ChangeEvent } from "react";
+import { type ChangeEvent, type KeyboardEvent, useCallback, useState } from "react";
 
 import { Input } from "@/components/ui/input";
+import { useScriptsQuery } from "../../_hooks/useScriptsQuery";
 
-interface SearchCoursesProps {
-	onSearch: (query: string) => void;
-	isLoading?: boolean;
-	defaultValue?: string;
-}
 
-export function SearchCourses({ onSearch, isLoading, defaultValue }: SearchCoursesProps) {
-	const [query, setQuery] = useState(defaultValue || "");
+// TODO: поправить кривые иконки
+export function SearchCourses() {
+	const { isPending, currentParams, setSearch } = useScriptsQuery();
+	const [query, setQuery] = useState(currentParams.search || "");
 
-	const handleChange = useCallback(
-		(e: ChangeEvent<HTMLInputElement>) => {
-			const value = e.target.value;
-			setQuery(value);
-			onSearch(value);
+	const handleChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+		setQuery(e.target.value);
+	}, []);
+
+	const handleKeyDown = useCallback(
+		(e: KeyboardEvent<HTMLInputElement>) => {
+			if (e.key === "Enter") {
+				setSearch(query);
+			}
 		},
-		[onSearch],
+		[query, setSearch],
 	);
 
 	const handleClear = useCallback(() => {
 		setQuery("");
-		onSearch("");
-	}, [onSearch]);
+		setSearch("");
+	}, [setSearch]);
 
 	return (
 		<div className="relative">
@@ -36,13 +38,15 @@ export function SearchCourses({ onSearch, isLoading, defaultValue }: SearchCours
 				placeholder="Поиск курсов..."
 				value={query}
 				onChange={handleChange}
-				disabled={isLoading}
-				className="pr-8 pl-10"
+				onKeyDown={handleKeyDown}
+				disabled={isPending}
+				className="pr-10 pl-10"
 			/>
 			{query && (
 				<button
+					type="button"
 					onClick={handleClear}
-					disabled={isLoading}
+					disabled={isPending}
 					className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
 					aria-label="Очистить поиск"
 				>

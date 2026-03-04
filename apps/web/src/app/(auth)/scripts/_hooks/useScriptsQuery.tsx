@@ -19,7 +19,7 @@ export function useScriptsQuery() {
       }
     });
 
-    if (shouldResetPage && (updates.search !== undefined || updates.categoryId !== undefined)) {
+    if (shouldResetPage && (updates.search || updates.categoryId)) {
       params.set("page", "1");
     }
 

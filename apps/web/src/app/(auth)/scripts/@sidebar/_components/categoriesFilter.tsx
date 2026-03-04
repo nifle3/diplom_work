@@ -2,20 +2,17 @@
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { useScriptsQuery } from "../../_hooks/useScriptsQuery";
 
-interface CategoriesFilterProps {
-	categories: Array<{ id: number; name: string }>;
-	selectedCategory: string | undefined;
-	onSelectCategory: (categoryId: string | undefined) => void;
-	isLoading?: boolean;
+type CategoriesFilterProps = {
+	categories: Array<{ id: string; name: string }>;
 }
 
 export function CategoriesFilter({
 	categories,
-	selectedCategory,
-	onSelectCategory,
-	isLoading,
 }: CategoriesFilterProps) {
+	const { isPending, currentParams, setCategory} = useScriptsQuery();
+
 	return (
 		<div className="space-y-4">
 			<h3 className="font-semibold text-sm">Категории</h3>
@@ -24,13 +21,13 @@ export function CategoriesFilter({
 				<div className="flex items-center space-x-2">
 					<Checkbox
 						id="category-all"
-						checked={!selectedCategory}
+						checked={!currentParams.categoryId}
 						onCheckedChange={(checked) => {
 							if (checked) {
-								onSelectCategory(undefined);
+								setCategory(undefined);
 							}
 						}}
-						disabled={isLoading}
+						disabled={isPending}
 						aria-label="Показать все курсы"
 					/>
 					<Label htmlFor="category-all" className="cursor-pointer font-normal">
@@ -38,20 +35,19 @@ export function CategoriesFilter({
 					</Label>
 				</div>
 
-				{/* Категории */}
 				{categories.map((category) => (
 					<div key={category.id} className="flex items-center space-x-2">
 						<Checkbox
 							id={`category-${category.id}`}
-							checked={selectedCategory === category.id}
+							checked={currentParams.categoryId == category.id}
 							onCheckedChange={(checked) => {
 								if (checked) {
-									onSelectCategory(category.id);
+									setCategory(category.id);
 								} else {
-									onSelectCategory(undefined);
+									setCategory(undefined);
 								}
 							}}
-							disabled={isLoading}
+							disabled={isPending}
 						/>
 						<Label
 							htmlFor={`category-${category.id}`}
