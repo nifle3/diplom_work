@@ -1,0 +1,23 @@
+{
+  "name": "ai",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "dotenv": "catalog:",
+    "langchain": "^1.2.25",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@diplom_work/config": "workspace:*",
+    "@diplom_work/env": "workspace:*",
+    "typescript": "catalog:"
+  }
+}
