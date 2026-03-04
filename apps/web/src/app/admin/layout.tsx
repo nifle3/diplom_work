@@ -4,7 +4,7 @@ import PrivateHeader from "@/components/privateHeader";
 import { serverTrpc } from "@/lib/trpcServer";
 import { AdminSidebar } from "./_components/sidebar";
 
-export default async function AdminLayout({
+export default async function Layout({
 	settings,
 }: Readonly<{
 	settings: React.ReactNode;
