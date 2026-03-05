@@ -1,3 +1,10 @@
 import { deepseek } from "@ai-sdk/deepseek";
+import { wrapLanguageModel } from "ai";
 
-export const model = deepseek("deepseek-chat");
+import { shieldUserTextMiddleware } from "./middlewares";
+
+const provider = deepseek("deepseek-chat");
+export const model = wrapLanguageModel({
+    model: provider,
+    middleware: [shieldUserTextMiddleware]
+});
