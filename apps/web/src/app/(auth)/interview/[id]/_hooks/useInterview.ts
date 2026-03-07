@@ -1,12 +1,22 @@
 import { useState, useEffect, useRef } from "react";
+import { toast } from "sonner";
 
 import type { Message } from "../_utils/type";
+import { useMutation } from "@tanstack/react-query";
+import { trpc } from "@/lib/trpc";
 
 export function useInterview(initialMessages: Message[]) {
 	const [messages, setMessages] = useState<Message[]>(initialMessages);
 	const [inputValue, setInputValue] = useState("");
-	const [isSending, setIsSending] = useState(false);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
+	const newMessage = useMutation(trpc.session.addNewMessage.mutationOptions({
+		onSuccess: (val) => {
+			setInputValue("");
+		},
+		onError: (error) => {
+			toast(error.message);
+		},
+	}));
 
 	const scrollToBottom = () => {
 		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -14,34 +24,18 @@ export function useInterview(initialMessages: Message[]) {
 
 	useEffect(() => {
 		scrollToBottom();
-	}, [messages, isSending]);
+	}, [messages, newMessage.isPending]);
 
-	const handleSend = async (callback?: (val: string) => Promise<void>) => {
-		if (!inputValue.trim() || isSending) return;
-
-		const userMessage: Message = {
-			id: Date.now().toString(),
-			isAi: false,
-			messageText: inputValue.trim(),
-			createdAt: new Date(),
-		};
-
-		setMessages((prev) => [...prev, userMessage]);
-		setInputValue("");
-		setIsSending(true);
-
-		try {
-			if (callback) await callback(userMessage.messageText);
-		} finally {
-			setIsSending(false);
-		}
+	const handleSend = async () => {
+		if (!inputValue.trim() || newMessage.isPending) return;
+		await newMessage.mutateAsync();
 	};
 
 	return {
 		messages,
 		inputValue,
 		setInputValue,
-		isSending,
+		isSending: newMessage.isPending,
 		messagesEndRef,
 		handleSend,
 	};
