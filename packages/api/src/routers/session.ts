@@ -2,7 +2,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 
 import { db } from "@diplom_work/db/index";
-import { interviewSessionsTable, sessionsTable } from "@diplom_work/db/schema/scheme";
+import { interviewSessionsTable } from "@diplom_work/db/schema/scheme";
 
 import { protectedProcedure, router } from "..";
 
@@ -22,6 +22,24 @@ export const sessionRouter = router({
 
             return result.id;
         }),
+    getScriptByInterviewId: protectedProcedure.
+        input(z.uuid())
+        .query(async ({ ctx, input }) => {
+            const result = await db.query.interviewSessionsTable.findFirst({
+                where: (interviewSessionsTable, { eq, and }) => and(
+                    eq(interviewSessionsTable.id, input),
+                    eq(interviewSessionsTable.userId, ctx.session.user.id),
+                ),
+                with: {
+                    script: true,
+                },
+            });
+            if (!result) {
+                throw new TRPCError({ code: "NOT_FOUND" });
+            }
+
+            return result.script;
+        }),
     getAllHistory: protectedProcedure
         .input(z.string())
         .query(async ({ ctx, input }) => {
@@ -36,6 +54,11 @@ export const sessionRouter = router({
                 }
             });
             return results.filter((val) => val.session.userId == ctx.session.user.id);
+        }),
+    addNewMessage: protectedProcedure
+        .input()
+        .mutation(async ({ ctx, input }) => {
+
         }),
     startNewConversation: protectedProcedure
         .input(z.string())

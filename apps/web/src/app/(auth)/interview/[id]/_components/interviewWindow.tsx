@@ -18,31 +18,21 @@ import { Textarea } from "@/components/ui/textarea";
 
 export type Message = {
 	id: string;
-	role: "user" | "assistant";
-	content: string;
-	timestamp: Date;
+	isAi: boolean;
+	messageText: string;
+	createdAt: Date;
 };
 
 type InterviewWindowProps = {
-	scriptId: string;
-	initialQuestion?: string;
-	onEnd: () => void;
-	onSendMessage: (message: string) => Promise<void>;
-	isLoading?: boolean;
-	userAvatar?: string;
-	aiAvatar?: string;
-	scriptTitle?: string;
+	interviewId: string;
+	initialQuestion: Message[];
+	scriptTitle: string;
 };
 
 export default function InterviewWindow({
-	scriptId,
-	initialQuestion = "Расскажите о себе",
-	onEnd,
-	onSendMessage,
-	isLoading = false,
-	userAvatar,
-	aiAvatar,
-	scriptTitle = "Интервью",
+	interviewId,
+	initialQuestion,
+	scriptTitle
 }: InterviewWindowProps) {
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [inputValue, setInputValue] = useState("");
