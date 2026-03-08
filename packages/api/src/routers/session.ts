@@ -5,10 +5,10 @@ import {
 } from "@diplom_work/db/schema/scheme";
 import { getFirstQuestion, getNextQuestion, summarize } from "@diplom_work/llm";
 import { TRPCError } from "@trpc/server";
-import { z } from "zod";
 import { eq } from "drizzle-orm";
-import { protectedProcedure, router } from "..";
 import { resolveViewport } from "next/dist/lib/metadata/resolve-metadata";
+import { z } from "zod";
+import { protectedProcedure, router } from "..";
 
 const addNewMessageScheme = z.object({
 	sessionId: z.uuid(),
@@ -113,17 +113,18 @@ export const sessionRouter = router({
 		.input(addNewMessageScheme)
 		.mutation(async ({ ctx, input }) => {
 			const session = await db.query.interviewSessionsTable.findFirst({
-				where: (interviewSessionsTable, { eq, and }) => and(
-					eq(interviewSessionsTable.userId, ctx.session.user.id),
-					eq(interviewSessionsTable.id, input.sessionId)
-				),
+				where: (interviewSessionsTable, { eq, and }) =>
+					and(
+						eq(interviewSessionsTable.userId, ctx.session.user.id),
+						eq(interviewSessionsTable.id, input.sessionId),
+					),
 				with: {
 					messages: {
 						where: (messages, { eq }) => eq(messages.isAi, true),
 						orderBy: (messages, { desc }) => [desc(messages.createdAt)],
 						limit: 1,
 					},
-				}
+				},
 			});
 
 			if (!session) {
@@ -131,17 +132,18 @@ export const sessionRouter = router({
 			}
 
 			const script = await db.query.scriptsTable.findFirst({
-				where: (scriptsTable, { eq, and, isNull }) => and(
-					eq(scriptsTable.id, session.scriptId),
-					isNull(scriptsTable.deletedAt),
-				),
+				where: (scriptsTable, { eq, and, isNull }) =>
+					and(
+						eq(scriptsTable.id, session.scriptId),
+						isNull(scriptsTable.deletedAt),
+					),
 				with: {
 					questions: {
 						columns: {
 							text: true,
-						}
+						},
 					},
-				}
+				},
 			});
 
 			if (!script) {
@@ -151,7 +153,7 @@ export const sessionRouter = router({
 			const lastAiMessage = session.messages[0];
 
 			if (!lastAiMessage) {
-				throw new TRPCError({code: "INTERNAL_SERVER_ERROR"});
+				throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
 			}
 
 			const sum = await summarize({
@@ -161,14 +163,17 @@ export const sessionRouter = router({
 			});
 
 			const result = await db.transaction(async (tx) => {
-				await tx.update(interviewSessionsTable).set({
-					summarize: sum,
-				}).where(eq(interviewSessionsTable.id, input.sessionId));
-			
+				await tx
+					.update(interviewSessionsTable)
+					.set({
+						summarize: sum,
+					})
+					.where(eq(interviewSessionsTable.id, input.sessionId));
+
 				const newQuestion = await getNextQuestion({
 					context: script.context ?? "",
 					questionExamples: script.questions.map((val) => val.text),
-					summarize: sum
+					summarize: sum,
 				});
 
 				await tx.insert(chatMessagesTable).values({
@@ -177,18 +182,21 @@ export const sessionRouter = router({
 					messageText: input.content,
 				});
 
-				const { 0: result } = await tx.insert(chatMessagesTable).values({
-					sessionId: input.sessionId,
-					isAi: true,
-					messageText: newQuestion,
-				}).returning();
+				const { 0: result } = await tx
+					.insert(chatMessagesTable)
+					.values({
+						sessionId: input.sessionId,
+						isAi: true,
+						messageText: newQuestion,
+					})
+					.returning();
 
 				if (!result) {
-					throw new TRPCError({code:"INTERNAL_SERVER_ERROR"});
+					throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
 				}
 
 				return result;
-			})
+			});
 
 			return {
 				id: result.id,

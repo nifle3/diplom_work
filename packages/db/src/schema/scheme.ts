@@ -21,15 +21,15 @@ export const usersTable = pgTable("users", {
 	email: text("email").notNull().unique(),
 	emailVerified: boolean("email_verified").notNull(),
 	image: text("image"),
-	createdAt: timestamp("created_at", {mode: "date"}).notNull(),
-	updatedAt: timestamp("updated_at", {mode: "date"}).notNull(),
+	createdAt: timestamp("created_at", { mode: "date" }).notNull(),
+	updatedAt: timestamp("updated_at", { mode: "date" }).notNull(),
 	roleId: integer("role_id")
 		.notNull()
 		.references(() => rolesTable.id)
 		.default(1),
 	xp: integer("xp").default(0).notNull(),
 	currentStreak: integer("current_streak").default(0).notNull(),
-	lastActivityDate: timestamp("last_activity_date", {mode: "date"}),
+	lastActivityDate: timestamp("last_activity_date", { mode: "date" }),
 	deletedAt: timestamp("deleted_at", { mode: "date" }),
 });
 
@@ -68,9 +68,9 @@ export const verificationsTable = pgTable("verifications", {
 	id: uuid("id").primaryKey(),
 	identifier: text("identifier").notNull(),
 	value: text("value").notNull(),
-	expiresAt: timestamp("expires_at", {mode: "date"}).notNull(),
-	createdAt: timestamp("created_at", {mode: "date"}),
-	updatedAt: timestamp("updated_at", {mode: "date"}),
+	expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+	createdAt: timestamp("created_at", { mode: "date" }),
+	updatedAt: timestamp("updated_at", { mode: "date" }),
 });
 
 export const categoriesTable = pgTable("categories", {
@@ -91,9 +91,9 @@ export const scriptsTable = pgTable("scripts", {
 	context: text("context"),
 	isDraft: boolean().default(true),
 	description: text(),
-	createdAt: timestamp("created_at", {mode: "date"}).defaultNow().notNull(),
-	draftOverAt: timestamp("draft_over_at", {mode: "date"}),
-	updatedAt: timestamp("updated_at", {mode: "date"}).defaultNow().notNull(),
+	createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+	draftOverAt: timestamp("draft_over_at", { mode: "date" }),
+	updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
 	deletedAt: timestamp("deleted_at", { mode: "date" }),
 });
 
@@ -144,7 +144,7 @@ export const interviewSessionsTable = pgTable("interview_sessions", {
 	expertFeedback: text("expert_feedback"),
 	startedAt: timestamp("started_at").defaultNow().notNull(),
 	finishedAt: timestamp("finished_at"),
-	summarize: text("summarize")
+	summarize: text("summarize"),
 });
 
 export const chatMessagesTable = pgTable("chat_messages", {
@@ -155,7 +155,7 @@ export const chatMessagesTable = pgTable("chat_messages", {
 	isAi: boolean("is_ai").notNull(),
 	messageText: text("message_text").notNull(),
 	analysisNote: text("analysis_note"),
-	createdAt: timestamp("created_at", {mode: "date"}).defaultNow().notNull(),
+	createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
 });
 
 export const achievementsTable = pgTable("achievements", {
@@ -174,7 +174,7 @@ export const userAchievementsTable = pgTable(
 		achievementId: uuid("achievement_id")
 			.notNull()
 			.references(() => achievementsTable.id),
-		awardedAt: timestamp("awarded_at", {mode: "date"}).defaultNow().notNull(),
+		awardedAt: timestamp("awarded_at", { mode: "date" }).defaultNow().notNull(),
 	},
 	(t) => ({
 		pk: primaryKey({ columns: [t.userId, t.achievementId] }),
@@ -191,7 +191,7 @@ export const reportsTable = pgTable("reports", {
 		.references(() => scriptsTable.id),
 	reason: text("reason").notNull(),
 	status: varchar("status", { length: 20 }).default("new").notNull(),
-	createdAt: timestamp("created_at", {mode: "date"}).defaultNow().notNull(),
+	createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
 });
 
 export const userRelations = relations(usersTable, ({ one, many }) => ({

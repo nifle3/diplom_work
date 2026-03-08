@@ -1,25 +1,25 @@
 import { z } from "zod";
 
 export const outputScheme = z.object({
-    content: z.string(),
+	content: z.string(),
 });
 
 export type Input = {
-    context: string;
-    questionExamples: Array<string>;
-    summarize?: string;
+	context: string;
+	questionExamples: Array<string>;
+	summarize?: string;
 };
 
 export function generateTemplatePrompt(input: Input): string {
-    const examplesList = input.questionExamples
-        .map((q, i) => `${i + 1}. ${q}`)
-        .join("\n");
+	const examplesList = input.questionExamples
+		.map((q, i) => `${i + 1}. ${q}`)
+		.join("\n");
 
-    const summaryBlock = input.summarize 
-        ? `### КРАТКОЕ СОДЕРЖАНИЕ ПРЕДЫДУЩЕГО ОБЩЕНИЯ:\n${input.summarize}\n` 
-        : "";
+	const summaryBlock = input.summarize
+		? `### КРАТКОЕ СОДЕРЖАНИЕ ПРЕДЫДУЩЕГО ОБЩЕНИЯ:\n${input.summarize}\n`
+		: "";
 
-    return `
+	return `
 Ты — профессиональный и эмпатичный интервьюер. Твоя задача — начать интервью, задав первый, открывающий вопрос собеседнику.
 
 ### КОНТЕКСТ ИНТЕРВЬЮ:

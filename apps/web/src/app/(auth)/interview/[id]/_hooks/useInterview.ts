@@ -30,14 +30,16 @@ export function useInterview(initialMessages: Message[], sessionId: string) {
 
 	const handleSend = async () => {
 		if (!inputValue.trim() || newMessage.isPending) return;
-		setMessages([...messages, {
-			id: crypto.randomUUID(),
-			isAi: false,
-			messageText: inputValue,
-			createdAt: new Date(), 
-		}]);
+		setMessages([
+			...messages,
+			{
+				id: crypto.randomUUID(),
+				isAi: false,
+				messageText: inputValue,
+				createdAt: new Date(),
+			},
+		]);
 		await newMessage.mutateAsync({ sessionId, content: inputValue });
-		
 	};
 
 	return {
