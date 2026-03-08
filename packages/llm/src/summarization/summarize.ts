@@ -13,7 +13,7 @@ const outputScheme = z.object({
 	summarization: z.string(),
 });
 
-export async function Summarize(input: Input): Promise<string> {
+export async function summarize(input: Input): Promise<string> {
 	const { output } = await generateText({
 		model: model,
 		output: Output.object({
@@ -23,20 +23,20 @@ export async function Summarize(input: Input): Promise<string> {
 			{
 				role: "system",
 				content:
-					"You must summarize all the sentence. I will give you, new ai message, new human message and previous summarize in exactly that order",
+					"You must summarize all the sentence. I will give you, new ai message, previous summarize and new human message in exactly that order",
 			},
 			{
 				role: "assistant",
 				content: input.aiQuestion,
 			},
 			{
-				role: "user",
-				content: input.humanResponse,
-			},
-			{
 				role: "assistant",
 				content: input.prevSummarization,
 			},
+			{
+				role: "user",
+				content: input.humanResponse,
+			}
 		],
 	});
 

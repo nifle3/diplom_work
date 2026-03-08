@@ -1,13 +1,18 @@
-import { z } from "zod";
+import { generateText, Output } from "ai";
+import { model } from "../model";
+import { generateTemplatePrompt, type Input, outputScheme } from "./utils";
 
-type Input = {};
+export async function getNextQuestion(input: Input): Promise<string> {
+	console.log("getNext question start");
+	const { output } = await generateText({
+		model: model,
+		output: Output.object({
+			schema: outputScheme,
+		}),
+		prompt: generateTemplatePrompt(input),
+	});
 
-const aiOutput = z.object({
-	newQuestion: z.string(),
-});
+	console.log("getNext question end");
 
-type Output = z.infer<typeof aiOutput>;
-
-export async function getNextQuestion(_input: Input): Promise<Output> {
-	throw new Error("NOT IMPLEMENTED");
+	return output.content;
 }
