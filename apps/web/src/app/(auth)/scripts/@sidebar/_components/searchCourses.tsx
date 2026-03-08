@@ -10,6 +10,7 @@ import {
 
 import { Input } from "@/components/ui/input";
 import { useScriptsQuery } from "../../_hooks/useScriptsQuery";
+import { Button } from "@/components/ui/button";
 
 // TODO: поправить кривые иконки
 export function SearchCourses() {
@@ -47,7 +48,7 @@ export function SearchCourses() {
 				className="pr-10 pl-10"
 			/>
 			{query && (
-				<button
+				<Button
 					type="button"
 					onClick={handleClear}
 					disabled={isPending}
@@ -55,7 +56,7 @@ export function SearchCourses() {
 					aria-label="Очистить поиск"
 				>
 					<X className="h-4 w-4" />
-				</button>
+				</Button>
 			)}
 		</div>
 	);

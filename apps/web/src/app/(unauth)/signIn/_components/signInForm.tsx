@@ -6,6 +6,7 @@ import { type ChangeEvent, type SubmitEvent, useState } from "react";
 import { toast } from "sonner";
 
 import { authClient } from "@/lib/authClient";
+import { Button } from "@/components/ui/button";
 
 export default function SignInForm() {
 	const router = useRouter();
@@ -75,13 +76,13 @@ export default function SignInForm() {
 				/>
 			</div>
 			<div className="flex items-center justify-between">
-				<button
+				<Button
 					type="submit"
 					className="rounded-md bg-blue-600 px-4 py-2 text-white"
 					disabled={isPending}
 				>
 					{isPending ? "Входим..." : "Войти"}
-				</button>
+				</Button>
 				<Link
 					href={{ pathname: "/forgotPassword" }}
 					className="text-blue-600 text-sm hover:underline"

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { type ChangeEvent, type SubmitEvent, useState } from "react";
 import { toast } from "sonner";
 import { authClient } from "@/lib/authClient";
+import { Button } from "@/components/ui/button";
 
 export default function SignUpForm() {
 	const router = useRouter();
@@ -92,13 +93,13 @@ export default function SignUpForm() {
 				/>
 			</div>
 			<div className="flex items-center justify-between">
-				<button
+				<Button
 					type="submit"
 					className="rounded-md bg-green-600` px-4 py-2 text-white"
 					disabled={isPending}
 				>
 					{isPending ? "Создаём..." : "Зарегистрироваться"}
-				</button>
+				</Button>
 			</div>
 		</form>
 	);
