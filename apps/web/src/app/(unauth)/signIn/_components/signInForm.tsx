@@ -4,9 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type ChangeEvent, type SubmitEvent, useState } from "react";
 import { toast } from "sonner";
-
-import { authClient } from "@/lib/authClient";
 import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/authClient";
 
 export default function SignInForm() {
 	const router = useRouter();

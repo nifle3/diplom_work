@@ -7,10 +7,9 @@ import {
 	useCallback,
 	useState,
 } from "react";
-
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useScriptsQuery } from "../../_hooks/useScriptsQuery";
-import { Button } from "@/components/ui/button";
 
 // TODO: поправить кривые иконки
 export function SearchCourses() {
