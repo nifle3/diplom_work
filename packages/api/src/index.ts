@@ -34,7 +34,8 @@ export const adminProcedure = t.procedure.use(async ({ ctx, next }) => {
 
 	const user = await db.query.usersTable.findFirst({
 		columns: {},
-		where: (usersTable, { eq }) => eq(usersTable.id, ctx.session?.user.id ?? ""),
+		where: (usersTable, { eq }) =>
+			eq(usersTable.id, ctx.session?.user.id ?? ""),
 		with: {
 			role: true,
 		},
@@ -75,7 +76,8 @@ export const expertProcedure = t.procedure.use(async ({ ctx, next }) => {
 
 	const user = await db.query.usersTable.findFirst({
 		columns: {},
-		where: (usersTable, { eq }) => eq(usersTable.id, ctx.session?.user.id ?? ""),
+		where: (usersTable, { eq }) =>
+			eq(usersTable.id, ctx.session?.user.id ?? ""),
 		with: {
 			role: true,
 		},

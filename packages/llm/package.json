@@ -1,5 +1,5 @@
 {
-	"name": "llm",
+	"name": "@diplom_work/llm",
 	"type": "module",
 	"exports": {
 		".": {
@@ -9,6 +9,7 @@
 	"scripts": {},
 	"dependencies": {
 		"@ai-sdk/deepseek": "^2.0.24",
+		"@ai-sdk/mistral": "^3.0.24",
 		"@ai-sdk/provider": "^3.0.8",
 		"ai": "^6.0.116",
 		"dotenv": "catalog:",

@@ -1,5 +1,9 @@
 import { db } from "@diplom_work/db/index";
-import { interviewSessionsTable } from "@diplom_work/db/schema/scheme";
+import {
+	chatMessagesTable,
+	interviewSessionsTable,
+} from "@diplom_work/db/schema/scheme";
+import { getFirstQuestion } from "@diplom_work/llm";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -7,24 +11,63 @@ import { protectedProcedure, router } from "..";
 
 const addNewMessageScheme = z.object({
 	sessionId: z.uuid(),
+	content: z.string().min(1).max(4000),
 });
 
 export const sessionRouter = router({
 	createNewSession: protectedProcedure
 		.input(z.string())
 		.mutation(async ({ ctx, input }) => {
-			const { 0: result } = await db
-				.insert(interviewSessionsTable)
-				.values({
-					userId: ctx.session.user.id,
-					startedAt: new Date(),
-					scriptId: input,
-				})
-				.returning();
+			const result = await db.transaction(async (tx) => {
+				const { 0: addedSession } = await tx
+					.insert(interviewSessionsTable)
+					.values({
+						userId: ctx.session.user.id,
+						startedAt: new Date(),
+						scriptId: input,
+					})
+					.returning();
 
-			if (!result) {
-				throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
-			}
+				if (!addedSession) {
+					throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+				}
+
+				const script = await tx.query.scriptsTable.findFirst({
+					where: (scriptsTable, { and, eq, isNull }) =>
+						and(eq(scriptsTable.id, input), isNull(scriptsTable.deletedAt)),
+					columns: {
+						context: true,
+					},
+					with: {
+						questions: {
+							columns: {
+								text: true,
+							},
+						},
+					},
+				});
+
+				if (!script) {
+					throw new TRPCError({ code: "NOT_FOUND" });
+				}
+
+				if (!script.context) {
+					throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+				}
+
+				const text = await getFirstQuestion({
+					context: script.context,
+					questionExamples: script.questions.map((val) => val.text),
+				});
+
+				await tx.insert(chatMessagesTable).values({
+					sessionId: addedSession.id,
+					isAi: true,
+					messageText: text,
+				});
+
+				return addedSession;
+			});
 
 			return result.id;
 		}),

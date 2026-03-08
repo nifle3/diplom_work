@@ -8,7 +8,7 @@ import * as schema from "./schema/scheme";
 const getDb = () => {
 	if (env.DATABASE_PROVIDER === "neon") {
 		const client = new neonPool({
-			connectionString: env.DATABASE_URL
+			connectionString: env.DATABASE_URL,
 		});
 		return drizzleNeon(client, { schema });
 	}
