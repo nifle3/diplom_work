@@ -1,9 +1,7 @@
 export default async function Page({
-	params,
+	params: _params,
 }: {
 	params: Promise<{ id: string }>;
 }) {
-	const id = (await params).id;
-
-	return <></>;
+	return null;
 }

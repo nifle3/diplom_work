@@ -34,7 +34,7 @@ export const adminProcedure = t.procedure.use(async ({ ctx, next }) => {
 
 	const user = await db.query.usersTable.findFirst({
 		columns: {},
-		where: (usersTable, { eq }) => eq(usersTable.id, ctx.session!.user.id),
+		where: (usersTable, { eq }) => eq(usersTable.id, ctx.session?.user.id ?? ""),
 		with: {
 			role: true,
 		},
@@ -48,7 +48,7 @@ export const adminProcedure = t.procedure.use(async ({ ctx, next }) => {
 		});
 	}
 
-	if (user.role.name != "admin") {
+	if (user.role.name !== "admin") {
 		throw new TRPCError({
 			code: "FORBIDDEN",
 			message: "Admin required",
@@ -75,7 +75,7 @@ export const expertProcedure = t.procedure.use(async ({ ctx, next }) => {
 
 	const user = await db.query.usersTable.findFirst({
 		columns: {},
-		where: (usersTable, { eq }) => eq(usersTable.id, ctx.session!.user.id),
+		where: (usersTable, { eq }) => eq(usersTable.id, ctx.session?.user.id ?? ""),
 		with: {
 			role: true,
 		},
@@ -89,7 +89,7 @@ export const expertProcedure = t.procedure.use(async ({ ctx, next }) => {
 		});
 	}
 
-	if (user.role.name != "expert") {
+	if (user.role.name !== "expert") {
 		throw new TRPCError({
 			code: "FORBIDDEN",
 			message: "Admin required",

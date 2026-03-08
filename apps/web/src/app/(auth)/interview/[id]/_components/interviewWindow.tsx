@@ -17,6 +17,7 @@ type InterviewWindowProps = {
 
 export default function InterviewWindow({
 	initialQuestion,
+	interviewId,
 	scriptTitle,
 }: InterviewWindowProps) {
 	const {
@@ -26,7 +27,7 @@ export default function InterviewWindow({
 		isSending,
 		messagesEndRef,
 		handleSend,
-	} = useInterview(initialQuestion);
+	} = useInterview(initialQuestion, interviewId);
 
 	return (
 		<div className="flex h-screen flex-col bg-background text-foreground">

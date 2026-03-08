@@ -1,11 +1,13 @@
 "use client";
 
-import { z } from "zod";
+import type { Route } from "next";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-
-import { useThirdStepForm } from "./useThirdStepForm";
+import { FormFieldWrapper } from "../../_components/formFieldWrapper";
+import { StepNavigation } from "../../_components/stepNavigation";
+import { useThirdStepForm } from "../_hooks/useThirdStepForm";
 
 interface ThirdStepFormProps {
 	initialData: {
@@ -22,6 +24,7 @@ interface ThirdStepFormProps {
 }
 
 export function ThirdStepForm({ initialData }: ThirdStepFormProps) {
+	const router = useRouter();
 	const {
 		form,
 		scriptId,
@@ -32,138 +35,92 @@ export function ThirdStepForm({ initialData }: ThirdStepFormProps) {
 		removeSpecificCriterion,
 	} = useThirdStepForm({ initialData });
 
+	const basePath = `/createScript/${scriptId}`;
+
 	return (
 		<>
-			<div className="mb-6 flex items-center gap-4">
-				<div className="font-medium text-lg">Шаг 3 из 3: Вопросы</div>
-				<div className="ml-auto flex gap-2">
-					<Button
-						type="button"
-						variant="ghost"
-						size="sm"
-						onClick={() => {
-							window.location.href = `/createScript/${initialData.id}/firstStep`;
-						}}
-					>
-						1
-					</Button>
-					<Button
-						type="button"
-						variant="ghost"
-						size="sm"
-						onClick={() => {
-							window.location.href = `/createScript/${initialData.id}/secondStep`;
-						}}
-					>
-						2
-					</Button>
-					<Button
-						type="button"
-						variant="ghost"
-						size="sm"
-						onClick={() => {
-							window.location.href = `/createScript/${initialData.id}/thirdStep`;
-						}}
-					>
-						3
-					</Button>
-				</div>
-			</div>
+			<StepNavigation basePath={basePath} currentStep={3} />
+
 			<form
 				onSubmit={(e) => {
 					e.preventDefault();
+					e.stopPropagation();
 					form.handleSubmit();
 				}}
 			>
-				<div className="mb-6">
-					<FieldLabel>Шаблоны вопросов</FieldLabel>
-					<form.Field
-						name="questions"
-						children={(field) => {
-							return (
-								<div className="mt-2 space-y-6">
-									{field.state.value.map((question, qIndex) => (
-										<div
-											key={qIndex}
-											className="rounded-md border border-input p-4"
-										>
-											<div className="flex items-start gap-2">
-												<Field className="flex-1">
-													<FieldLabel className="text-xs">
-														Вопрос {qIndex + 1}
-													</FieldLabel>
-													<Input
-														value={question.text}
-														onChange={(e) => {
-															const newQuestions = [...field.state.value];
-															newQuestions[qIndex] = {
-																...newQuestions[qIndex],
-																text: e.target.value,
-															};
-															field.handleChange(newQuestions);
-														}}
-														placeholder="Текст вопроса..."
-													/>
-													{!question.text &&
-														qIndex ===
-															field.state.value.findIndex((q) => !q.text) && (
-															<FieldError>
-																{
-																	z
-																		.string()
-																		.min(1, "Текст вопроса обязателен")
-																		.safeParse("").error?.message
-																}
-															</FieldError>
-														)}
-												</Field>
-												<Button
-													type="button"
-													variant="ghost"
-													size="sm"
-													onClick={() => removeQuestion(qIndex)}
-												>
-													Удалить
-												</Button>
-											</div>
+				<div className="mb-6 space-y-6">
+					<FieldLabel className="text-base">Шаблоны вопросов</FieldLabel>
 
-											<div className="mt-4">
-												<FieldLabel className="text-xs">
-													Критерии оценки для этого вопроса
+					<form.Field name="questions">
+						{(field) => (
+							<div className="space-y-6">
+								{field.state.value.map((question, qIndex) => (
+									<div
+										key={question.id}
+										className="group relative rounded-lg border border-input p-5 transition-colors hover:border-primary/50"
+									>
+										<Button
+											type="button"
+											variant="ghost"
+											size="sm"
+											onClick={() => removeQuestion(qIndex)}
+											className="absolute top-2 right-2 text-muted-foreground hover:text-destructive"
+										>
+											Удалить вопрос
+										</Button>
+
+										<div className="space-y-4">
+											<FormFieldWrapper
+												label={`Вопрос №${qIndex + 1}`}
+												errors={field.state.meta.errors}
+												isTouched={field.state.meta.isTouched}
+											>
+												<Input
+													value={question.text}
+													onChange={(e) => {
+														const next = [...field.state.value];
+														next[qIndex] = {
+															...next[qIndex],
+															text: e.target.value,
+														};
+														field.handleChange(next);
+													}}
+													placeholder="Введите текст вопроса..."
+													className="bg-background"
+												/>
+											</FormFieldWrapper>
+
+											<div className="space-y-3 border-muted border-l-2 pl-6">
+												<FieldLabel className="text-muted-foreground text-xs uppercase tracking-wider">
+													Критерии для этого вопроса
 												</FieldLabel>
-												<div className="mt-2 space-y-2">
+
+												<div className="space-y-2">
 													{question.specificCriteria.map(
 														(criterion, cIndex) => (
 															<div
-																key={cIndex}
-																className="flex items-start gap-2"
+																key={criterion.id}
+																className="flex items-center gap-2"
 															>
 																<Input
 																	value={criterion.content}
 																	onChange={(e) => {
-																		const newQuestions = field.state.value.map(
-																			(q, qi) =>
-																				qi === qIndex
-																					? {
-																							...q,
-																							specificCriteria:
-																								q.specificCriteria.map(
-																									(c, ci) =>
-																										ci === cIndex
-																											? {
-																													...c,
-																													content:
-																														e.target.value,
-																												}
-																											: c,
-																								),
-																						}
-																					: q,
-																		);
-																		field.handleChange(newQuestions);
+																		const next = [...field.state.value];
+																		const updatedCriteria = [
+																			...next[qIndex].specificCriteria,
+																		];
+																		updatedCriteria[cIndex] = {
+																			...updatedCriteria[cIndex],
+																			content: e.target.value,
+																		};
+																		next[qIndex] = {
+																			...next[qIndex],
+																			specificCriteria: updatedCriteria,
+																		};
+																		field.handleChange(next);
 																	}}
 																	placeholder="Критерий оценки..."
-																	className="flex-1"
+																	className="h-8 text-sm"
 																/>
 																<Button
 																	type="button"
@@ -172,49 +129,51 @@ export function ThirdStepForm({ initialData }: ThirdStepFormProps) {
 																	onClick={() =>
 																		removeSpecificCriterion(qIndex, cIndex)
 																	}
+																	className="h-8 w-8 p-0"
 																>
 																	×
 																</Button>
 															</div>
 														),
 													)}
+
 													<Button
 														type="button"
 														variant="outline"
 														size="sm"
 														onClick={() => addSpecificCriterion(qIndex)}
+														className="h-7 text-[10px] uppercase"
 													>
 														+ Добавить критерий
 													</Button>
 												</div>
 											</div>
 										</div>
-									))}
-									<Button
-										type="button"
-										variant="outline"
-										size="sm"
-										onClick={addQuestion}
-									>
-										+ Добавить вопрос
-									</Button>
-								</div>
-							);
-						}}
-					/>
+									</div>
+								))}
+
+								<Button
+									type="button"
+									variant="outline"
+									onClick={addQuestion}
+									className="w-full border-dashed py-6"
+								>
+									+ Добавить новый вопрос
+								</Button>
+							</div>
+						)}
+					</form.Field>
 				</div>
 
-				<div className="mt-6 flex justify-end gap-4">
+				<div className="mt-8 flex justify-end gap-4 border-t pt-6">
 					<Button
 						type="button"
 						variant="outline"
-						onClick={() => {
-							window.location.href = `/createScript/${scriptId}/secondStep`;
-						}}
+						onClick={() => router.push(`${basePath}/secondStep` as Route)}
 					>
 						Назад
 					</Button>
-					<Button type="submit" disabled={isPending}>
+					<Button type="submit" disabled={isPending} size="lg">
 						{isPending ? "Сохранение..." : "Создать скрипт"}
 					</Button>
 				</div>

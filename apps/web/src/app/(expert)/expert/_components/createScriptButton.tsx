@@ -1,9 +1,9 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
+import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 
@@ -13,7 +13,7 @@ export default function CreateScriptButton() {
 	const createDraft = useMutation(
 		trpc.expert.createNewDraft.mutationOptions({
 			onSuccess: (data) => {
-				router.push(`/createScript/${data}/firstStep`);
+				router.push(`/createScript/${data}/firstStep` as Route);
 			},
 			onError: (error) => {
 				toast(error.message);

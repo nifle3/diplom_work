@@ -45,10 +45,10 @@ export default async function ListSlot({ searchParams }: ListProps) {
 							<CourseCard
 								key={course.id}
 								id={course.id}
-								title={course.title!}
-								context={course.description!}
-								categoryName={course.categoryName!}
-								expertName={course.expertName!}
+								title={course.title ?? ""}
+								context={course.description ?? ""}
+								categoryName={course.categoryName ?? ""}
+								expertName={course.expertName ?? ""}
 							/>
 						))}
 					</div>

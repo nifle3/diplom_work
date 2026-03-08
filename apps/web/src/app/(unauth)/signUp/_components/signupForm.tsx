@@ -1,8 +1,8 @@
 "use client";
 
+import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { type ChangeEvent, type SubmitEvent, useState } from "react";
-
 import { toast } from "sonner";
 import { authClient } from "@/lib/authClient";
 
@@ -22,7 +22,7 @@ export default function SignUpForm() {
 			},
 			{
 				onSuccess() {
-					router.push("/signIn");
+					router.push("/signIn" as Route);
 				},
 				onError(ctx) {
 					toast.error(ctx.error.message);

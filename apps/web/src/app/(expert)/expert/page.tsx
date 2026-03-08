@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export default async function ExpertPage() {
 	const trpc = await serverTrpc();
 
-	const [scripts, drafts] = await Promise.all([
+	const { 0: scripts, 1: drafts } = await Promise.all([
 		trpc.expert.getMyScripts(),
 		trpc.expert.getMyDrafts(),
 	]);

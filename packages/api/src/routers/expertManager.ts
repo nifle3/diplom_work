@@ -15,7 +15,7 @@ export const expertManagerRouter = router({
 			},
 		});
 
-		return result.filter((val) => val.role.name == "expert");
+		return result.filter((val) => val.role.name === "expert");
 	}),
 	setUserExpert: adminProcedure.input(z.email()).mutation(async ({ input }) => {
 		const result = await db

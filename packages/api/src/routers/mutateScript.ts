@@ -72,7 +72,7 @@ export const mutateScriptRouter = router({
 				throw new TRPCError({ code: "NOT_FOUND" });
 			}
 
-			if (script.expertId != ctx.session.user.id) {
+			if (script.expertId !== ctx.session.user.id) {
 				throw new TRPCError({ code: "FORBIDDEN" });
 			}
 
@@ -114,7 +114,7 @@ export const mutateScriptRouter = router({
 				throw new TRPCError({ code: "NOT_FOUND" });
 			}
 
-			if (script.expertId != ctx.session.user.id) {
+			if (script.expertId !== ctx.session.user.id) {
 				throw new TRPCError({ code: "FORBIDDEN" });
 			}
 
@@ -159,7 +159,7 @@ export const mutateScriptRouter = router({
 				throw new TRPCError({ code: "NOT_FOUND" });
 			}
 
-			if (script.expertId != ctx.session.user.id) {
+			if (script.expertId !== ctx.session.user.id) {
 				throw new TRPCError({ code: "FORBIDDEN" });
 			}
 

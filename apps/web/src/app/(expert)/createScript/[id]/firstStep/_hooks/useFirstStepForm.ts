@@ -2,6 +2,7 @@
 
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
+import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -38,7 +39,7 @@ export function useFirstStepForm({
 	const mutation = useMutation(
 		trpc.createScript.mutateFirstStep.mutationOptions({
 			onSuccess: () => {
-				router.replace(`/createScript/${initialData.id}/secondStep`);
+				router.replace(`/createScript/${initialData.id}/secondStep` as Route);
 			},
 			onError: (error) => {
 				toast.error(error.message);

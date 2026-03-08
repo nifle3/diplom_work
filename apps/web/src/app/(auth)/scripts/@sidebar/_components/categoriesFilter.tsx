@@ -15,7 +15,9 @@ export function CategoriesFilter({ categories }: CategoriesFilterProps) {
 		<div className="space-y-4">
 			<h3 className="font-semibold text-sm">Категории</h3>
 
-			<div className="space-y-3" role="group" aria-label="Фильтр по категориям">
+			<fieldset className="space-y-3" aria-label="Фильтр по категориям">
+				<legend>role</legend>
+
 				<div className="flex items-center space-x-2">
 					<Checkbox
 						id="category-all"
@@ -37,7 +39,7 @@ export function CategoriesFilter({ categories }: CategoriesFilterProps) {
 					<div key={category.id} className="flex items-center space-x-2">
 						<Checkbox
 							id={`category-${category.id}`}
-							checked={currentParams.categoryId == category.id}
+							checked={currentParams.categoryId === category.id}
 							onCheckedChange={(checked) => {
 								if (checked) {
 									setCategory(category.id);
@@ -55,7 +57,7 @@ export function CategoriesFilter({ categories }: CategoriesFilterProps) {
 						</Label>
 					</div>
 				))}
-			</div>
+			</fieldset>
 		</div>
 	);
 }

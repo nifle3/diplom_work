@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function ForgotPasswordPage() {
 	return (
@@ -8,22 +9,25 @@ export default function ForgotPasswordPage() {
 
 				<form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
 					<div>
-						<label className="mb-1 block text-sm">Email</label>
+						<label htmlFor="email" className="mb-1 block text-sm">
+							Email
+						</label>
 						<input
 							className="w-full rounded-md border px-3 py-2"
 							type="email"
+							id="email"
 						/>
 					</div>
 
 					<div className="flex items-center justify-between">
-						<button className="rounded-md bg-yellow-600 px-4 py-2 text-white">
+						<Button className="rounded-md bg-yellow-600 px-4 py-2 text-white">
 							Отправить инструкцию
-						</button>
+						</Button>
 					</div>
 				</form>
 
 				<p className="mt-6 text-center text-sm">
-					Вернулись в{" "}
+					Вернулись в
 					<Link
 						href={{ pathname: "/signIn" }}
 						className="text-blue-600 hover:underline"

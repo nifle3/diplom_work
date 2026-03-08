@@ -30,7 +30,7 @@ export const expertRouter = router({
 				});
 			}
 
-			if (data.expertId != ctx.session.user.id) {
+			if (data.expertId !== ctx.session.user.id) {
 				throw new TRPCError({
 					code: "FORBIDDEN",
 					message: "Вы не создатель этого сценария",

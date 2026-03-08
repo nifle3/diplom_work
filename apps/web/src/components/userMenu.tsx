@@ -30,13 +30,13 @@ export default async function UserMenu({
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger render={<Button variant="outline" />}>
-				{data!.user.name}
+				{data?.user.name}
 			</DropdownMenuTrigger>
 			<DropdownMenuContent className="bg-card">
 				<DropdownMenuGroup>
 					<DropdownMenuLabel>Мой аккаунт</DropdownMenuLabel>
 					<DropdownMenuSeparator />
-					<DropdownMenuItem>{data!.user.email}</DropdownMenuItem>
+					<DropdownMenuItem>{data?.user.email}</DropdownMenuItem>
 					<Link href={{ pathname: "/profile/my" }} passHref>
 						<DropdownMenuItem>Мой профиль</DropdownMenuItem>
 					</Link>

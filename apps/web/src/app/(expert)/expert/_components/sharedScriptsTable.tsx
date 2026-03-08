@@ -13,17 +13,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Modal } from "@/components/modal";
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -113,7 +102,7 @@ const defaultColumns = (
 						</Modal>
 					)}
 					<Link
-						href={`/createScript/${row.original.id}/firstStep`}
+						href={{ pathname: `/createScript/${row.original.id}/firstStep` }}
 						className="inline-flex size-8 items-center justify-center rounded-none hover:bg-muted"
 					>
 						<Pencil className="h-4 w-4" />

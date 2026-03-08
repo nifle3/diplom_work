@@ -65,9 +65,8 @@ export function CategoryForm({ category }: CategoryFormProps) {
 			}}
 		>
 			<div className="space-y-4">
-				<form.Field
-					name="name"
-					children={(field) => {
+				<form.Field name="name">
+					{(field) => {
 						const isInvalid =
 							field.state.meta.isTouched && !field.state.meta.isValid;
 						return (
@@ -85,7 +84,7 @@ export function CategoryForm({ category }: CategoryFormProps) {
 							</Field>
 						);
 					}}
-				/>
+				</form.Field>
 			</div>
 			<div className="flex justify-end gap-2 pt-4">
 				<Button

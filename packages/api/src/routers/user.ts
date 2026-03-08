@@ -25,9 +25,9 @@ export const userRouter = router({
 		}
 		const user = users[0];
 		return {
-			name: user!.name,
-			streak: user!.currentStreak,
-			xp: user!.xp,
+			name: user?.name,
+			streak: user?.currentStreak,
+			xp: user?.xp,
 		};
 	}),
 	isUserHasRole: protectedProcedure
@@ -47,6 +47,6 @@ export const userRouter = router({
 			const requiredRole = roleNameToRoleId[input];
 			console.debug(`finded role ${requiredRole}, userRole ${user.roleId}`);
 
-			return user && user.roleId == requiredRole;
+			return user && user.roleId === requiredRole;
 		}),
 });

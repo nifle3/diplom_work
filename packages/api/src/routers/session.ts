@@ -61,7 +61,9 @@ export const sessionRouter = router({
 					},
 				},
 			});
-			return results.filter((val) => val.session.userId == ctx.session.user.id);
+			return results.filter(
+				(val) => val.session.userId === ctx.session.user.id,
+			);
 		}),
 	addNewMessage: protectedProcedure
 		.input(addNewMessageScheme)

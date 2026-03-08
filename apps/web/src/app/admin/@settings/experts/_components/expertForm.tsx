@@ -40,9 +40,8 @@ export function ExpertForm() {
 			}}
 		>
 			<div className="space-y-4">
-				<form.Field
-					name="email"
-					children={(field) => {
+				<form.Field name="email">
+					{(field) => {
 						const isInvalid =
 							field.state.meta.isTouched && !field.state.meta.isValid;
 						return (
@@ -61,10 +60,12 @@ export function ExpertForm() {
 							</Field>
 						);
 					}}
-				/>
+				</form.Field>
 			</div>
 			<div className="flex justify-end gap-2 pt-4">
-				<Button type="submit">{"Добавить"}</Button>
+				<Button type="submit" disabled={setMutation.isPending}>
+					Добавить
+				</Button>
 			</div>
 		</form>
 	);

@@ -4,13 +4,13 @@ import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import type { Message } from "../_utils/type";
 
-export function useInterview(initialMessages: Message[]) {
-	const [messages, setMessages] = useState<Message[]>(initialMessages);
+export function useInterview(initialMessages: Message[], sessionId: string) {
+	const [messages, _setMessages] = useState<Message[]>(initialMessages);
 	const [inputValue, setInputValue] = useState("");
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const newMessage = useMutation(
 		trpc.session.addNewMessage.mutationOptions({
-			onSuccess: (val) => {
+			onSuccess: (_val) => {
 				setInputValue("");
 			},
 			onError: (error) => {
@@ -25,11 +25,11 @@ export function useInterview(initialMessages: Message[]) {
 
 	useEffect(() => {
 		scrollToBottom();
-	}, [messages, newMessage.isPending]);
+	}, [scrollToBottom]);
 
 	const handleSend = async () => {
 		if (!inputValue.trim() || newMessage.isPending) return;
-		await newMessage.mutateAsync();
+		await newMessage.mutateAsync({ sessionId });
 	};
 
 	return {

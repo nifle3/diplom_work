@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
+import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -16,7 +17,7 @@ export default function NewSessionButton({ scriptId }: NewSessionButtonProps) {
 	const createNewSession = useMutation(
 		trpc.session.createNewSession.mutationOptions({
 			onSuccess: (data) => {
-				router.push(`/interview/${data}`);
+				router.push(`/interview/${data}` as Route);
 			},
 			onError: (error) => {
 				toast(error.message);
@@ -26,7 +27,6 @@ export default function NewSessionButton({ scriptId }: NewSessionButtonProps) {
 
 	const onClick = async () => {
 		await createNewSession.mutateAsync(scriptId);
-		("");
 	};
 
 	return (
