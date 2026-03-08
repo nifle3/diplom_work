@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import type { Message } from "../_utils/type";
@@ -24,10 +24,6 @@ export function useInterview(initialMessages: Message[], sessionId: string) {
 		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 	};
 
-	useEffect(() => {
-		scrollToBottom();
-	}, [scrollToBottom, messages]);
-
 	const handleSend = async () => {
 		if (!inputValue.trim() || newMessage.isPending) return;
 		setMessages([
@@ -40,6 +36,7 @@ export function useInterview(initialMessages: Message[], sessionId: string) {
 			},
 		]);
 		await newMessage.mutateAsync({ sessionId, content: inputValue });
+		scrollToBottom();
 	};
 
 	return {

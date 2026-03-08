@@ -186,7 +186,7 @@ export const mutateScriptRouter = router({
 								content: val.content,
 								typeId: val.typeId,
 							})
-							.where(eq(scriptCriteriaTable.id, val.id!));
+							.where(eq(scriptCriteriaTable.id, val.id ?? ""));
 					});
 
 				input.criteria

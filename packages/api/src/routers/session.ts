@@ -6,7 +6,6 @@ import {
 import { getFirstQuestion, getNextQuestion, summarize } from "@diplom_work/llm";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
-import { resolveViewport } from "next/dist/lib/metadata/resolve-metadata";
 import { z } from "zod";
 import { protectedProcedure, router } from "..";
 
