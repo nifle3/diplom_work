@@ -24,10 +24,10 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
 
 	const trpc = await serverTrpc();
 
-	let sessionData;
+	let sessionData: any;
 	try {
 		sessionData = await trpc.interview.getSession({ sessionId });
-	} catch (error) {
+	} catch (_error) {
 		redirect("/scripts");
 	}
 
@@ -36,9 +36,9 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
 	const feedbacks = messages
 		.filter((msg) => msg.isAi && msg.analysisNote)
 		.map((msg) => {
-			const note = msg.analysisNote!;
-			const feedbackMatch = note.match(/FEEDBACK:\s*(.+?)(?=\nSCORE:|$)/s);
-			const scoreMatch = note.match(/SCORE:\s*(\d+)/);
+			const note = msg.analysisNote;
+			const feedbackMatch = note?.match(/FEEDBACK:\s*(.+?)(?=\nSCORE:|$)/s);
+			const scoreMatch = note?.match(/SCORE:\s*(\d+)/);
 			return {
 				feedback: feedbackMatch ? feedbackMatch[1].trim() : "",
 				score: scoreMatch ? Number.parseInt(scoreMatch[1], 10) : null,
@@ -106,8 +106,11 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
 							<CardTitle className="ml-2">Обратная связь</CardTitle>
 						</CardHeader>
 						<CardContent className="space-y-4">
-							{feedbacks.map((item, index) => (
-								<div key={index} className="border-blue-500 border-l-4 pl-4">
+							{feedbacks.map((item) => (
+								<div
+									key={item.feedback}
+									className="border-blue-500 border-l-4 pl-4"
+								>
 									{item.feedback && (
 										<p className="mb-2 text-foreground/90 text-sm leading-relaxed">
 											{item.feedback}

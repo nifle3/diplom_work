@@ -8,12 +8,12 @@ export const shieldUserTextMiddleware: LanguageModelV3Middleware = {
 	transformParams: async ({ params }) => {
 		const id = crypto.randomUUID();
 		params.prompt = params.prompt.map((val) => {
-			if (val.role != "user") {
+			if (val.role !== "user") {
 				return val;
 			}
 
 			val.content = val.content.map((val) => {
-				if (val.type != "text") {
+				if (val.type !== "text") {
 					return val;
 				}
 
