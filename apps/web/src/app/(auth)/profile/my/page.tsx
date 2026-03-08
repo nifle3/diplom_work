@@ -1,9 +1,8 @@
-import type { Metadata } from "next";
 import { Pencil } from "lucide-react";
-
-import { serverTrpc } from "@/lib/trpcServer";
+import type { Metadata } from "next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { serverTrpc } from "@/lib/trpcServer";
 
 export const metadata: Metadata = {
 	title: "Мой профиль",

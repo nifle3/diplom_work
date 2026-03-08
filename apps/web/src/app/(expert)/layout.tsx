@@ -18,7 +18,7 @@ export default async function ExpertLayout({
 
 	return (
 		<>
-			<PrivateHeader/>
+			<PrivateHeader />
 			{children}
 		</>
 	);

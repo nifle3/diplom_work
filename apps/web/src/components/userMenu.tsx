@@ -1,4 +1,7 @@
+import { auth } from "@diplom_work/auth";
+import { headers } from "next/headers";
 import Link from "next/link";
+import { LogoutButton } from "./logoutButton";
 import { Button } from "./ui/button";
 import {
 	DropdownMenu,
@@ -9,19 +12,19 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { LogoutButton } from "./logoutButton";
-import { auth } from "@diplom_work/auth";
-import { headers } from "next/headers";
 
 type UserMenuProps = {
 	isUserAdmin: boolean;
 	isUserExpert: boolean;
-}
+};
 
-export default async function UserMenu({ isUserAdmin, isUserExpert } : UserMenuProps) {
+export default async function UserMenu({
+	isUserAdmin,
+	isUserExpert,
+}: UserMenuProps) {
 	const head = await headers();
 	const data = await auth.api.getSession({
-		headers: head
+		headers: head,
 	});
 
 	return (
@@ -37,21 +40,17 @@ export default async function UserMenu({ isUserAdmin, isUserExpert } : UserMenuP
 					<Link href={{ pathname: "/profile/my" }} passHref>
 						<DropdownMenuItem>Мой профиль</DropdownMenuItem>
 					</Link>
-					{isUserAdmin && 
+					{isUserAdmin && (
 						<Link href={{ pathname: "/admin/experts" }} passHref>
-							<DropdownMenuItem>
-								Главное меню админа
-							</DropdownMenuItem>
+							<DropdownMenuItem>Главное меню админа</DropdownMenuItem>
 						</Link>
-					}
-					{isUserExpert && 
+					)}
+					{isUserExpert && (
 						<Link href={{ pathname: "/expert" }} passHref>
-							<DropdownMenuItem>
-								Главное меню эксперта
-							</DropdownMenuItem>
+							<DropdownMenuItem>Главное меню эксперта</DropdownMenuItem>
 						</Link>
-					}
-					<LogoutButton/>
+					)}
+					<LogoutButton />
 				</DropdownMenuGroup>
 			</DropdownMenuContent>
 		</DropdownMenu>

@@ -5,6 +5,6 @@ import { shieldUserTextMiddleware } from "./middlewares";
 
 const provider = deepseek("deepseek-chat");
 export const model = wrapLanguageModel({
-    model: provider,
-    middleware: [shieldUserTextMiddleware]
+	model: provider,
+	middleware: [shieldUserTextMiddleware],
 });

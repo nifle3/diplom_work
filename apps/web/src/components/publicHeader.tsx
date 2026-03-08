@@ -15,13 +15,13 @@ export default function PublicHeader() {
 				<div className="flex items-center gap-3">
 					<ThemeToggle />
 					<Link
-						href={{pathname: "/signIn"}}
+						href={{ pathname: "/signIn" }}
 						className="rounded-md border border-gray-300 px-3 py-1 text-sm hover:bg-gray-100"
 					>
 						Войти
 					</Link>
 					<Link
-						href={{pathname: "/signUp"}}
+						href={{ pathname: "/signUp" }}
 						className="rounded-md bg-blue-600 px-3 py-1 text-sm text-white hover:bg-blue-700"
 					>
 						Зарегистрироваться

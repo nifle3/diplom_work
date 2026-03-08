@@ -1,10 +1,9 @@
 import { db } from "@diplom_work/db";
 import { usersTable } from "@diplom_work/db/schema/scheme";
+import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-
 import { protectedProcedure, router } from "../index";
-import { TRPCError } from "@trpc/server";
 
 const roleNameCheckInput = z.enum(["admin", "expert"]);
 const roleNameToRoleId = {
@@ -42,9 +41,9 @@ export const userRouter = router({
 			});
 
 			if (!user) {
-				throw new TRPCError({code:"UNAUTHORIZED"});
+				throw new TRPCError({ code: "UNAUTHORIZED" });
 			}
-			
+
 			const requiredRole = roleNameToRoleId[input];
 			console.debug(`finded role ${requiredRole}, userRole ${user.roleId}`);
 

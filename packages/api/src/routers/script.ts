@@ -54,10 +54,9 @@ export const scriptRouter = router({
 			const scenarios = await db
 				.select()
 				.from(scriptsTable)
-				.where(and(
-					eq(scriptsTable.isDraft, false),
-					isNull(scriptsTable.deletedAt)
-				))
+				.where(
+					and(eq(scriptsTable.isDraft, false), isNull(scriptsTable.deletedAt)),
+				)
 				.orderBy(desc(scriptsTable.createdAt))
 				.limit(input.limit);
 

@@ -18,13 +18,13 @@ export default function NonAuthDashboardPage() {
 
 				<div className="mb-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
 					<Link
-						href={{pathname: "/signIn"}}
+						href={{ pathname: "/signIn" }}
 						className="rounded-md bg-blue-600 px-6 py-3 font-medium text-white hover:bg-blue-700"
 					>
 						Войти
 					</Link>
 					<Link
-						href={{pathname: "/signUp"}}
+						href={{ pathname: "/signUp" }}
 						className="rounded-md border border-gray-300 px-6 py-3 hover:bg-gray-50"
 					>
 						Зарегистрироваться

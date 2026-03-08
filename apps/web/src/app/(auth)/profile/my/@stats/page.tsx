@@ -4,13 +4,9 @@ import { Card } from "@/components/ui/card";
 import { serverTrpc } from "@/lib/trpcServer";
 
 export default async function Page() {
-    const trpcCaller = await serverTrpc();
-    const {
-        currentStreak, 
-        xp, 
-        interviewCount, 
-        achievementCount
-    } = await trpcCaller.profile.getMyProfileStats();
+	const trpcCaller = await serverTrpc();
+	const { currentStreak, xp, interviewCount, achievementCount } =
+		await trpcCaller.profile.getMyProfileStats();
 
 	const stats = [
 		{

@@ -1,7 +1,6 @@
-import { initTRPC, TRPCError } from "@trpc/server";
-
-import type { Context } from "./context";
 import { db } from "@diplom_work/db";
+import { initTRPC, TRPCError } from "@trpc/server";
+import type { Context } from "./context";
 
 export const t = initTRPC.context<Context>().create();
 
@@ -34,10 +33,8 @@ export const adminProcedure = t.procedure.use(async ({ ctx, next }) => {
 	}
 
 	const user = await db.query.usersTable.findFirst({
-		columns: {
-
-		},
-		where: (usersTable, {eq}) => eq(usersTable.id, ctx.session!.user.id),
+		columns: {},
+		where: (usersTable, { eq }) => eq(usersTable.id, ctx.session!.user.id),
 		with: {
 			role: true,
 		},
@@ -55,15 +52,15 @@ export const adminProcedure = t.procedure.use(async ({ ctx, next }) => {
 		throw new TRPCError({
 			code: "FORBIDDEN",
 			message: "Admin required",
-			cause: "User is not admin"
+			cause: "User is not admin",
 		});
 	}
 
 	return next({
 		ctx: {
 			...ctx,
-			session: ctx.session
-		}
+			session: ctx.session,
+		},
 	});
 });
 
@@ -77,10 +74,8 @@ export const expertProcedure = t.procedure.use(async ({ ctx, next }) => {
 	}
 
 	const user = await db.query.usersTable.findFirst({
-		columns: {
-
-		},
-		where: (usersTable, {eq}) => eq(usersTable.id, ctx.session!.user.id),
+		columns: {},
+		where: (usersTable, { eq }) => eq(usersTable.id, ctx.session!.user.id),
 		with: {
 			role: true,
 		},
@@ -98,14 +93,14 @@ export const expertProcedure = t.procedure.use(async ({ ctx, next }) => {
 		throw new TRPCError({
 			code: "FORBIDDEN",
 			message: "Admin required",
-			cause: "User is not admin"
+			cause: "User is not admin",
 		});
 	}
 
 	return next({
 		ctx: {
 			...ctx,
-			session: ctx.session
-		}
+			session: ctx.session,
+		},
 	});
 });

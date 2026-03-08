@@ -1,11 +1,15 @@
 "use client";
 
 import { Search, X } from "lucide-react";
-import { type ChangeEvent, type KeyboardEvent, useCallback, useState } from "react";
+import {
+	type ChangeEvent,
+	type KeyboardEvent,
+	useCallback,
+	useState,
+} from "react";
 
 import { Input } from "@/components/ui/input";
 import { useScriptsQuery } from "../../_hooks/useScriptsQuery";
-
 
 // TODO: поправить кривые иконки
 export function SearchCourses() {

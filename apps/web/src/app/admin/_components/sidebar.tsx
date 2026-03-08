@@ -31,8 +31,10 @@ export function AdminSidebar() {
 						return (
 							<Link
 								key={item.href}
-								href={{pathname: item.href}}
-								className={"flex items-center gap-3 rounded-none px-3 py-2 text-sm transition-colors hover:bg-muted hover:text-foreground"}
+								href={{ pathname: item.href }}
+								className={
+									"flex items-center gap-3 rounded-none px-3 py-2 text-sm transition-colors hover:bg-muted hover:text-foreground"
+								}
 							>
 								<item.icon className="size-4" />
 								{item.title}

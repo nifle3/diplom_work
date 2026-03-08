@@ -30,7 +30,7 @@ export default async function PrivateHeader() {
 
 				<div className="flex items-center gap-3">
 					<ThemeToggle />
-					<UserMenu isUserAdmin={isUserAdmin} isUserExpert={isUserExpert}/>
+					<UserMenu isUserAdmin={isUserAdmin} isUserExpert={isUserExpert} />
 				</div>
 			</div>
 			<hr />

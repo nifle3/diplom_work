@@ -8,12 +8,12 @@ export default async function Page({
 	params: Promise<{ id: string }>;
 }) {
 	const scriptId = (await params).id;
-	
+
 	const trpcCaller = await serverTrpc();
 
-	const { 0: data, 1: criteriaTypes} = await Promise.all([
+	const { 0: data, 1: criteriaTypes } = await Promise.all([
 		trpcCaller.expert.getFullScript(scriptId),
-		trpcCaller.script.criteriaTypes()
+		trpcCaller.script.criteriaTypes(),
 	]);
 
 	return <SecondStepForm initialData={data} criteriaTypes={criteriaTypes} />;

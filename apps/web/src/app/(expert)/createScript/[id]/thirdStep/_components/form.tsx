@@ -21,7 +21,7 @@ interface ThirdStepFormProps {
 	};
 }
 
-export default function ThirdStepForm({ initialData }: ThirdStepFormProps) {
+export function ThirdStepForm({ initialData }: ThirdStepFormProps) {
 	const {
 		form,
 		scriptId,

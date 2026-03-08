@@ -18,7 +18,7 @@ export default async function Layout({
 
 	return (
 		<>
-			<PrivateHeader/>
+			<PrivateHeader />
 			<div className="flex min-h-screen">
 				<AdminSidebar />
 				<main className="flex-1">{settings}</main>

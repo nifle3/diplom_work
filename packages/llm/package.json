@@ -1,22 +1,22 @@
 {
-  "name": "llm",
-  "type": "module",
-  "exports": {
-    ".": {
-      "default": "./src/index.ts"
-    }
-  },
-  "scripts": {},
-  "dependencies": {
-    "@ai-sdk/deepseek": "^2.0.24",
-    "@ai-sdk/provider": "^3.0.8",
-    "ai": "^6.0.116",
-    "dotenv": "catalog:",
-    "zod": "catalog:"
-  },
-  "devDependencies": {
-    "@diplom_work/config": "workspace:*",
-    "@diplom_work/env": "workspace:*",
-    "typescript": "catalog:"
-  }
+	"name": "llm",
+	"type": "module",
+	"exports": {
+		".": {
+			"default": "./src/index.ts"
+		}
+	},
+	"scripts": {},
+	"dependencies": {
+		"@ai-sdk/deepseek": "^2.0.24",
+		"@ai-sdk/provider": "^3.0.8",
+		"ai": "^6.0.116",
+		"dotenv": "catalog:",
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@diplom_work/config": "workspace:*",
+		"@diplom_work/env": "workspace:*",
+		"typescript": "catalog:"
+	}
 }

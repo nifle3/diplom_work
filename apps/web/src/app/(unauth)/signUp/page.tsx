@@ -15,7 +15,10 @@ export default function SignUpPage() {
 				<SignUpForm />
 				<p className="mt-6 text-center text-sm">
 					Уже есть аккаунт?
-					<Link href={{pathname: "/signIn"}} className="text-blue-600 hover:underline">
+					<Link
+						href={{ pathname: "/signIn" }}
+						className="text-blue-600 hover:underline"
+					>
 						Войти
 					</Link>
 				</p>

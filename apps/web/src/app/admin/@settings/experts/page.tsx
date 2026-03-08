@@ -8,9 +8,9 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
+import { serverTrpc } from "@/lib/trpcServer";
 import { ExpertForm } from "./_components/expertForm";
 import { ExpertsTable } from "./_components/expertsTable";
-import { serverTrpc } from "@/lib/trpcServer";
 
 export default async function ExpertsPage() {
 	const trpcCaller = await serverTrpc();
@@ -31,11 +31,11 @@ export default async function ExpertsPage() {
 						<DialogHeader>
 							<DialogTitle>Добавить эксперта</DialogTitle>
 						</DialogHeader>
-						<ExpertForm/>
+						<ExpertForm />
 					</DialogContent>
 				</Dialog>
 			</div>
-			<ExpertsTable data={data}/>
+			<ExpertsTable data={data} />
 		</div>
 	);
 }

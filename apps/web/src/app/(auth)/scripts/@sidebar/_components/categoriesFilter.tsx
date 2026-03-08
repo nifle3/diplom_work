@@ -6,12 +6,10 @@ import { useScriptsQuery } from "../../_hooks/useScriptsQuery";
 
 type CategoriesFilterProps = {
 	categories: Array<{ id: string; name: string }>;
-}
+};
 
-export function CategoriesFilter({
-	categories,
-}: CategoriesFilterProps) {
-	const { isPending, currentParams, setCategory} = useScriptsQuery();
+export function CategoriesFilter({ categories }: CategoriesFilterProps) {
+	const { isPending, currentParams, setCategory } = useScriptsQuery();
 
 	return (
 		<div className="space-y-4">

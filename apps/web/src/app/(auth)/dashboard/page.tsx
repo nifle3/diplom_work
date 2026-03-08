@@ -46,7 +46,7 @@ export default async function DashboardPage() {
 								<div className="flex flex-1 flex-col justify-between px-4 py-2">
 									<div className="font-medium text-sm">{course.title}</div>
 									<Link
-										href={{ pathname: `/courses/${course.id}` }}
+										href={{ pathname: `/script/${course.id}` }}
 										className="text-blue-600 text-xs hover:underline"
 									>
 										Открыть

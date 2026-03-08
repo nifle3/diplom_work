@@ -1,15 +1,15 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import type { CategoryRow } from "./categoriesTable";
 import { trpc } from "@/lib/trpc";
+import type { CategoryRow } from "./categoriesTable";
 
 interface CategoryFormProps {
 	category?: CategoryRow;
@@ -17,24 +17,28 @@ interface CategoryFormProps {
 
 export function CategoryForm({ category }: CategoryFormProps) {
 	const router = useRouter();
-	const createMutation = useMutation(trpc.category.create.mutationOptions({
-		onSuccess: () => {
-			toast("Категория успешно добавлена");
-			router.refresh();
-		},
-		onError: (error) => {
-			toast(error.message);
-		}
-	}));
-	const updateMutation = useMutation(trpc.category.updateById.mutationOptions({
-		onSuccess: () => {
-			toast("Категория успешно обновлена");
-			router.refresh();
-		},
-		onError: (error) => {
-			toast(error.message);
-		}
-	}));
+	const createMutation = useMutation(
+		trpc.category.create.mutationOptions({
+			onSuccess: () => {
+				toast("Категория успешно добавлена");
+				router.refresh();
+			},
+			onError: (error) => {
+				toast(error.message);
+			},
+		}),
+	);
+	const updateMutation = useMutation(
+		trpc.category.updateById.mutationOptions({
+			onSuccess: () => {
+				toast("Категория успешно обновлена");
+				router.refresh();
+			},
+			onError: (error) => {
+				toast(error.message);
+			},
+		}),
+	);
 
 	const form = useForm({
 		defaultValues: {
@@ -84,8 +88,10 @@ export function CategoryForm({ category }: CategoryFormProps) {
 				/>
 			</div>
 			<div className="flex justify-end gap-2 pt-4">
-				<Button type="submit" 
-					disabled={updateMutation.isPending || createMutation.isPending}>
+				<Button
+					type="submit"
+					disabled={updateMutation.isPending || createMutation.isPending}
+				>
 					{category ? "Обновить" : "Добавить"}
 				</Button>
 			</div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useMutation } from "@tanstack/react-query";
 import {
 	type ColumnDef,
 	flexRender,
@@ -7,11 +8,10 @@ import {
 	useReactTable,
 } from "@tanstack/react-table";
 import { Pencil, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-
-
+import { Modal } from "@/components/modal";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -29,10 +29,8 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { CategoryForm } from "./categoryForm";
-import { Modal } from "@/components/modal";
-import { useMutation } from "@tanstack/react-query";
 import { trpc } from "@/lib/trpc";
+import { CategoryForm } from "./categoryForm";
 
 export interface CategoryRow {
 	id: number;
@@ -68,14 +66,14 @@ const defaultColumns = (
 							<DialogHeader>
 								<DialogTitle>Редактировать категорию</DialogTitle>
 							</DialogHeader>
-							<CategoryForm category={row.original}/>
+							<CategoryForm category={row.original} />
 						</DialogContent>
 					</Dialog>
-					<Modal 
-						header={"Удалить категорию"} 
+					<Modal
+						header={"Удалить категорию"}
 						description={`Вы уверены, что хотите удалить категорию "${categoryName}"? Это
-									действие нельзя отменить.`} 
-						actionName={"Удалить"} 
+									действие нельзя отменить.`}
+						actionName={"Удалить"}
 						action={() => onDelete(row.original.id)}
 					>
 						<Button variant="ghost" size="icon">
@@ -92,14 +90,16 @@ export function CategoriesTable({ data }: CategoriesTableProps) {
 	const [mounted, setMounted] = useState(false);
 
 	const router = useRouter();
-	const deleteMutation = useMutation(trpc.category.deleteById.mutationOptions({
-		onError: (error) => {
-			toast(error.message);
-		},
-		onSuccess: () => {
-			router.refresh();
-		}
-	}));
+	const deleteMutation = useMutation(
+		trpc.category.deleteById.mutationOptions({
+			onError: (error) => {
+				toast(error.message);
+			},
+			onSuccess: () => {
+				router.refresh();
+			},
+		}),
+	);
 
 	useEffect(() => {
 		setMounted(true);

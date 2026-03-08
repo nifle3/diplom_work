@@ -14,12 +14,12 @@ export default async function Page({
 	const trpcCaller = await serverTrpc();
 	const { 0: data, 1: categories } = await Promise.all([
 		trpcCaller.expert.getFullScript(scriptId),
-		trpcCaller.script.categories()
+		trpcCaller.script.categories(),
 	]);
 
 	console.debug(`getFullScript id is ${data.id}`);
 	console.debug(`Categories: ${categories}`);
-	console.debug('Categories (detailed):', JSON.stringify(categories, null, 2));
+	console.debug("Categories (detailed):", JSON.stringify(categories, null, 2));
 
-	return <FirstStepForm initialData={data} categories={categories} />
+	return <FirstStepForm initialData={data} categories={categories} />;
 }

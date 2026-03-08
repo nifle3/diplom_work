@@ -8,9 +8,9 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
+import { serverTrpc } from "@/lib/trpcServer";
 import { CategoriesTable } from "./_components/categoriesTable";
 import { CategoryForm } from "./_components/categoryForm";
-import { serverTrpc } from "@/lib/trpcServer";
 
 export default async function CategoriesPage() {
 	const trpcCaller = await serverTrpc();
@@ -35,7 +35,7 @@ export default async function CategoriesPage() {
 					</DialogContent>
 				</Dialog>
 			</div>
-			<CategoriesTable data={data}/>
+			<CategoriesTable data={data} />
 		</div>
 	);
 }

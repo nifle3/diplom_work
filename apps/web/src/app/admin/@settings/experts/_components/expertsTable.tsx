@@ -1,5 +1,6 @@
 "use client";
 
+import { useMutation } from "@tanstack/react-query";
 import {
 	type ColumnDef,
 	flexRender,
@@ -10,7 +11,7 @@ import { Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-
+import { Modal } from "@/components/modal";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -39,10 +40,8 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { ExpertForm } from "../expertForm";
-import { useMutation } from "@tanstack/react-query";
 import { trpc } from "@/lib/trpc";
-import { Modal } from "@/components/modal";
+import { ExpertForm } from "../expertForm";
 
 export interface ExpertRow {
 	id: string;
@@ -75,12 +74,13 @@ const defaultColumns = (
 			const expertEmail = row.original.email;
 			return (
 				<div className="flex gap-2">
-					<Modal 
-						header={"Удалить эксперта"} 
+					<Modal
+						header={"Удалить эксперта"}
 						description={`Вы уверены, что хотите удалить эксперта ${expertName} (
-									${expertEmail})? Это действие нельзя отменить.`} 
-						actionName={"Удалить"} 
-						action={() => onDelete(row.original.id)}						>
+									${expertEmail})? Это действие нельзя отменить.`}
+						actionName={"Удалить"}
+						action={() => onDelete(row.original.id)}
+					>
 						<Button variant="ghost" size="icon">
 							<Trash2 className="h-4 w-4 text-destructive" />
 						</Button>
@@ -93,15 +93,17 @@ const defaultColumns = (
 
 export function ExpertsTable({ data }: ExpertsTableProps) {
 	const router = useRouter();
-	const deleteMutation = useMutation(trpc.expertManager.unsetUserExpert.mutationOptions({
-		onSuccess: () => {
-			toast("Эксперт удалён");
-			router.refresh();
-		},
-		onError: (error) => {
-			toast(error.message);
-		}
-	}));
+	const deleteMutation = useMutation(
+		trpc.expertManager.unsetUserExpert.mutationOptions({
+			onSuccess: () => {
+				toast("Эксперт удалён");
+				router.refresh();
+			},
+			onError: (error) => {
+				toast(error.message);
+			},
+		}),
+	);
 	const [mounted, setMounted] = useState(false);
 
 	useEffect(() => {
@@ -110,7 +112,7 @@ export function ExpertsTable({ data }: ExpertsTableProps) {
 
 	const onDelete = async (id: string) => {
 		await deleteMutation.mutateAsync(id);
-	}
+	};
 
 	const table = useReactTable({
 		data,

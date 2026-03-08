@@ -63,61 +63,67 @@ export type ThirdStepScheme = z.infer<typeof thirdStepScheme>;
 export const mutateScriptRouter = router({
 	postDraft: protectedProcedure
 		.input(z.string())
-		.mutation(async ({ctx, input}) => {
+		.mutation(async ({ ctx, input }) => {
 			const script = await db.query.scriptsTable.findFirst({
-				where: (scriptsTable, {eq, isNull, and}) => and(
-					eq(scriptsTable.id, input),
-					isNull(scriptsTable.deletedAt)
-				)
+				where: (scriptsTable, { eq, isNull, and }) =>
+					and(eq(scriptsTable.id, input), isNull(scriptsTable.deletedAt)),
 			});
 			if (!script) {
-				throw new TRPCError({code: "NOT_FOUND"});
+				throw new TRPCError({ code: "NOT_FOUND" });
 			}
 
 			if (script.expertId != ctx.session.user.id) {
-				throw new TRPCError({code: "FORBIDDEN"});
+				throw new TRPCError({ code: "FORBIDDEN" });
 			}
 
-			if (!script.context ||
-				!script.categoryId || 
+			if (
+				!script.context ||
+				!script.categoryId ||
 				!script.title ||
-				!script.isDraft) {
-				throw new TRPCError({code: "BAD_REQUEST", message: "Сценарий должен быть заполненным"});
+				!script.isDraft
+			) {
+				throw new TRPCError({
+					code: "BAD_REQUEST",
+					message: "Сценарий должен быть заполненным",
+				});
 			}
 
-			await db.update(scriptsTable).set({
-				isDraft: false,
-				updatedAt: new Date(),
-				draftOverAt: new Date(),
-			}).where(and(
-				eq(scriptsTable.id, input),
-				isNull(scriptsTable.deletedAt),
-				eq(scriptsTable.isDraft, true)
-			));
+			await db
+				.update(scriptsTable)
+				.set({
+					isDraft: false,
+					updatedAt: new Date(),
+					draftOverAt: new Date(),
+				})
+				.where(
+					and(
+						eq(scriptsTable.id, input),
+						isNull(scriptsTable.deletedAt),
+						eq(scriptsTable.isDraft, true),
+					),
+				);
 		}),
 	deleteScript: protectedProcedure
 		.input(z.string())
-		.mutation(async ({ctx, input}) => {
+		.mutation(async ({ ctx, input }) => {
 			const script = await db.query.scriptsTable.findFirst({
-				where: (scriptsTable, {eq, and, isNull}) => and(
-					eq(scriptsTable.id, input),
-					isNull(scriptsTable.deletedAt)
-				)
+				where: (scriptsTable, { eq, and, isNull }) =>
+					and(eq(scriptsTable.id, input), isNull(scriptsTable.deletedAt)),
 			});
 			if (!script) {
-				throw new TRPCError({code: "NOT_FOUND"});
+				throw new TRPCError({ code: "NOT_FOUND" });
 			}
 
 			if (script.expertId != ctx.session.user.id) {
-				throw new TRPCError({code: "FORBIDDEN"});
+				throw new TRPCError({ code: "FORBIDDEN" });
 			}
 
-			await db.update(scriptsTable).set({
-				deletedAt: new Date(),
-			}).where(and(
-				eq(scriptsTable.id, input), 
-				isNull(scriptsTable.deletedAt))
-			);
+			await db
+				.update(scriptsTable)
+				.set({
+					deletedAt: new Date(),
+				})
+				.where(and(eq(scriptsTable.id, input), isNull(scriptsTable.deletedAt)));
 		}),
 	mutateFirstStep: protectedProcedure
 		.input(firstStepScheme)

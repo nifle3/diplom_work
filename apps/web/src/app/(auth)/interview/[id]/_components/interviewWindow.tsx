@@ -1,13 +1,12 @@
 "use client";
 
 import { X } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/modal";
-
-import type { Message } from "../_utils/type";
+import { Button } from "@/components/ui/button";
 import { useInterview } from "../_hooks/useInterview";
-import { MessageItem } from "./messageItem";
+import type { Message } from "../_utils/type";
 import { ChatInput } from "./chatInput";
+import { MessageItem } from "./messageItem";
 import { TypingIndicator } from "./typingIndicator";
 
 type InterviewWindowProps = {
@@ -20,13 +19,13 @@ export default function InterviewWindow({
 	initialQuestion,
 	scriptTitle,
 }: InterviewWindowProps) {
-	const { 
-		messages, 
-		inputValue, 
-		setInputValue, 
-		isSending, 
-		messagesEndRef, 
-		handleSend 
+	const {
+		messages,
+		inputValue,
+		setInputValue,
+		isSending,
+		messagesEndRef,
+		handleSend,
 	} = useInterview(initialQuestion);
 
 	return (
@@ -51,9 +50,9 @@ export default function InterviewWindow({
 					{messages.map((msg) => (
 						<MessageItem key={msg.id} message={msg} />
 					))}
-					
+
 					{isSending && <TypingIndicator />}
-					
+
 					<div ref={messagesEndRef} className="h-4" />
 				</div>
 			</main>
@@ -71,4 +70,3 @@ export default function InterviewWindow({
 		</div>
 	);
 }
-

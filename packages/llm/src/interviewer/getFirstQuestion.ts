@@ -1,3 +1,1 @@
-export async function getFirstQuestion() {
-    
-}
+export async function getFirstQuestion() {}

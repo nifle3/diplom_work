@@ -1,26 +1,27 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import { toast } from "sonner";
+import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { useMutation } from "@tanstack/react-query";
 import { trpc } from "@/lib/trpc";
 
 export function ExpertForm() {
 	const router = useRouter();
-	const setMutation = useMutation(trpc.expertManager.setUserExpert.mutationOptions({
-		onSuccess: () => {
-			toast("Пользователь добавлен");
-			router.refresh();
-		},
-		onError: (error) => {
-			toast(error.message);
-		}
-	}));
+	const setMutation = useMutation(
+		trpc.expertManager.setUserExpert.mutationOptions({
+			onSuccess: () => {
+				toast("Пользователь добавлен");
+				router.refresh();
+			},
+			onError: (error) => {
+				toast(error.message);
+			},
+		}),
+	);
 
 	const form = useForm({
 		defaultValues: {

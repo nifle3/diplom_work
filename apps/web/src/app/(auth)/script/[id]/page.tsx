@@ -16,7 +16,7 @@ export default async function Page({
 }: {
 	params: Promise<{ id: string }>;
 }) {
-	const { id }= await params;
+	const { id } = await params;
 	const trpcCaller = await serverTrpc();
 	const data = await trpcCaller.script.getInfo(id);
 
@@ -40,7 +40,7 @@ export default async function Page({
 						<span>Автор: {data.expert?.name ?? "Неизвестно"}</span>
 					</div>
 					<div className="flex w-full gap-3">
-						<NewSessionButton scriptId={id}/>
+						<NewSessionButton scriptId={id} />
 						<Link
 							href={{ pathname: `/script/${id}/myHistory` }}
 							className="flex-1"

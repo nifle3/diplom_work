@@ -83,7 +83,7 @@ export default function SignInForm() {
 					{isPending ? "Входим..." : "Войти"}
 				</button>
 				<Link
-					href={{pathname: "/forgotPassword"}}
+					href={{ pathname: "/forgotPassword" }}
 					className="text-blue-600 text-sm hover:underline"
 				>
 					Забыли пароль?

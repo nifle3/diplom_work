@@ -1,32 +1,32 @@
 import { serverTrpc } from "@/lib/trpcServer";
-import { SearchCourses } from "./_components/searchCourses";
 import { CategoriesFilter } from "./_components/categoriesFilter";
+import { SearchCourses } from "./_components/searchCourses";
 
 interface SidebarProps {
-  searchParams: Promise<{
-    categoryId?: number;
-    search?: string;
-  }>;
+	searchParams: Promise<{
+		categoryId?: number;
+		search?: string;
+	}>;
 }
 
 // TODO: как подумать что бы работало без переобразования number в string
 export default async function SidebarSlot({ searchParams }: SidebarProps) {
-  const { categoryId, search } = await searchParams;
-  const trpcCaller = await serverTrpc();
-  const categories = await trpcCaller.script.categories();
-  const categoriesForQuery = categories.map((val) => {
-    return {
-      id: val.id.toString(),
-      name: val.name,
-    };
-  });
+	const { categoryId, search } = await searchParams;
+	const trpcCaller = await serverTrpc();
+	const categories = await trpcCaller.script.categories();
+	const categoriesForQuery = categories.map((val) => {
+		return {
+			id: val.id.toString(),
+			name: val.name,
+		};
+	});
 
-  return (
-    <aside className="sticky top-20">
-      <div className="space-y-6">
-        <SearchCourses/>
-        <CategoriesFilter categories={categoriesForQuery}/>
-    </div>
-    </aside>
-  );
+	return (
+		<aside className="sticky top-20">
+			<div className="space-y-6">
+				<SearchCourses />
+				<CategoriesFilter categories={categoriesForQuery} />
+			</div>
+		</aside>
+	);
 }

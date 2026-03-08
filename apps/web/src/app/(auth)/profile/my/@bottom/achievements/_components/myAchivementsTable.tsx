@@ -101,7 +101,6 @@ export function MyAchievementsTable({ data }: MyAchievementsTableProps) {
 		getCoreRowModel: getCoreRowModel(),
 	});
 
-
 	const earnedCount = data.filter((a) => a.awardedAt !== null).length;
 	const totalCount = data.length;
 

@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 
 import { serverTrpc } from "@/lib/trpcServer";
 import CreateScriptButton from "./_components/createScriptButton";
-import { SharedScriptsTable, type ScriptRow } from "./_components/sharedScriptsTable";
+import {
+	type ScriptRow,
+	SharedScriptsTable,
+} from "./_components/sharedScriptsTable";
 
 export const metadata: Metadata = {
 	title: "Рабочий кабинет эксперта",
@@ -44,7 +47,7 @@ export default async function ExpertPage() {
 						<CreateScriptButton />
 					</div>
 					<h2 className="mb-4 font-semibold text-xl">Мои черновики</h2>
-					<SharedScriptsTable data={draftsData} isDraftTable={true}/>
+					<SharedScriptsTable data={draftsData} isDraftTable={true} />
 				</section>
 
 				<section>

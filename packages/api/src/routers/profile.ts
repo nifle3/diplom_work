@@ -1,5 +1,3 @@
-import { count, eq, and, isNull, desc } from "drizzle-orm";
-
 import { db } from "@diplom_work/db";
 import {
 	achievementsTable,
@@ -7,8 +5,8 @@ import {
 	userAchievementsTable,
 	usersTable,
 } from "@diplom_work/db/schema/scheme";
-
 import { TRPCError } from "@trpc/server";
+import { and, count, desc, eq, isNull } from "drizzle-orm";
 import { protectedProcedure, router } from "..";
 
 export const profileRouter = router({
@@ -26,7 +24,6 @@ export const profileRouter = router({
 		}
 
 		return user;
-
 	}),
 	getMyProfileStats: protectedProcedure.query(async ({ ctx }) => {
 		const userId = ctx.session.user.id;
@@ -39,16 +36,19 @@ export const profileRouter = router({
 				achievementCount: count(userAchievementsTable.achievementId),
 			})
 			.from(usersTable)
-			.where(and(
-				eq(usersTable.id, userId),
-				isNull(usersTable.deletedAt)
-			))
-			.leftJoin(interviewSessionsTable, eq(interviewSessionsTable.userId, usersTable.id))
-			.leftJoin(userAchievementsTable, eq(userAchievementsTable.userId, usersTable.id))
+			.where(and(eq(usersTable.id, userId), isNull(usersTable.deletedAt)))
+			.leftJoin(
+				interviewSessionsTable,
+				eq(interviewSessionsTable.userId, usersTable.id),
+			)
+			.leftJoin(
+				userAchievementsTable,
+				eq(userAchievementsTable.userId, usersTable.id),
+			)
 			.groupBy(usersTable.id);
 
 		if (!result) {
-			throw new TRPCError({code:"NOT_FOUND"});
+			throw new TRPCError({ code: "NOT_FOUND" });
 		}
 
 		return result;
@@ -92,7 +92,7 @@ export const profileRouter = router({
 			.from(userAchievementsTable)
 			.innerJoin(
 				achievementsTable,
-				eq(userAchievementsTable.achievementId, achievementsTable.id)
+				eq(userAchievementsTable.achievementId, achievementsTable.id),
 			)
 			.where(eq(userAchievementsTable.userId, ctx.session.user.id))
 			.orderBy(desc(userAchievementsTable.awardedAt));

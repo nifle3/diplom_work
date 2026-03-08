@@ -10,7 +10,12 @@ interface ChatInputProps {
 	disabled: boolean;
 }
 
-export const ChatInput = ({ value, onChange, onSend, disabled }: ChatInputProps) => {
+export const ChatInput = ({
+	value,
+	onChange,
+	onSend,
+	disabled,
+}: ChatInputProps) => {
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
 		if (e.key === "Enter" && !e.shiftKey) {
 			e.preventDefault();
