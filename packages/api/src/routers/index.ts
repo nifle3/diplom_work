@@ -8,6 +8,7 @@ import { profileRouter } from "./profile";
 import { scriptRouter } from "./script";
 import { sessionRouter } from "./session";
 import { userRouter } from "./user";
+import { interviewHistoryRouter } from "./interviewHistory" 
 
 export const appRouter = router({
 	healthCheck: publicProcedure.query(() => {
@@ -22,6 +23,7 @@ export const appRouter = router({
 	session: sessionRouter,
 	category: categoryRouter,
 	expertManager: expertManagerRouter,
+	interviewHistory: interviewHistoryRouter,
 });
 
 export type AppRouter = typeof appRouter;
