@@ -103,7 +103,7 @@ export default function FirstStepForm({
 										onBlur={field.handleBlur}
 										onChange={(e) => {
 											const val = e.target.value;
-											field.handleChange(val ? Number(val) : (null as  any));
+											field.handleChange(val ? Number(val) : (null as any));
 										}}
 										className="flex h-10 w-full rounded-none border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 									>
