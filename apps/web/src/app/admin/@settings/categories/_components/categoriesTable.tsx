@@ -9,7 +9,6 @@ import {
 } from "@tanstack/react-table";
 import { Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Modal } from "@/components/modal";
 import { Button } from "@/components/ui/button";
@@ -20,7 +19,6 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
 	Table,
 	TableBody,
@@ -57,7 +55,7 @@ const defaultColumns = (
 			return (
 				<div className="flex gap-2">
 					<Dialog>
-						<DialogTrigger>
+						<DialogTrigger asChild>
 							<Button variant="ghost" size="icon">
 								<Pencil className="h-4 w-4" />
 							</Button>
@@ -75,6 +73,7 @@ const defaultColumns = (
 									действие нельзя отменить.`}
 						actionName={"Удалить"}
 						action={() => onDelete(row.original.id)}
+						asChild={true}
 					>
 						<Button variant="ghost" size="icon">
 							<Trash2 className="h-4 w-4 text-destructive" />
@@ -87,8 +86,6 @@ const defaultColumns = (
 ];
 
 export function CategoriesTable({ data }: CategoriesTableProps) {
-	const [mounted, setMounted] = useState(false);
-
 	const router = useRouter();
 	const deleteMutation = useMutation(
 		trpc.category.deleteById.mutationOptions({
@@ -101,10 +98,6 @@ export function CategoriesTable({ data }: CategoriesTableProps) {
 		}),
 	);
 
-	useEffect(() => {
-		setMounted(true);
-	}, []);
-
 	const onDelete = async (id: number) => {
 		await deleteMutation.mutateAsync(id);
 	};
@@ -114,34 +107,6 @@ export function CategoriesTable({ data }: CategoriesTableProps) {
 		columns: defaultColumns(onDelete),
 		getCoreRowModel: getCoreRowModel(),
 	});
-
-	if (!mounted || deleteMutation.isPending) {
-		return (
-			<Table>
-				<TableHeader>
-					<TableRow>
-						<TableHead>Название</TableHead>
-						<TableHead>Действия</TableHead>
-					</TableRow>
-				</TableHeader>
-				<TableBody>
-					{Array.from({ length: 3 }).map((_, i) => (
-						<TableRow key={`skeleton-row-${i}`}>
-							<TableCell>
-								<Skeleton className="h-4 w-32" />
-							</TableCell>
-							<TableCell>
-								<Skeleton className="h-4 w-48" />
-							</TableCell>
-							<TableCell>
-								<Skeleton className="h-8 w-16" />
-							</TableCell>
-						</TableRow>
-					))}
-				</TableBody>
-			</Table>
-		);
-	}
 
 	return (
 		<Table>

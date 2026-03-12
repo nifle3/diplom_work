@@ -25,7 +25,7 @@ export function Modal({
 	actionName,
 	children,
 	action,
-	asChild
+	asChild,
 }: ModalWindowProps) {
 	return (
 		<AlertDialog>
