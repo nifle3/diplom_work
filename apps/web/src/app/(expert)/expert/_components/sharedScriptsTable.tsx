@@ -92,7 +92,7 @@ const defaultColumns = (
 							description={`Вы хотите сделать сценарий ${row.original.title} публичным?`}
 							actionName={"Опубликовать"}
 							action={() => onPublish(row.original.id)}
-							asChild
+							asChild={true}
 						>
 							<Button variant="ghost" size="icon">
 								<Upload className="h-4 w-4" />
@@ -111,6 +111,7 @@ const defaultColumns = (
 							действие нельзя отменить.`}
 						actionName={"Удалить"}
 						action={() => onDelete(row.original.id)}
+						asChild={true}
 					>
 						<Button variant="ghost" size="icon">
 							<Trash2 className="h-4 w-4 text-destructive" />
