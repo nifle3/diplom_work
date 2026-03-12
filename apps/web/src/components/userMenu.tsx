@@ -30,9 +30,7 @@ export default async function UserMenu({
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<Button variant="outline">
-					{data?.user.name}
-				</Button>
+				<Button variant="outline">{data?.user.name}</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent className="bg-card">
 				<DropdownMenuGroup>
