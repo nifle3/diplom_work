@@ -16,6 +16,7 @@ type ModalWindowProps = {
 	actionName: string;
 	children: React.ReactNode;
 	action: () => void;
+	asChild?: boolean;
 };
 
 export function Modal({
@@ -24,10 +25,11 @@ export function Modal({
 	actionName,
 	children,
 	action,
+	asChild = false
 }: ModalWindowProps) {
 	return (
 		<AlertDialog>
-			<AlertDialogTrigger>{children}</AlertDialogTrigger>
+			<AlertDialogTrigger asChild={asChild}>{children}</AlertDialogTrigger>
 			<AlertDialogContent>
 				<AlertDialogHeader>
 					<AlertDialogTitle>{header}</AlertDialogTitle>
