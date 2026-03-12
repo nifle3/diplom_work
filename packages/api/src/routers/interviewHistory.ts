@@ -24,5 +24,20 @@ export const interviewHistoryRouter = router({
 		}),
 	getAllIncomplete: protectedProcedure
 		.input(z.uuid())
-		.query(async ({ input, ctx }) => {}),
+		.query(async ({ input, ctx }) => {
+			const result = await db.query.interviewSessionsTable.findMany({
+				where: (interviewSessionsTable, { eq, and }) =>
+					and(
+						eq(interviewSessionsTable.scriptId, input),
+						eq(interviewSessionsTable.userId, ctx.session.user.id),
+						eq(interviewSessionsTable.status, "incomplete"),
+					),
+			});
+
+			if (!result) {
+				throw new TRPCError({ code: "NOT_FOUND" });
+			}
+
+			return result;
+		}),
 });
