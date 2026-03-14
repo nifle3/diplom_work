@@ -5,8 +5,8 @@
 		".": {
 			"default": "./src/index.ts"
 		},
-		"./*": {
-			"default": "./src/*.ts"
+		"./error": {
+			"default": "./src/error/index.ts"
 		}
 	},
 	"scripts": {
