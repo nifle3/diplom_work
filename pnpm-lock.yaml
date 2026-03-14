@@ -295,6 +295,15 @@ importers:
         specifier: 'catalog:'
         version: 5.9.3
 
+  packages/domain:
+    devDependencies:
+      '@diplom_work/config':
+        specifier: workspace:*
+        version: link:../config
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
   packages/env:
     dependencies:
       '@t3-oss/env-core':
@@ -328,6 +337,9 @@ importers:
       '@aws-sdk/s3-request-presigner':
         specifier: ^3.1009.0
         version: 3.1009.0
+      '@diplom_work/domain':
+        specifier: 'workspace:'
+        version: link:../domain
     devDependencies:
       '@diplom_work/config':
         specifier: workspace:*
