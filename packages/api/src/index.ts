@@ -7,10 +7,54 @@ export const t = initTRPC.context<Context>().create({
 	transformer: superjson,
 });
 
-export const router = t.router;
-export const publicProcedure = t.procedure;
+type DomainErrorLike = Error & {
+	payload?: unknown;
+};
 
-export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
+function isDomainError(error: unknown): error is DomainErrorLike {
+	return error instanceof Error && "payload" in error;
+}
+
+const domainErrorMiddleware = t.middleware(async ({ next }) => {
+	try {
+		return await next();
+	} catch (error) {
+		if (error instanceof TRPCError) {
+			throw error;
+		}
+
+		if (isDomainError(error)) {
+			if (error.name === "FileTooLarge") {
+				throw new TRPCError({
+					code: "PAYLOAD_TOO_LARGE",
+					message: error.message,
+					cause: error,
+				});
+			}
+
+			if (error.name === "StorageError") {
+				throw new TRPCError({
+					code: "INTERNAL_SERVER_ERROR",
+					message: error.message,
+					cause: error,
+				});
+			}
+
+			throw new TRPCError({
+				code: "BAD_REQUEST",
+				message: error.message,
+				cause: error,
+			});
+		}
+
+		throw error;
+	}
+});
+
+export const router = t.router;
+export const publicProcedure = t.procedure.use(domainErrorMiddleware);
+
+export const protectedProcedure = publicProcedure.use(({ ctx, next }) => {
 	if (!ctx.session) {
 		throw new TRPCError({
 			code: "UNAUTHORIZED",
@@ -26,7 +70,7 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
 	});
 });
 
-export const adminProcedure = t.procedure.use(async ({ ctx, next }) => {
+export const adminProcedure = publicProcedure.use(async ({ ctx, next }) => {
 	if (!ctx.session) {
 		throw new TRPCError({
 			code: "UNAUTHORIZED",
@@ -68,7 +112,7 @@ export const adminProcedure = t.procedure.use(async ({ ctx, next }) => {
 	});
 });
 
-export const expertProcedure = t.procedure.use(async ({ ctx, next }) => {
+export const expertProcedure = publicProcedure.use(async ({ ctx, next }) => {
 	if (!ctx.session) {
 		throw new TRPCError({
 			code: "UNAUTHORIZED",

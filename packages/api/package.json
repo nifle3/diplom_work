@@ -11,6 +11,7 @@
 	},
 	"scripts": {},
 	"dependencies": {
+		"@diplom_work/domain": "workspace:*",
 		"@diplom_work/auth": "workspace:*",
 		"@diplom_work/db": "workspace:*",
 		"@diplom_work/env": "workspace:*",
