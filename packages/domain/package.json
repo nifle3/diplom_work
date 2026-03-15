@@ -9,10 +9,8 @@
 			"default": "./src/error/index.ts"
 		}
 	},
-	"scripts": {
-	},
-	"dependencies": {
-	},
+	"scripts": {},
+	"dependencies": {},
 	"devDependencies": {
 		"@diplom_work/config": "workspace:*",
 		"typescript": "catalog:"

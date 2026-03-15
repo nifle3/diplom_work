@@ -7,8 +7,8 @@ const deleteFileWrapped = wrapS3Error(deleteFile);
 const getPersistentLinkWrapped = wrapS3Error(getPersistentLink);
 const uploadFileWrapped = wrapS3Error(uploadFile);
 
-export { 
-    deleteFileWrapped as deleteFile,
-    getPersistentLinkWrapped as getPersistentLink,
-    uploadFileWrapped as uploadFile
+export {
+	deleteFileWrapped as deleteFile,
+	getPersistentLinkWrapped as getPersistentLink,
+	uploadFileWrapped as uploadFile,
 };

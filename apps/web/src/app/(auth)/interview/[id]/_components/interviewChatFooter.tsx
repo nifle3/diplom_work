@@ -1,7 +1,7 @@
 "use client";
 
-import { useInterviewContext } from "./interviewProvider";
 import { ChatInput } from "./chatInput";
+import { useInterviewContext } from "./interviewProvider";
 
 export function InterviewChatFooter() {
 	const { inputValue, setInputValue, handleSend, isSending } =
