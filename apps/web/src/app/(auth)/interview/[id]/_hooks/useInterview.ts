@@ -1,18 +1,23 @@
 import { useMutation } from "@tanstack/react-query";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import type { Message } from "../_utils/type";
 
-export function useInterview(initialMessages: Message[], sessionId: string) {
-	const [messages, setMessages] = useState<Message[]>(initialMessages);
+export function useInterview(sessionId: string) {
+	const [messages, setMessages] = useState<Message[]>([]);
 	const [inputValue, setInputValue] = useState("");
 	const messagesEndRef = useRef<HTMLDivElement>(null);
+
+	const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
+		messagesEndRef.current?.scrollIntoView({ behavior });
+	};
+
 	const newMessage = useMutation(
 		trpc.session.addNewMessage.mutationOptions({
-			onSuccess: (val) => {
+			onSuccess: (message) => {
 				setInputValue("");
-				setMessages([...messages, val]);
+				setMessages((currentMessages) => [...currentMessages, message]);
 			},
 			onError: (error) => {
 				toast(error.message);
@@ -20,14 +25,15 @@ export function useInterview(initialMessages: Message[], sessionId: string) {
 		}),
 	);
 
-	const scrollToBottom = () => {
-		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-	};
+	useEffect(() => {
+		scrollToBottom("auto");
+	}, [messages.length]);
 
 	const handleSend = async () => {
 		if (!inputValue.trim() || newMessage.isPending) return;
-		setMessages([
-			...messages,
+
+		setMessages((currentMessages) => [
+			...currentMessages,
 			{
 				id: crypto.randomUUID(),
 				isAi: false,
@@ -35,8 +41,8 @@ export function useInterview(initialMessages: Message[], sessionId: string) {
 				createdAt: new Date(),
 			},
 		]);
+
 		await newMessage.mutateAsync({ sessionId, content: inputValue });
-		scrollToBottom();
 	};
 
 	return {
