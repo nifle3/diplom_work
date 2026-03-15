@@ -1,0 +1,3 @@
+{
+	"extends": "@diplom_work/config/tsconfig.base.json"
+}

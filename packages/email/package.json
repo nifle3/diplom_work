@@ -1,23 +1,17 @@
 {
-	"name": "@diplom_work/auth",
+	"name": "@diplom_work/email",
 	"type": "module",
 	"exports": {
 		".": {
 			"default": "./src/index.ts"
-		},
-		"./*": {
-			"default": "./src/*.ts"
 		}
 	},
 	"scripts": {},
 	"dependencies": {
-		"@diplom_work/db": "workspace:*",
-		"@diplom_work/email": "workspace:*",
+		"@diplom_work/domain": "workspace:*",
 		"@diplom_work/env": "workspace:*",
-		"better-auth": "catalog:",
 		"dotenv": "catalog:",
-		"zod": "catalog:",
-		"drizzle-orm": "catalog:"
+		"zod": "catalog:"
 	},
 	"devDependencies": {
 		"@diplom_work/config": "workspace:*",
