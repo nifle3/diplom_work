@@ -248,6 +248,9 @@ importers:
       '@diplom_work/db':
         specifier: workspace:*
         version: link:../db
+      '@diplom_work/domain':
+        specifier: workspace:*
+        version: link:../domain
       '@diplom_work/email':
         specifier: workspace:*
         version: link:../email

@@ -13,6 +13,7 @@
 	"dependencies": {
 		"@diplom_work/db": "workspace:*",
 		"@diplom_work/email": "workspace:*",
+		"@diplom_work/domain": "workspace:*",
 		"@diplom_work/env": "workspace:*",
 		"better-auth": "catalog:",
 		"dotenv": "catalog:",

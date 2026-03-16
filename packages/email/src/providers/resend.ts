@@ -3,31 +3,18 @@ import {
 	EmailDeliveryError,
 } from "@diplom_work/domain/error";
 import { env } from "@diplom_work/env/server";
-import type { SendEmailInput } from "../types";
 import { client } from "../client";
-
-
-function assertFromAddress(from?: string) {
-	if (!(from ?? env.EMAIL_FROM)) {
-		throw new EmailConfigurationError("Email from address is not configured", {
-			provider: "resend",
-			reason: "missing_from_address",
-		});
-	}
-}
+import type { SendEmailInput } from "../types";
 
 export async function sendViaResend({
-	from = env.EMAIL_FROM,
 	to,
 	subject,
 	html,
 	text,
 }: SendEmailInput) {
-	assertFromAddress(from);
-
 	try {
 		const { data, error } = await client.emails.send({
-			from,
+			from: env.EMAIL_FROM,
 			to: Array.isArray(to) ? to : [to],
 			subject,
 			html,
@@ -44,7 +31,10 @@ export async function sendViaResend({
 
 		return data.id;
 	} catch (err) {
-		if (err instanceof EmailDeliveryError || err instanceof EmailConfigurationError) {
+		if (
+			err instanceof EmailDeliveryError ||
+			err instanceof EmailConfigurationError
+		) {
 			throw err;
 		}
 

@@ -6,12 +6,8 @@ import { Label } from "@/components/ui/label";
 import { useForgotPasswordForm } from "../_hooks/useForgotPasswordForm";
 
 export default function ForgotPasswordForm() {
-	const {
-		isPending,
-		requestEmail,
-		setRequestEmail,
-		handleRequestReset,
-	} = useForgotPasswordForm();
+	const { isPending, requestEmail, setRequestEmail, handleRequestReset } =
+		useForgotPasswordForm();
 
 	return (
 		<form className="space-y-4" onSubmit={handleRequestReset}>
