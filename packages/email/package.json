@@ -6,15 +6,19 @@
 			"default": "./src/index.ts"
 		}
 	},
-	"scripts": {},
+	"scripts": {
+		"test": "vitest"
+	},
 	"dependencies": {
 		"@diplom_work/domain": "workspace:*",
 		"@diplom_work/env": "workspace:*",
 		"dotenv": "catalog:",
+		"resend": "^6.9.3",
 		"zod": "catalog:"
 	},
 	"devDependencies": {
 		"@diplom_work/config": "workspace:*",
-		"typescript": "catalog:"
+		"typescript": "catalog:",
+		"vitest": "catalog:"
 	}
 }

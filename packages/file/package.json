@@ -6,7 +6,9 @@
 			"default": "./src/index.ts"
 		}
 	},
-	"scripts": {},
+	"scripts": {
+		"test": "vitest"
+	},
 	"dependencies": {
 		"@aws-sdk/client-s3": "^3.1009.0",
 		"@aws-sdk/s3-request-presigner": "^3.1009.0",
@@ -15,6 +17,7 @@
 	"devDependencies": {
 		"@diplom_work/config": "workspace:*",
 		"@diplom_work/env": "workspace:*",
-		"typescript": "catalog:"
+		"typescript": "catalog:",
+		"vitest": "catalog:"
 	}
 }

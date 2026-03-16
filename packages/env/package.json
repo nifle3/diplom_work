@@ -7,6 +7,9 @@
 		"./server": "./src/server.ts",
 		"./web": "./src/web.ts"
 	},
+	"scripts": {
+		"test": "vitest"
+	},
 	"dependencies": {
 		"@t3-oss/env-core": "^0.13.1",
 		"@t3-oss/env-nextjs": "^0.13.1",
@@ -16,6 +19,7 @@
 	"devDependencies": {
 		"@diplom_work/config": "workspace:*",
 		"@types/node": "^22.13.14",
-		"typescript": "catalog:"
+		"typescript": "catalog:",
+		"vitest": "catalog:"
 	}
 }

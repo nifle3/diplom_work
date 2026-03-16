@@ -6,7 +6,9 @@
 			"default": "./src/index.ts"
 		}
 	},
-	"scripts": {},
+	"scripts": {
+		"test": "vitest"
+	},
 	"dependencies": {
 		"@ai-sdk/deepseek": "^2.0.24",
 		"@ai-sdk/mistral": "^3.0.24",
@@ -18,6 +20,7 @@
 	"devDependencies": {
 		"@diplom_work/config": "workspace:*",
 		"@diplom_work/env": "workspace:*",
-		"typescript": "catalog:"
+		"typescript": "catalog:",
+		"vitest": "catalog:"
 	}
 }

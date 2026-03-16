@@ -20,6 +20,9 @@
 			"cache": false,
 			"persistent": true
 		},
+		"test": {
+			"persistent": true
+		},
 		"db:push": {
 			"cache": false
 		},

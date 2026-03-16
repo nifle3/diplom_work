@@ -9,7 +9,9 @@
 			"default": "./src/*.ts"
 		}
 	},
-	"scripts": {},
+	"scripts": {
+		"test": "vitest"
+	},
 	"dependencies": {
 		"@diplom_work/domain": "workspace:*",
 		"@diplom_work/auth": "workspace:*",
@@ -30,6 +32,7 @@
 	},
 	"devDependencies": {
 		"@diplom_work/config": "workspace:*",
-		"typescript": "catalog:"
+		"typescript": "catalog:",
+		"vitest": "catalog:"
 	}
 }
