@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-export function Layout({
+export default function Layout({
     children
 }: Readonly<{
     children: ReactNode
