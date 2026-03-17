@@ -20,12 +20,12 @@ export const userRouter = router({
 			.from(usersTable)
 			.where(eq(usersTable.id, userId))
 			.limit(1);
-		const {0: user} = users;
-		
+		const { 0: user } = users;
+
 		if (!user) {
-			throw new TRPCError({code: "NOT_FOUND"});
+			throw new TRPCError({ code: "NOT_FOUND" });
 		}
-		
+
 		return {
 			name: user?.name,
 			streak: user?.currentStreak,

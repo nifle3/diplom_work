@@ -6,7 +6,7 @@ import {
 } from "@diplom_work/db/schema/scheme";
 import { getFirstQuestion, getNextQuestion, summarize } from "@diplom_work/llm";
 import { TRPCError } from "@trpc/server";
-import { eq, and } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { protectedProcedure, router } from "..";
 

@@ -3,6 +3,7 @@ import { activityRouter } from "./activity";
 import { categoryRouter } from "./category";
 import { expertRouter } from "./expert";
 import { expertManagerRouter } from "./expertManager";
+import { fileRouter } from "./file";
 import { interviewHistoryRouter } from "./interviewHistory";
 import { mutateScriptRouter } from "./mutateScript";
 import { profileRouter } from "./profile";
@@ -24,6 +25,7 @@ export const appRouter = router({
 	category: categoryRouter,
 	expertManager: expertManagerRouter,
 	interviewHistory: interviewHistoryRouter,
+	file: fileRouter,
 });
 
 export type AppRouter = typeof appRouter;
