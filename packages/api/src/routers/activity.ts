@@ -3,7 +3,7 @@ import {
 	interviewSessionsTable,
 	scriptsTable,
 } from "@diplom_work/db/schema/scheme";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, and, isNotNull } from "drizzle-orm";
 
 import { protectedProcedure, router } from "../index";
 
@@ -22,10 +22,13 @@ export const activityRouter = router({
 				scriptsTable,
 				eq(interviewSessionsTable.scriptId, scriptsTable.id),
 			)
-			.where(eq(interviewSessionsTable.userId, userId))
+			.where(and(
+				eq(interviewSessionsTable.userId, userId),
+				isNotNull(interviewSessionsTable.finishedAt)
+			))
 			.orderBy(desc(interviewSessionsTable.finishedAt))
 			.limit(3);
 
-		return activities.filter((activity) => activity.date !== null);
+		return activities;
 	}),
 });

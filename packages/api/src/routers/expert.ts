@@ -57,8 +57,6 @@ export const expertRouter = router({
 			});
 		}
 
-		console.debug(`Created script value is ${newScript.id}`);
-
 		return newScript.id;
 	}),
 	getMyDrafts: protectedProcedure.query(async ({ ctx }) => {

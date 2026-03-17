@@ -2,10 +2,11 @@ import { db } from "@diplom_work/db/index";
 import {
 	chatMessagesTable,
 	interviewSessionsTable,
+	sessionsTable,
 } from "@diplom_work/db/schema/scheme";
 import { getFirstQuestion, getNextQuestion, summarize } from "@diplom_work/llm";
 import { TRPCError } from "@trpc/server";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { z } from "zod";
 import { protectedProcedure, router } from "..";
 
@@ -18,6 +19,34 @@ export const sessionRouter = router({
 	createNewSession: protectedProcedure
 		.input(z.string())
 		.mutation(async ({ ctx, input }) => {
+			const script = await db.query.scriptsTable.findFirst({
+				where: (scriptsTable, { and, eq, isNull }) =>
+					and(eq(scriptsTable.id, input), isNull(scriptsTable.deletedAt)),
+				columns: {
+					context: true,
+				},
+				with: {
+					questions: {
+						columns: {
+							text: true,
+						},
+					},
+				},
+			});
+
+			if (!script) {
+				throw new TRPCError({ code: "NOT_FOUND" });
+			}
+
+			if (!script.context) {
+				throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+			}
+
+			const text = await getFirstQuestion({
+				context: script.context,
+				questionExamples: script.questions.map((val) => val.text),
+			});
+
 			const result = await db.transaction(async (tx) => {
 				const { 0: addedSession } = await tx
 					.insert(interviewSessionsTable)
@@ -31,34 +60,6 @@ export const sessionRouter = router({
 				if (!addedSession) {
 					throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
 				}
-
-				const script = await tx.query.scriptsTable.findFirst({
-					where: (scriptsTable, { and, eq, isNull }) =>
-						and(eq(scriptsTable.id, input), isNull(scriptsTable.deletedAt)),
-					columns: {
-						context: true,
-					},
-					with: {
-						questions: {
-							columns: {
-								text: true,
-							},
-						},
-					},
-				});
-
-				if (!script) {
-					throw new TRPCError({ code: "NOT_FOUND" });
-				}
-
-				if (!script.context) {
-					throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
-				}
-
-				const text = await getFirstQuestion({
-					context: script.context,
-					questionExamples: script.questions.map((val) => val.text),
-				});
 
 				await tx.insert(chatMessagesTable).values({
 					sessionId: addedSession.id,
@@ -93,20 +94,26 @@ export const sessionRouter = router({
 	getAllHistory: protectedProcedure
 		.input(z.string())
 		.query(async ({ ctx, input }) => {
-			const results = await db.query.chatMessagesTable.findMany({
-				where: (chatMessagesTable, { eq }) =>
-					eq(chatMessagesTable.sessionId, input),
-				with: {
-					session: {
-						columns: {
-							userId: true,
-						},
-					},
-				},
-			});
-			return results.filter(
-				(val) => val.session.userId === ctx.session.user.id,
-			);
+			const results = await db
+				.select({
+					id: chatMessagesTable.id,
+					messageText: chatMessagesTable.messageText,
+					isAi: chatMessagesTable.isAi,
+					createdAt: chatMessagesTable.createdAt,
+					sessionId: chatMessagesTable.sessionId,
+				})
+				.from(chatMessagesTable)
+				.innerJoin(
+					sessionsTable,
+					eq(chatMessagesTable.sessionId, sessionsTable.id),
+				)
+				.where(
+					and(
+						eq(chatMessagesTable.sessionId, input),
+						eq(sessionsTable.userId, ctx.session.user.id),
+					),
+				);
+			return results;
 		}),
 	addNewMessage: protectedProcedure
 		.input(addNewMessageScheme)
@@ -161,6 +168,12 @@ export const sessionRouter = router({
 				prevSummarization: session.summarize ?? "",
 			});
 
+			const newQuestion = await getNextQuestion({
+				context: script.context ?? "",
+				questionExamples: script.questions.map((val) => val.text),
+				summarize: sum,
+			});
+
 			const result = await db.transaction(async (tx) => {
 				await tx
 					.update(interviewSessionsTable)
@@ -168,12 +181,6 @@ export const sessionRouter = router({
 						summarize: sum,
 					})
 					.where(eq(interviewSessionsTable.id, input.sessionId));
-
-				const newQuestion = await getNextQuestion({
-					context: script.context ?? "",
-					questionExamples: script.questions.map((val) => val.text),
-					summarize: sum,
-				});
 
 				await tx.insert(chatMessagesTable).values({
 					sessionId: input.sessionId,

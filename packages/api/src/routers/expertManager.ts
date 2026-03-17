@@ -10,12 +10,13 @@ const expertId = 2;
 export const expertManagerRouter = router({
 	getAll: adminProcedure.query(async () => {
 		const result = await db.query.usersTable.findMany({
+			where: (users, { eq }) => eq(users.roleId, expertId),
 			with: {
 				role: true,
 			},
 		});
 
-		return result.filter((val) => val.role.name === "expert");
+		return result;
 	}),
 	setUserExpert: adminProcedure.input(z.email()).mutation(async ({ input }) => {
 		const result = await db

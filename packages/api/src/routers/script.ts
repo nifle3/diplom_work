@@ -52,7 +52,10 @@ export const scriptRouter = router({
 		.input(getLatestScenariosSchema)
 		.query(async ({ input }) => {
 			const scenarios = await db
-				.select()
+				.select({
+					id: scriptsTable.id,
+					title: scriptsTable.title,
+				})
 				.from(scriptsTable)
 				.where(
 					and(eq(scriptsTable.isDraft, false), isNull(scriptsTable.deletedAt)),
@@ -60,10 +63,7 @@ export const scriptRouter = router({
 				.orderBy(desc(scriptsTable.createdAt))
 				.limit(input.limit);
 
-			return scenarios.map((scenario) => ({
-				id: scenario.id,
-				title: scenario.title,
-			}));
+			return scenarios;
 		}),
 
 	categories: protectedProcedure.query(async () => {

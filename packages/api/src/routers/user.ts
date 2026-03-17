@@ -20,10 +20,12 @@ export const userRouter = router({
 			.from(usersTable)
 			.where(eq(usersTable.id, userId))
 			.limit(1);
-		if (!users || users.length === 0) {
-			throw new Error("User not found");
+		const {0: user} = users;
+		
+		if (!user) {
+			throw new TRPCError({code: "NOT_FOUND"});
 		}
-		const user = users[0];
+		
 		return {
 			name: user?.name,
 			streak: user?.currentStreak,
@@ -45,7 +47,6 @@ export const userRouter = router({
 			}
 
 			const requiredRole = roleNameToRoleId[input];
-			console.debug(`finded role ${requiredRole}, userRole ${user.roleId}`);
 
 			return user && user.roleId === requiredRole;
 		}),
