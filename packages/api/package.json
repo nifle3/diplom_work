@@ -19,12 +19,12 @@
 		"@diplom_work/env": "workspace:*",
 		"@diplom_work/file": "workspace:*",
 		"@diplom_work/llm": "workspace:*",
+		"@diplom_work/logger": "workspace:*",
 		"@trpc/client": "catalog:",
 		"@trpc/server": "catalog:",
 		"dotenv": "catalog:",
 		"drizzle-orm": "catalog:",
 		"next": "catalog:",
-		"pino": "catalog:",
 		"superjson": "^2.2.6",
 		"zod": "catalog:"
 	},

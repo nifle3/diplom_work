@@ -1,82 +1,36 @@
 import { db } from "@diplom_work/db";
+import { logger } from "@diplom_work/logger/server";
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import type { Context } from "./context";
+import { domainErrorMiddleware } from "./middlewares";
 
 export const t = initTRPC.context<Context>().create({
 	transformer: superjson,
 });
 
-type DomainErrorLike = Error & {
-	payload?: unknown;
-};
+const errorMiddleware = t.middleware(domainErrorMiddleware);
+const loggerMiddleware = t.middleware(async ({ path, type, next }) => {
+	const start = Date.now();
+	const result = await next();
+	const durationMs = Date.now() - start;
 
-function isDomainError(error: unknown): error is DomainErrorLike {
-	return error instanceof Error && "payload" in error;
-}
-
-const domainErrorMiddleware = t.middleware(async ({ next }) => {
-	try {
-		return await next();
-	} catch (error) {
-		if (error instanceof TRPCError) {
-			throw error;
-		}
-
-		if (isDomainError(error)) {
-			if (error.name === "EmailDeliveryError") {
-				const code =
-					typeof error.payload === "object" &&
-					error.payload !== null &&
-					"reason" in error.payload &&
-					error.payload.reason === "rate_limited"
-						? "TOO_MANY_REQUESTS"
-						: "INTERNAL_SERVER_ERROR";
-
-				throw new TRPCError({
-					code,
-					message: error.message,
-					cause: error,
-				});
-			}
-
-			if (error.name === "EmailConfigurationError") {
-				throw new TRPCError({
-					code: "INTERNAL_SERVER_ERROR",
-					message: error.message,
-					cause: error,
-				});
-			}
-
-			if (error.name === "FileTooLarge") {
-				throw new TRPCError({
-					code: "PAYLOAD_TOO_LARGE",
-					message: error.message,
-					cause: error,
-				});
-			}
-
-			if (error.name === "StorageError") {
-				throw new TRPCError({
-					code: "INTERNAL_SERVER_ERROR",
-					message: error.message,
-					cause: error,
-				});
-			}
-
-			throw new TRPCError({
-				code: "BAD_REQUEST",
-				message: error.message,
-				cause: error,
-			});
-		}
-
-		throw error;
+	if (result.ok) {
+		logger.info({ path, type, durationMs }, `[tRPC] ${path} success`);
+	} else {
+		logger.error(
+			{ path, type, durationMs, error: result.error },
+			`[tRPC] ${path} error`,
+		);
 	}
+
+	return result;
 });
 
 export const router = t.router;
-export const publicProcedure = t.procedure.use(domainErrorMiddleware);
+export const publicProcedure = t.procedure
+	.use(errorMiddleware)
+	.use(loggerMiddleware);
 
 export const protectedProcedure = publicProcedure.use(({ ctx, next }) => {
 	if (!ctx.session) {

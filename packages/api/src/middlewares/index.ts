@@ -1,0 +1,1 @@
+export { domainErrorMiddleware } from "./error";
