@@ -1,8 +1,26 @@
 "use client";
 
-export function ResetForm() {
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useResetPasswordForm } from "../_hooks/useResetPasswordForm";
+
+type ResetFormParams = {
+	token: string;
+};
+
+export function ResetForm({ token }: ResetFormParams) {
+	const {
+		password,
+		setPassword,
+		repeatPassword,
+		setRepeatPassword,
+		isPending,
+		onCallbackQuery,
+	} = useResetPasswordForm(token);
+
 	return (
-		<form className="space-y-4" onSubmit={handleResetPassword}>
+		<form className="space-y-4" onSubmit={onCallbackQuery}>
 			<div>
 				<Label className="mb-2" htmlFor="newPassword">
 					Новый пароль
@@ -14,8 +32,8 @@ export function ResetForm() {
 					autoComplete="new-password"
 					required
 					minLength={8}
-					value={resetValues.newPassword}
-					onChange={handleResetChange("newPassword")}
+					value={password}
+					onChange={(e) => setPassword(e.target.value)}
 				/>
 			</div>
 
@@ -30,8 +48,8 @@ export function ResetForm() {
 					autoComplete="new-password"
 					required
 					minLength={8}
-					value={resetValues.confirmPassword}
-					onChange={handleResetChange("confirmPassword")}
+					value={repeatPassword}
+					onChange={(e) => setRepeatPassword(e.target.value)}
 				/>
 			</div>
 

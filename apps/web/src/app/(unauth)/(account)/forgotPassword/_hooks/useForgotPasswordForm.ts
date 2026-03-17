@@ -15,7 +15,7 @@ export function useForgotPasswordForm() {
 		try {
 			await authClient.requestPasswordReset({
 				email: requestEmail,
-				redirectTo: "/resetPassword",
+				redirectTo: `${window.location.origin}/resetPassword`,
 			});
 
 			toast.success(
