@@ -18,16 +18,13 @@ export function useInterview(sessionId: string) {
 			onSuccess: (message) => {
 				setInputValue("");
 				setMessages((currentMessages) => [...currentMessages, message]);
+				scrollToBottom("auto");
 			},
 			onError: (error) => {
 				toast(error.message);
 			},
 		}),
 	);
-
-	useEffect(() => {
-		scrollToBottom("auto");
-	}, [messages.length]);
 
 	const handleSend = async () => {
 		if (!inputValue.trim() || newMessage.isPending) return;
