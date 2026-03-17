@@ -1,5 +1,6 @@
 import { Pencil } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { serverTrpc } from "@/lib/trpcServer";
@@ -8,7 +9,6 @@ export const metadata: Metadata = {
 	title: "Мой профиль",
 };
 
-// TODO: посмотреть что будет в пользователе и обновить страницу
 export default async function Page() {
 	const trpcCaller = await serverTrpc();
 	const user = await trpcCaller.profile.getMyProfile();
@@ -39,7 +39,7 @@ export default async function Page() {
 					className="border-white/20 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20 hover:text-white"
 				>
 					<Pencil className="mr-2 h-4 w-4" />
-					Редактировать
+					<Link href={{ pathname: "/profile/update" }}>Редактировать</Link>
 				</Button>
 			</div>
 		</div>

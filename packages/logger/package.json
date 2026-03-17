@@ -1,0 +1,17 @@
+{
+	"name": "@diplom_work/logger",
+	"type": "module",
+	"exports": {
+		"./server": {
+			"default": "./src/server/index.ts"
+		}
+	},
+	"dependencies": {
+		"pino": "catalog:"
+	},
+	"devDependencies": {
+		"@diplom_work/config": "workspace:*",
+		"@diplom_work/env": "workspace:*",
+		"typescript": "catalog:"
+	}
+}
