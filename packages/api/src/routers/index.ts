@@ -1,4 +1,4 @@
-import { publicProcedure, router } from "..";
+import { publicProcedure, router } from "../init/routers";
 import { activityRouter } from "./activity";
 import { categoryRouter } from "./category";
 import { expertRouter } from "./expert";

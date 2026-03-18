@@ -3,7 +3,7 @@ import { categoriesTable } from "@diplom_work/db/schema/scheme";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { adminProcedure, protectedProcedure, router } from "..";
+import { adminProcedure, protectedProcedure, router } from "../init/routers";
 
 export const categoryRouter = router({
 	getAll: protectedProcedure.query(async () => {

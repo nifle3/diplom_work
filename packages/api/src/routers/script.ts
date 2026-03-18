@@ -8,7 +8,7 @@ import {
 import { TRPCError } from "@trpc/server";
 import { and, count, desc, eq, ilike, isNull } from "drizzle-orm";
 import { z } from "zod";
-import { protectedProcedure, router } from "../index";
+import { protectedProcedure, router } from "../init/routers";
 
 export const getLatestScenariosSchema = z.object({
 	limit: z.number().int().min(1).max(20).default(5),

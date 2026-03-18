@@ -3,7 +3,7 @@ import { usersTable } from "@diplom_work/db/schema/scheme";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { protectedProcedure, router } from "../index";
+import { protectedProcedure, router } from "../init/routers";
 
 const roleNameCheckInput = z.enum(["admin", "expert"]);
 const roleNameToRoleId = {

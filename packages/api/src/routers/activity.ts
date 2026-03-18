@@ -5,7 +5,7 @@ import {
 } from "@diplom_work/db/schema/scheme";
 import { and, desc, eq, isNotNull } from "drizzle-orm";
 
-import { protectedProcedure, router } from "../index";
+import { protectedProcedure, router } from "../init/routers";
 
 export const activityRouter = router({
 	getLatestUserActivity: protectedProcedure.query(async ({ ctx }) => {

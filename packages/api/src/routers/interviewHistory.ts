@@ -1,7 +1,7 @@
 import { db } from "@diplom_work/db";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure, router } from "..";
+import { protectedProcedure, router } from "../init/routers";
 
 export const interviewHistoryRouter = router({
 	getAllComplete: protectedProcedure

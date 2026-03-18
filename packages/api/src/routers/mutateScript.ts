@@ -9,7 +9,7 @@ import { TRPCError } from "@trpc/server";
 import { and, eq, isNull } from "drizzle-orm";
 import { z } from "zod";
 
-import { protectedProcedure, router } from "..";
+import { protectedProcedure, router } from "../init/routers";
 
 export const firstStepScheme = z.object({
 	scriptId: z.uuid(),

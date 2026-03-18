@@ -7,7 +7,7 @@ import {
 } from "@diplom_work/db/schema/scheme";
 import { TRPCError } from "@trpc/server";
 import { and, count, desc, eq, isNull } from "drizzle-orm";
-import { protectedProcedure, router } from "..";
+import { protectedProcedure, router } from "../init/routers";
 
 export const profileRouter = router({
 	getMyProfile: protectedProcedure.query(async ({ ctx }) => {

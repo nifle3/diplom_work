@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { getPersistentUploadLink } from "@diplom_work/file";
 import { z } from "zod";
-import { protectedProcedure, router } from "..";
+import { protectedProcedure, router } from "../init/routers";
 
 const input = z.object({
 	filename: z.string(),

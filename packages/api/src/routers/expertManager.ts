@@ -3,7 +3,7 @@ import { usersTable } from "@diplom_work/db/schema/scheme";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
-import { adminProcedure, router } from "..";
+import { adminProcedure, router } from "../init/routers";
 
 const expertId = 2;
 

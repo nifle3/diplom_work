@@ -4,7 +4,7 @@ import { TRPCError } from "@trpc/server";
 import { and, desc, eq, isNull } from "drizzle-orm";
 import { z } from "zod";
 
-import { protectedProcedure, router } from "..";
+import { protectedProcedure, router } from "../init/routers";
 
 export const expertRouter = router({
 	getFullScript: protectedProcedure

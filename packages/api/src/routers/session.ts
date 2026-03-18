@@ -8,7 +8,7 @@ import { getFirstQuestion, getNextQuestion, summarize } from "@diplom_work/llm";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
-import { protectedProcedure, router } from "..";
+import { protectedProcedure, router } from "../init/routers";
 
 const addNewMessageScheme = z.object({
 	sessionId: z.uuid(),
