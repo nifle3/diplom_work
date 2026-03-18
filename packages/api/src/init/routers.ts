@@ -1,9 +1,9 @@
 import {
 	errorMiddleware,
+	hasRoleMiddleware,
 	loggerMiddleware,
 	protectedMiddleware,
 } from "../middlewares";
-import { hasRoleMiddleware } from "../middlewares/hasrole";
 import { t } from "./trpc";
 
 export const router = t.router;
