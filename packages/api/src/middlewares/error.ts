@@ -1,4 +1,5 @@
 import { TRPCError } from "@trpc/server";
+import { t } from "../init/trpc";
 
 type DomainErrorLike = Error & {
 	payload?: unknown;
@@ -8,11 +9,7 @@ function isDomainError(error: unknown): error is DomainErrorLike {
 	return error instanceof Error && "payload" in error;
 }
 
-export async function domainErrorMiddleware<T>({
-	next,
-}: {
-	next: () => Promise<T>;
-}): Promise<T> {
+export const errorMiddleware = t.middleware(async ({ next }) => {
 	try {
 		return await next();
 	} catch (error) {
@@ -70,4 +67,4 @@ export async function domainErrorMiddleware<T>({
 
 		throw error;
 	}
-}
+});
