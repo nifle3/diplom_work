@@ -7,7 +7,7 @@ export async function s3Healthcheck() {
     console.log('✅ S3 connection established');
   } catch (error: unknown) {
     if (error instanceof Error) {
-        throw new Error(`S3 Connection failed: ${error.message}`);
+        throw new Error(`S3 Connection failed: ${error.name} with message ${error.message} with cause: ${error.cause}`);
     }
 
     throw new Error("S3 Connection failed: unavaible error");
