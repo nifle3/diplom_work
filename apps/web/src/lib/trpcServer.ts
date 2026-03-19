@@ -1,7 +1,7 @@
+import { randomUUID } from "node:crypto";
 import { appRouter } from "@diplom_work/api/routers/index";
 import { auth } from "@diplom_work/auth";
 import { headers } from "next/headers";
-import { randomUUID } from "node:crypto";
 
 async function serverContext() {
 	const h = await headers();
