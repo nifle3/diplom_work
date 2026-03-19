@@ -37,7 +37,6 @@ export const logger = pino(
 
 		mixin() {
 			const reqId = getRequestId();
-			console.log("👉 3. Запрос лога (mixin), ID:", reqId); // ПРОВЕРКА 3
 			if (reqId) {
 				return { requestId: reqId };
 			}

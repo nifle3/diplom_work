@@ -1,12 +1,12 @@
 import { env } from "@diplom_work/env/server";
 import { logger } from "@diplom_work/logger/server";
 import { Pool as neonPool } from "@neondatabase/serverless";
+import { sql } from "drizzle-orm";
 import type { Logger } from "drizzle-orm/logger";
 import { drizzle as drizzleNeon } from "drizzle-orm/neon-serverless";
 import { drizzle as drizzlePg } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import * as schema from "./schema/scheme";
-import { sql } from "drizzle-orm";
 
 class DrizzlePinoLogger implements Logger {
 	logQuery(query: string, params: unknown[]): void {
@@ -38,14 +38,14 @@ const getDb = () => {
 export const db = getDb();
 
 export async function checkDbConnection() {
-  try {
-    await db.execute(sql`SELECT 1`);
-    console.log('✅ DB connection established');
-  } catch (error) {
-	if (error instanceof Error) {
-	    throw new Error(`DB Connection failed: ${error.message}`);
-	}
+	try {
+		await db.execute(sql`SELECT 1`);
+		console.log("✅ DB connection established");
+	} catch (error) {
+		if (error instanceof Error) {
+			throw new Error(`DB Connection failed: ${error.message}`);
+		}
 
-	throw new Error("DB Connection failed: uknown error");
-  }
+		throw new Error("DB Connection failed: uknown error");
+	}
 }

@@ -18,7 +18,6 @@ export const env = createEnv({
 			.enum(["development", "production", "test"])
 			.default("development"),
 		S3_ENDPOINT: z.url(),
-		S3_ID: z.string(),
 		S3_REGION: z.string(),
 		S3_TENAT_KEY: z.string(),
 		S3_KEY_ID: z.string(),
