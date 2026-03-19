@@ -3,6 +3,7 @@ import { authSchema } from "@diplom_work/db/schema/auth";
 import { EmailDeliveryError } from "@diplom_work/domain/error";
 import { email } from "@diplom_work/email";
 import { env } from "@diplom_work/env/server";
+import { logger } from "@diplom_work/logger/server";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
@@ -36,4 +37,25 @@ export const auth = betterAuth({
 			},
 		},
 	},
+	logger: {
+		disabled: false,
+		disableColors: false,
+		level: "warn",
+		log: (level, message, ...args) => {
+			switch (level) {
+				case "error":
+					logger.error(`[${level}] ${message}`, ...args);
+					break;
+				case "warn":
+					logger.warn(`[${level}] ${message}`, ...args);
+					break;
+				case "info":
+					logger.info(`[${level}] ${message}`, ...args);
+					break;
+				case "debug":
+					logger.debug(`[${level}] ${message}`, ...args);
+					break;
+			}
+		}
+	}
 });
