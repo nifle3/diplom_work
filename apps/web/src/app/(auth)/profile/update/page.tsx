@@ -15,7 +15,10 @@ export default async function Page() {
 					Измените email, пароль или фотографию
 				</p>
 			</div>
-			<EditProfileForm initialEmail={user.email} initialAvatarUrl={user.image}/>
+			<EditProfileForm
+				initialEmail={user.email}
+				initialAvatarUrl={user.image}
+			/>
 		</div>
 	);
 }

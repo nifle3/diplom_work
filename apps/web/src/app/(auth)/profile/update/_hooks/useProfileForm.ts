@@ -23,8 +23,7 @@ export function useProfileForm({
 			confirmPassword: "",
 			avatar: undefined as File | undefined,
 		},
-		validators: {
-		},
+		validators: {},
 	});
 
 	const handleAvatarChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -44,8 +43,7 @@ export function useProfileForm({
 		fileInputRef.current?.click();
 	};
 
-	const handleSubmit = async () => {
-	};
+	const handleSubmit = async () => {};
 
 	return {
 		form,

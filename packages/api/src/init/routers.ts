@@ -3,12 +3,14 @@ import {
 	hasRoleMiddleware,
 	loggerMiddleware,
 	protectedMiddleware,
+	requestIdLoggerMiddleware,
 } from "../middlewares";
 import { t } from "./trpc";
 
 export const router = t.router;
 
 export const publicProcedure = t.procedure
+	.use(requestIdLoggerMiddleware)
 	.use(errorMiddleware)
 	.use(loggerMiddleware);
 

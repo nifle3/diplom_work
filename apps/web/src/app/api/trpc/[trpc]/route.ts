@@ -1,4 +1,4 @@
-import { createContext } from "@diplom_work/api/context";
+import { createContext } from "@diplom_work/api/init/context";
 import { appRouter } from "@diplom_work/api/routers/index";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import type { NextRequest } from "next/server";

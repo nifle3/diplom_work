@@ -54,12 +54,8 @@ export function EditProfileForm({
 				isSubmitting={isSubmitting}
 			/>
 
-			<Field
-				name="email"
-				form={form}
-			>
-				{
-					(field) => (
+			<Field name="email" form={form}>
+				{(field) => (
 					<div className="space-y-2">
 						<Label htmlFor="email">Email</Label>
 						<Input
@@ -80,12 +76,8 @@ export function EditProfileForm({
 			</Field>
 
 			<div className="grid gap-4 md:grid-cols-2">
-				<Field
-					name="password"
-					form={form}
-				>
-					{
-						(field) => (
+				<Field name="password" form={form}>
+					{(field) => (
 						<div className="space-y-2">
 							<Label htmlFor="password">Новый пароль</Label>
 							<Input
@@ -102,16 +94,11 @@ export function EditProfileForm({
 								</p>
 							) : null}
 						</div>
-					)
-					}
+					)}
 				</Field>
 
-				<Field
-					name="confirmPassword"
-					form={form}
-				>
-					{
-						(field) => (
+				<Field name="confirmPassword" form={form}>
+					{(field) => (
 						<div className="space-y-2">
 							<Label htmlFor="confirmPassword">Повторите пароль</Label>
 							<Input
@@ -128,8 +115,7 @@ export function EditProfileForm({
 								</p>
 							) : null}
 						</div>
-					)
-					}
+					)}
 				</Field>
 			</div>
 
