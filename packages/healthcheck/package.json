@@ -1,0 +1,17 @@
+{
+	"name": "@diplom_work/healthcheck",
+	"type": "module",
+	"exports": {
+		".": {
+			"default": "./src/index.ts"
+		}
+	},
+	"dependencies": {
+		"@diplom_work/file": "workspace:*",
+		"@diplom_work/db": "workspace:*"
+	},
+	"devDependencies": {
+		"@diplom_work/config": "workspace:*",
+		"typescript": "catalog:"
+	}
+}

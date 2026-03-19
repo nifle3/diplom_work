@@ -81,6 +81,9 @@ importers:
       '@diplom_work/file':
         specifier: workspace:*
         version: link:../../packages/file
+      '@diplom_work/healthcheck':
+        specifier: workspace:*
+        version: link:../../packages/healthcheck
       '@tanstack/react-form':
         specifier: ^1.28.0
         version: 1.28.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -402,6 +405,22 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.11)(msw@2.12.10(@types/node@22.19.11)(typescript@5.9.3))(vite@8.0.0(@types/node@22.19.11)(jiti@2.6.1))
+
+  packages/healthcheck:
+    dependencies:
+      '@diplom_work/db':
+        specifier: workspace:*
+        version: link:../db
+      '@diplom_work/file':
+        specifier: workspace:*
+        version: link:../file
+    devDependencies:
+      '@diplom_work/config':
+        specifier: workspace:*
+        version: link:../config
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
 
   packages/llm:
     dependencies:

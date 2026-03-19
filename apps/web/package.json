@@ -11,6 +11,7 @@
 	"dependencies": {
 		"@base-ui/react": "^1.0.0",
 		"@diplom_work/api": "workspace:*",
+		"@diplom_work/healthcheck": "workspace:*",
 		"@diplom_work/auth": "workspace:*",
 		"@diplom_work/env": "workspace:*",
 		"@diplom_work/file": "workspace:*",

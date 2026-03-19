@@ -1,6 +1,7 @@
 import { deleteFile } from "./delete";
 import { getPersistentLink } from "./getPersistentLink";
 import { getUploadPersistentLink } from "./getUploadPersistentLink";
+import { s3Healthcheck } from "./healthcheck";
 import { uploadFile } from "./upload";
 import { wrapS3Error } from "./wrapper";
 
@@ -14,4 +15,5 @@ export {
 	getPersistentLinkWrapped as getPersistentLink,
 	uploadFileWrapped as uploadFile,
 	getPersistentUploadLinkWrapped as getPersistentUploadLink,
+	s3Healthcheck,
 };
