@@ -78,6 +78,9 @@ importers:
       '@diplom_work/env':
         specifier: workspace:*
         version: link:../../packages/env
+      '@diplom_work/file':
+        specifier: workspace:*
+        version: link:../../packages/file
       '@tanstack/react-form':
         specifier: ^1.28.0
         version: 1.28.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4)

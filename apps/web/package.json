@@ -13,6 +13,7 @@
 		"@diplom_work/api": "workspace:*",
 		"@diplom_work/auth": "workspace:*",
 		"@diplom_work/env": "workspace:*",
+		"@diplom_work/file": "workspace:*",
 		"@tanstack/react-form": "^1.28.0",
 		"@tanstack/react-query": "^5.90.12",
 		"@tanstack/react-table": "^8.21.3",
