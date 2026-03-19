@@ -24,23 +24,3 @@ export const changePasswordSchema = z
 		message: "Пароли не совпадают",
 		path: ["confirmPassword"],
 	});
-
-export const profileFormSchema = z
-	.object({
-		email: z.string().email("Некорректный email"),
-		password: z.string().optional(),
-		confirmPassword: z.string().optional(),
-		avatar: avatarFileSchema.optional(),
-	})
-	.refine(
-		(data) => {
-			if (!data.password && !data.confirmPassword) return true;
-			return data.password === data.confirmPassword;
-		},
-		{
-			message: "Пароли не совпадают",
-			path: ["confirmPassword"],
-		},
-	);
-
-export type ProfileFormValues = z.infer<typeof profileFormSchema>;

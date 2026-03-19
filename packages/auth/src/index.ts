@@ -62,6 +62,6 @@ export const auth = betterAuth({
 					logger.debug(`[${level}] ${message}`, ...args);
 					break;
 			}
-		}
-	}
+		},
+	},
 });

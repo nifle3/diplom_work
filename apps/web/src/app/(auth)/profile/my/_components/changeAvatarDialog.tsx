@@ -18,9 +18,9 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { useFileUpload } from "@/hooks/useFileUpload";
-import { authClient } from "@/lib/authClient";
 import { getAssetUrl } from "@/lib/assetUrl";
-import { avatarFileSchema } from "../../update/_scheme/profile";
+import { authClient } from "@/lib/authClient";
+import { avatarFileSchema } from "../_schema/profileSettings";
 
 type ChangeAvatarDialogProps = {
 	email: string;
@@ -52,7 +52,7 @@ export function ChangeAvatarDialog({
 			router.refresh();
 		},
 		onError: (error) => {
-			toast(error instanceof Error ? error.message : "Не удалось обновить аватар");
+			toast(error instanceof Error ? error.message : error);
 		},
 	});
 
@@ -148,7 +148,9 @@ export function ChangeAvatarDialog({
 					</div>
 					<DialogFooter>
 						<Button type="submit" disabled={isPending}>
-							{isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+							{isPending ? (
+								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+							) : null}
 							Сохранить
 						</Button>
 					</DialogFooter>

@@ -4,7 +4,7 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,34 +19,46 @@ import {
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/authClient";
-import { changeEmailSchema } from "../../update/_scheme/profile";
+import { changeEmailSchema } from "../_schema/profileSettings";
 
 export function ChangeEmailDialog({ email }: { email: string }) {
 	const router = useRouter();
 	const [open, setOpen] = useState(false);
+	const [currentEmail, setCurrentEmail] = useState(email);
 
 	const mutation = useMutation({
 		mutationFn: async ({ email }: { email: string }) => {
 			await authClient.changeEmail({ newEmail: email });
 		},
-		onSuccess: () => {
+		onSuccess: (_, variables) => {
+			setCurrentEmail(variables.email);
 			toast("Почта обновлена");
 			setOpen(false);
-			form.reset();
+			form.reset({
+				email: variables.email,
+			});
 			router.refresh();
 		},
 		onError: (error) => {
-			toast(error instanceof Error ? error.message : "Не удалось обновить почту");
+			toast(
+				error instanceof Error ? error.message : "Не удалось обновить почту",
+			);
 		},
 	});
 
 	const form = useForm({
-		defaultValues: { email },
+		defaultValues: { email: currentEmail },
 		onSubmit: async ({ value }) => {
-			const parsed = changeEmailSchema.safeParse(value);
+			const normalizedEmail = value.email.trim().toLowerCase();
+			const parsed = changeEmailSchema.safeParse({ email: normalizedEmail });
 
 			if (!parsed.success) {
 				toast(parsed.error.issues[0]?.message ?? "Некорректный email");
+				return;
+			}
+
+			if (parsed.data.email === currentEmail) {
+				toast("Укажите новый email");
 				return;
 			}
 
@@ -54,13 +66,18 @@ export function ChangeEmailDialog({ email }: { email: string }) {
 		},
 	});
 
+	useEffect(() => {
+		setCurrentEmail(email);
+		form.reset({ email });
+	}, [email]);
+
 	return (
 		<Dialog
 			open={open}
 			onOpenChange={(nextOpen) => {
 				setOpen(nextOpen);
 				if (!nextOpen) {
-					form.reset();
+					form.reset({ email: currentEmail });
 				}
 			}}
 		>
