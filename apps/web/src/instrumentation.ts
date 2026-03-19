@@ -5,5 +5,14 @@ export async function register() {
         return;
     }
 
-    await startupHealthcheck();
+    try {
+        await startupHealthcheck();
+    } catch(error: unknown) {
+        if (error instanceof Error) {
+            console.log(error.message);
+        } else {
+            console.log("unkown error");
+        }
+        throw error;
+    }
 }
