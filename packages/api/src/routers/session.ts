@@ -4,7 +4,12 @@ import {
 	interviewSessionsTable,
 	usersTable,
 } from "@diplom_work/db/schema/scheme";
-import { getFirstQuestion, getNextQuestion, summarize } from "@diplom_work/llm";
+import {
+	evaluateAnswer,
+	getFirstQuestion,
+	getNextQuestion,
+	summarize,
+} from "@diplom_work/llm";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
@@ -38,13 +43,25 @@ export const sessionRouter = router({
 					context: true,
 				},
 				with: {
-					questions: {
-						columns: {
-							text: true,
+				questions: {
+					columns: {
+						text: true,
+					},
+				},
+				globalCriteria: {
+					columns: {
+						content: true,
+					},
+					with: {
+						type: {
+							columns: {
+								name: true,
+							},
 						},
 					},
 				},
-			});
+			},
+		});
 
 			if (!script) {
 				throw new TRPCError({ code: "NOT_FOUND" });
@@ -103,6 +120,88 @@ export const sessionRouter = router({
 
 			return result.script;
 		}),
+	getResultBySessionId: protectedProcedure
+		.input(z.uuid())
+		.query(async ({ ctx, input }) => {
+			const session = await db.query.interviewSessionsTable.findFirst({
+				where: (interviewSessionsTable, { eq, and }) =>
+					and(
+						eq(interviewSessionsTable.id, input),
+						eq(interviewSessionsTable.userId, ctx.session.user.id),
+					),
+				columns: {
+					id: true,
+					status: true,
+					finalScore: true,
+					expertFeedback: true,
+					startedAt: true,
+					finishedAt: true,
+				},
+				with: {
+					script: {
+						columns: {
+							id: true,
+							title: true,
+							description: true,
+						},
+					},
+					messages: {
+						columns: {
+							id: true,
+							isAi: true,
+							messageText: true,
+							analysisNote: true,
+							createdAt: true,
+						},
+						orderBy: (messages, { asc }) => [asc(messages.createdAt)],
+					},
+				},
+			});
+
+			if (!session) {
+				throw new TRPCError({ code: "NOT_FOUND" });
+			}
+
+			const questions = session.messages.reduce<
+				Array<{
+					id: string;
+					question: string;
+					answer: string | null;
+					analysisNote: string | null;
+					askedAt: Date;
+					answeredAt: Date | null;
+				}>
+			>((acc, message) => {
+				if (message.isAi) {
+					acc.push({
+						id: message.id,
+						question: message.messageText,
+						answer: null,
+						analysisNote: null,
+						askedAt: message.createdAt,
+						answeredAt: null,
+					});
+					return acc;
+				}
+
+				const lastQuestion = acc.at(-1);
+
+				if (!lastQuestion || lastQuestion.answer !== null) {
+					return acc;
+				}
+
+				lastQuestion.answer = message.messageText;
+				lastQuestion.analysisNote = message.analysisNote;
+				lastQuestion.answeredAt = message.createdAt;
+
+				return acc;
+			}, []);
+
+			return {
+				...session,
+				questions,
+			};
+		}),
 	getAllHistory: protectedProcedure
 		.input(z.string())
 		.query(async ({ ctx, input }) => {
@@ -111,6 +210,7 @@ export const sessionRouter = router({
 					id: chatMessagesTable.id,
 					messageText: chatMessagesTable.messageText,
 					isAi: chatMessagesTable.isAi,
+					analysisNote: chatMessagesTable.analysisNote,
 					createdAt: chatMessagesTable.createdAt,
 					sessionId: chatMessagesTable.sessionId,
 				})
@@ -162,6 +262,18 @@ export const sessionRouter = router({
 							text: true,
 						},
 					},
+					globalCriteria: {
+						columns: {
+							content: true,
+						},
+						with: {
+							type: {
+								columns: {
+									name: true,
+								},
+							},
+						},
+					},
 				},
 			});
 
@@ -179,6 +291,19 @@ export const sessionRouter = router({
 				humanResponse: input.content,
 				aiQuestion: lastAiMessage.messageText,
 				prevSummarization: session.summarize ?? "",
+			});
+
+			const answerEvaluation = await evaluateAnswer({
+				mode: "answer",
+				context: script.context ?? "",
+				question: lastAiMessage.messageText,
+				answer: input.content,
+				summary: session.summarize ?? undefined,
+				globalCriteria: script.globalCriteria.map((criterion) => ({
+					type: criterion.type.name,
+					content: criterion.content,
+				})),
+				specificCriteria: [],
 			});
 
 			const newQuestion = await getNextQuestion({
@@ -199,6 +324,7 @@ export const sessionRouter = router({
 					sessionId: input.sessionId,
 					isAi: false,
 					messageText: input.content,
+					analysisNote: answerEvaluation.analysisNote,
 				});
 
 				const { 0: result } = await tx
@@ -240,6 +366,47 @@ export const sessionRouter = router({
 						id: true,
 						status: true,
 						finishedAt: true,
+						summarize: true,
+					},
+					with: {
+						messages: {
+							columns: {
+								isAi: true,
+								messageText: true,
+							},
+							orderBy: (messages, { asc }) => [asc(messages.createdAt)],
+						},
+						script: {
+							columns: {
+								context: true,
+							},
+							with: {
+								globalCriteria: {
+									columns: {
+										content: true,
+									},
+									with: {
+										type: {
+											columns: {
+												name: true,
+											},
+										},
+									},
+								},
+								questions: {
+									columns: {
+										text: true,
+									},
+									with: {
+										specificCriteria: {
+											columns: {
+												content: true,
+											},
+										},
+									},
+								},
+							},
+						},
 					},
 				});
 
@@ -252,6 +419,51 @@ export const sessionRouter = router({
 						streakUpdated: false,
 					};
 				}
+
+				const conversation = session.messages.reduce<
+					Array<{ question: string; answer: string }>
+				>((acc, message) => {
+					if (message.isAi) {
+						acc.push({
+							question: message.messageText,
+							answer: "",
+						});
+						return acc;
+					}
+
+					const lastItem = acc.at(-1);
+					if (lastItem && !lastItem.answer) {
+						lastItem.answer = message.messageText;
+						return acc;
+					}
+
+					acc.push({
+						question: "",
+						answer: message.messageText,
+					});
+					return acc;
+				}, []);
+
+				const normalizedConversation = conversation.filter(
+					(item) => item.question.trim() && item.answer.trim(),
+				);
+
+				const finalEvaluation =
+					normalizedConversation.length > 0
+						? await evaluateAnswer({
+								mode: "session",
+								context: session.script.context ?? "",
+								summary: session.summarize ?? undefined,
+								conversation: normalizedConversation,
+								globalCriteria: session.script.globalCriteria.map((criterion) => ({
+									type: criterion.type.name,
+									content: criterion.content,
+								})),
+								specificCriteria: session.script.questions.flatMap((question) =>
+									question.specificCriteria.map((criterion) => criterion.content),
+								),
+							})
+						: null;
 
 				const user = await tx.query.usersTable.findFirst({
 					where: (usersTable, { eq }) =>
@@ -283,6 +495,8 @@ export const sessionRouter = router({
 					.set({
 						status: "complete",
 						finishedAt: now,
+						finalScore: finalEvaluation?.score ?? null,
+						expertFeedback: finalEvaluation?.feedback ?? null,
 					})
 					.where(eq(interviewSessionsTable.id, input));
 

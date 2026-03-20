@@ -38,7 +38,7 @@ export function useInterview(sessionId: string) {
 					toast.success("Интервью уже завершено");
 				}
 
-				router.push("/profile/my" as Route);
+				router.push(`/interview/${sessionId}/results` as Route);
 				router.refresh();
 			},
 			onError: (error) => {
