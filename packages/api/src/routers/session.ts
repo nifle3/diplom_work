@@ -2,7 +2,7 @@ import { db } from "@diplom_work/db/index";
 import {
 	chatMessagesTable,
 	interviewSessionsTable,
-	sessionsTable,
+	usersTable,
 } from "@diplom_work/db/schema/scheme";
 import { getFirstQuestion, getNextQuestion, summarize } from "@diplom_work/llm";
 import { TRPCError } from "@trpc/server";
@@ -14,6 +14,18 @@ const addNewMessageScheme = z.object({
 	sessionId: z.uuid(),
 	content: z.string().min(1).max(4000),
 });
+
+const MILLISECONDS_IN_DAY = 24 * 60 * 60 * 1000;
+
+function getUtcDayStart(date: Date) {
+	return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+}
+
+function getUtcDayDifference(current: Date, previous: Date) {
+	return Math.floor(
+		(getUtcDayStart(current) - getUtcDayStart(previous)) / MILLISECONDS_IN_DAY,
+	);
+}
 
 export const sessionRouter = router({
 	createNewSession: protectedProcedure
@@ -104,13 +116,13 @@ export const sessionRouter = router({
 				})
 				.from(chatMessagesTable)
 				.innerJoin(
-					sessionsTable,
-					eq(chatMessagesTable.sessionId, sessionsTable.id),
+					interviewSessionsTable,
+					eq(chatMessagesTable.sessionId, interviewSessionsTable.id),
 				)
 				.where(
 					and(
 						eq(chatMessagesTable.sessionId, input),
-						eq(sessionsTable.userId, ctx.session.user.id),
+						eq(interviewSessionsTable.userId, ctx.session.user.id),
 					),
 				);
 			return results;
@@ -123,6 +135,7 @@ export const sessionRouter = router({
 					and(
 						eq(interviewSessionsTable.userId, ctx.session.user.id),
 						eq(interviewSessionsTable.id, input.sessionId),
+						eq(interviewSessionsTable.status, "active"),
 					),
 				with: {
 					messages: {
@@ -210,5 +223,81 @@ export const sessionRouter = router({
 				messageText: result.messageText,
 				createdAt: result.createdAt,
 			};
+		}),
+	finishSession: protectedProcedure
+		.input(z.uuid())
+		.mutation(async ({ ctx, input }) => {
+			const now = new Date();
+
+			return db.transaction(async (tx) => {
+				const session = await tx.query.interviewSessionsTable.findFirst({
+					where: (interviewSessionsTable, { and, eq }) =>
+						and(
+							eq(interviewSessionsTable.id, input),
+							eq(interviewSessionsTable.userId, ctx.session.user.id),
+						),
+					columns: {
+						id: true,
+						status: true,
+						finishedAt: true,
+					},
+				});
+
+				if (!session) {
+					throw new TRPCError({ code: "NOT_FOUND" });
+				}
+
+				if (session.status === "complete") {
+					return {
+						streakUpdated: false,
+					};
+				}
+
+				const user = await tx.query.usersTable.findFirst({
+					where: (usersTable, { eq }) =>
+						eq(usersTable.id, ctx.session.user.id),
+					columns: {
+						currentStreak: true,
+						lastActivityDate: true,
+					},
+				});
+
+				if (!user) {
+					throw new TRPCError({ code: "NOT_FOUND" });
+				}
+
+				let nextStreak = 1;
+
+				if (user.lastActivityDate) {
+					const daysDifference = getUtcDayDifference(now, user.lastActivityDate);
+
+					if (daysDifference <= 0) {
+						nextStreak = user.currentStreak;
+					} else if (daysDifference === 1) {
+						nextStreak = user.currentStreak + 1;
+					}
+				}
+
+				await tx
+					.update(interviewSessionsTable)
+					.set({
+						status: "complete",
+						finishedAt: now,
+					})
+					.where(eq(interviewSessionsTable.id, input));
+
+				await tx
+					.update(usersTable)
+					.set({
+						currentStreak: nextStreak,
+						lastActivityDate: now,
+					})
+					.where(eq(usersTable.id, ctx.session.user.id));
+
+				return {
+					streakUpdated: true,
+					currentStreak: nextStreak,
+				};
+			});
 		}),
 });

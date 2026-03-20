@@ -1,10 +1,13 @@
 import { useMutation } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import type { Route } from "next";
+import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import type { Message } from "../_utils/type";
 
 export function useInterview(sessionId: string) {
+	const router = useRouter();
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [inputValue, setInputValue] = useState("");
 	const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -26,8 +29,28 @@ export function useInterview(sessionId: string) {
 		}),
 	);
 
+	const finishInterview = useMutation(
+		trpc.session.finishSession.mutationOptions({
+			onSuccess: (result) => {
+				if (result.streakUpdated) {
+					toast.success(`Интервью завершено. Стрик: ${result.currentStreak}`);
+				} else {
+					toast.success("Интервью уже завершено");
+				}
+
+				router.push("/profile/my" as Route);
+				router.refresh();
+			},
+			onError: (error) => {
+				toast(error.message);
+			},
+		}),
+	);
+
 	const handleSend = async () => {
-		if (!inputValue.trim() || newMessage.isPending) return;
+		if (!inputValue.trim() || newMessage.isPending || finishInterview.isPending) {
+			return;
+		}
 
 		setMessages((currentMessages) => [
 			...currentMessages,
@@ -42,12 +65,20 @@ export function useInterview(sessionId: string) {
 		await newMessage.mutateAsync({ sessionId, content: inputValue });
 	};
 
+	const handleFinish = async () => {
+		if (finishInterview.isPending) return;
+
+		await finishInterview.mutateAsync(sessionId);
+	};
+
 	return {
 		messages,
 		inputValue,
 		setInputValue,
 		isSending: newMessage.isPending,
+		isFinishing: finishInterview.isPending,
 		messagesEndRef,
 		handleSend,
+		handleFinish,
 	};
 }
