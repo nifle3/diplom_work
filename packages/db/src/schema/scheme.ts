@@ -120,6 +120,7 @@ export const questionTemplatesTable = pgTable("question_templates", {
 	scriptId: uuid("scenario_id")
 		.notNull()
 		.references(() => scriptsTable.id),
+	order: integer("order").default(0).notNull(),
 	text: text("text").notNull(),
 	deletedAt: timestamp("deleted_at", { mode: "date" }),
 });
@@ -143,6 +144,7 @@ export const interviewSessionsTable = pgTable("interview_sessions", {
 	status: varchar("status", { length: 20 }).default("active").notNull(),
 	finalScore: integer("final_score"),
 	expertFeedback: text("expert_feedback"),
+	currentQuestionIndex: integer("current_question_index").default(0).notNull(),
 	startedAt: timestamp("started_at").defaultNow().notNull(),
 	finishedAt: timestamp("finished_at"),
 	summarize: text("summarize"),

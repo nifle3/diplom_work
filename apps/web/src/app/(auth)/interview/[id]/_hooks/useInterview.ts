@@ -18,9 +18,27 @@ export function useInterview(sessionId: string) {
 
 	const newMessage = useMutation(
 		trpc.session.addNewMessage.mutationOptions({
-			onSuccess: (message) => {
+			onSuccess: (result) => {
 				setInputValue("");
-				setMessages((currentMessages) => [...currentMessages, message]);
+
+				if (result.type === "finished") {
+					if (result.result.streakUpdated) {
+						toast.success(
+							`Интервью завершено. Стрик: ${result.result.currentStreak}`,
+						);
+					} else {
+						toast.success("Интервью уже завершено");
+					}
+
+					router.push(`/interview/${sessionId}/results` as Route);
+					router.refresh();
+					return;
+				}
+
+				setMessages((currentMessages) => [
+					...currentMessages,
+					result.message,
+				]);
 				scrollToBottom("auto");
 			},
 			onError: (error) => {

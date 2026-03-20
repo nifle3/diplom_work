@@ -6,8 +6,7 @@ import {
 } from "@diplom_work/db/schema/scheme";
 import {
 	evaluateAnswer,
-	getFirstQuestion,
-	getNextQuestion,
+	planInterviewStep,
 	summarize,
 } from "@diplom_work/llm";
 import { TRPCError } from "@trpc/server";
@@ -32,6 +31,174 @@ function getUtcDayDifference(current: Date, previous: Date) {
 	);
 }
 
+type TransactionClient = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+async function finalizeSession(
+	tx: TransactionClient,
+	userId: string,
+	sessionId: string,
+	now: Date,
+) {
+	const session = await tx.query.interviewSessionsTable.findFirst({
+		where: (interviewSessionsTable, { and, eq }) =>
+			and(
+				eq(interviewSessionsTable.id, sessionId),
+				eq(interviewSessionsTable.userId, userId),
+			),
+		columns: {
+			id: true,
+			status: true,
+			finishedAt: true,
+			summarize: true,
+		},
+		with: {
+			messages: {
+				columns: {
+					isAi: true,
+					messageText: true,
+				},
+				orderBy: (messages, { asc }) => [asc(messages.createdAt)],
+			},
+			script: {
+				columns: {
+					context: true,
+				},
+				with: {
+					globalCriteria: {
+						columns: {
+							content: true,
+						},
+						with: {
+							type: {
+								columns: {
+									name: true,
+								},
+							},
+						},
+					},
+					questions: {
+						where: (questions, { isNull }) => isNull(questions.deletedAt),
+						orderBy: (questions, { asc }) => [asc(questions.order)],
+						columns: {
+							text: true,
+						},
+						with: {
+							specificCriteria: {
+								columns: {
+									content: true,
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	});
+
+	if (!session) {
+		throw new TRPCError({ code: "NOT_FOUND" });
+	}
+
+	if (session.status === "complete") {
+		return {
+			streakUpdated: false,
+		};
+	}
+
+	const conversation = session.messages.reduce<Array<{ question: string; answer: string }>>(
+		(acc, message) => {
+			if (message.isAi) {
+				acc.push({
+					question: message.messageText,
+					answer: "",
+				});
+				return acc;
+			}
+
+			const lastItem = acc.at(-1);
+			if (lastItem && !lastItem.answer) {
+				lastItem.answer = message.messageText;
+				return acc;
+			}
+
+			acc.push({
+				question: "",
+				answer: message.messageText,
+			});
+			return acc;
+		},
+		[],
+	);
+
+	const normalizedConversation = conversation.filter(
+		(item) => item.question.trim() && item.answer.trim(),
+	);
+
+	const finalEvaluation =
+		normalizedConversation.length > 0
+			? await evaluateAnswer({
+					mode: "session",
+					context: session.script.context ?? "",
+					summary: session.summarize ?? undefined,
+					conversation: normalizedConversation,
+					globalCriteria: session.script.globalCriteria.map((criterion) => ({
+						type: criterion.type.name,
+						content: criterion.content,
+					})),
+					specificCriteria: session.script.questions.flatMap((question) =>
+						question.specificCriteria.map((criterion) => criterion.content),
+					),
+				})
+			: null;
+
+	const user = await tx.query.usersTable.findFirst({
+		where: (usersTable, { eq }) => eq(usersTable.id, userId),
+		columns: {
+			currentStreak: true,
+			lastActivityDate: true,
+		},
+	});
+
+	if (!user) {
+		throw new TRPCError({ code: "NOT_FOUND" });
+	}
+
+	let nextStreak = 1;
+
+	if (user.lastActivityDate) {
+		const daysDifference = getUtcDayDifference(now, user.lastActivityDate);
+
+		if (daysDifference <= 0) {
+			nextStreak = user.currentStreak;
+		} else if (daysDifference === 1) {
+			nextStreak = user.currentStreak + 1;
+		}
+	}
+
+	await tx
+		.update(interviewSessionsTable)
+		.set({
+			status: "complete",
+			finishedAt: now,
+			finalScore: finalEvaluation?.score ?? null,
+			expertFeedback: finalEvaluation?.feedback ?? null,
+		})
+		.where(eq(interviewSessionsTable.id, sessionId));
+
+	await tx
+		.update(usersTable)
+		.set({
+			currentStreak: nextStreak,
+			lastActivityDate: now,
+		})
+		.where(eq(usersTable.id, userId));
+
+	return {
+		streakUpdated: true,
+		currentStreak: nextStreak,
+	};
+}
+
 export const sessionRouter = router({
 	createNewSession: protectedProcedure
 		.input(z.string())
@@ -43,25 +210,15 @@ export const sessionRouter = router({
 					context: true,
 				},
 				with: {
-				questions: {
-					columns: {
-						text: true,
-					},
-				},
-				globalCriteria: {
-					columns: {
-						content: true,
-					},
-					with: {
-						type: {
-							columns: {
-								name: true,
-							},
+					questions: {
+						where: (questions, { isNull }) => isNull(questions.deletedAt),
+						orderBy: (questions, { asc }) => [asc(questions.order)],
+						columns: {
+							text: true,
 						},
 					},
 				},
-			},
-		});
+			});
 
 			if (!script) {
 				throw new TRPCError({ code: "NOT_FOUND" });
@@ -71,15 +228,20 @@ export const sessionRouter = router({
 				throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
 			}
 
-			const text = await getFirstQuestion({
-				context: script.context,
-				questionExamples: script.questions.map((val) => val.text),
-			});
+			const firstTopic = script.questions[0]?.text;
+
+			if (!firstTopic) {
+				throw new TRPCError({
+					code: "BAD_REQUEST",
+					message: "Interview script must contain at least one question",
+				});
+			}
 
 			const result = await db.transaction(async (tx) => {
 				const { 0: addedSession } = await tx
 					.insert(interviewSessionsTable)
 					.values({
+						currentQuestionIndex: 0,
 						userId: ctx.session.user.id,
 						startedAt: new Date(),
 						scriptId: input,
@@ -93,7 +255,7 @@ export const sessionRouter = router({
 				await tx.insert(chatMessagesTable).values({
 					sessionId: addedSession.id,
 					isAi: true,
-					messageText: text,
+					messageText: firstTopic,
 				});
 
 				return addedSession;
@@ -237,11 +399,48 @@ export const sessionRouter = router({
 						eq(interviewSessionsTable.id, input.sessionId),
 						eq(interviewSessionsTable.status, "active"),
 					),
+				columns: {
+					currentQuestionIndex: true,
+					summarize: true,
+				},
 				with: {
 					messages: {
 						where: (messages, { eq }) => eq(messages.isAi, true),
 						orderBy: (messages, { desc }) => [desc(messages.createdAt)],
 						limit: 1,
+					},
+					script: {
+						columns: {
+							context: true,
+						},
+						with: {
+							questions: {
+								where: (questions, { isNull }) => isNull(questions.deletedAt),
+								orderBy: (questions, { asc }) => [asc(questions.order)],
+								columns: {
+									text: true,
+								},
+								with: {
+									specificCriteria: {
+										columns: {
+											content: true,
+										},
+									},
+								},
+							},
+							globalCriteria: {
+								columns: {
+									content: true,
+								},
+								with: {
+									type: {
+										columns: {
+											name: true,
+										},
+									},
+								},
+							},
+						},
 					},
 				},
 			});
@@ -250,41 +449,19 @@ export const sessionRouter = router({
 				throw new TRPCError({ code: "NOT_FOUND" });
 			}
 
-			const script = await db.query.scriptsTable.findFirst({
-				where: (scriptsTable, { eq, and, isNull }) =>
-					and(
-						eq(scriptsTable.id, session.scriptId),
-						isNull(scriptsTable.deletedAt),
-					),
-				with: {
-					questions: {
-						columns: {
-							text: true,
-						},
-					},
-					globalCriteria: {
-						columns: {
-							content: true,
-						},
-						with: {
-							type: {
-								columns: {
-									name: true,
-								},
-							},
-						},
-					},
-				},
-			});
-
-			if (!script) {
-				throw new TRPCError({ code: "NOT_FOUND" });
-			}
-
 			const lastAiMessage = session.messages[0];
 
 			if (!lastAiMessage) {
 				throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+			}
+
+			const currentTopic = session.script.questions[session.currentQuestionIndex];
+
+			if (!currentTopic) {
+				throw new TRPCError({
+					code: "BAD_REQUEST",
+					message: "Interview script does not have an active topic",
+				});
 			}
 
 			const sum = await summarize({
@@ -295,21 +472,17 @@ export const sessionRouter = router({
 
 			const answerEvaluation = await evaluateAnswer({
 				mode: "answer",
-				context: script.context ?? "",
+				context: session.script.context ?? "",
 				question: lastAiMessage.messageText,
 				answer: input.content,
 				summary: session.summarize ?? undefined,
-				globalCriteria: script.globalCriteria.map((criterion) => ({
+				globalCriteria: session.script.globalCriteria.map((criterion) => ({
 					type: criterion.type.name,
 					content: criterion.content,
 				})),
-				specificCriteria: [],
-			});
-
-			const newQuestion = await getNextQuestion({
-				context: script.context ?? "",
-				questionExamples: script.questions.map((val) => val.text),
-				summarize: sum,
+				specificCriteria: currentTopic.specificCriteria.map(
+					(criterion) => criterion.content,
+				),
 			});
 
 			const result = await db.transaction(async (tx) => {
@@ -327,27 +500,86 @@ export const sessionRouter = router({
 					analysisNote: answerEvaluation.analysisNote,
 				});
 
-				const { 0: result } = await tx
+				const nextTopic =
+					session.script.questions[session.currentQuestionIndex + 1] ?? null;
+
+				const step = await planInterviewStep({
+					context: session.script.context ?? "",
+					summary: sum,
+					currentTopic: currentTopic.text,
+					currentTopicCriteria: currentTopic.specificCriteria.map(
+						(criterion) => criterion.content,
+					),
+					globalCriteria: session.script.globalCriteria.map((criterion) => ({
+						type: criterion.type.name,
+						content: criterion.content,
+					})),
+					latestQuestion: lastAiMessage.messageText,
+					latestAnswer: input.content,
+					nextTopic: nextTopic?.text,
+					nextTopicCriteria:
+						nextTopic?.specificCriteria.map((criterion) => criterion.content) ?? [],
+				});
+
+				if (step.decision === "finish") {
+					const finalized = await finalizeSession(
+						tx,
+						ctx.session.user.id,
+						input.sessionId,
+						new Date(),
+					);
+
+					return {
+						type: "finished" as const,
+						result: finalized,
+					};
+				}
+
+				const nextQuestionText =
+					step.question.trim() || nextTopic?.text || currentTopic.text;
+				const nextQuestionIndex =
+					step.decision === "next_topic" && nextTopic
+						? session.currentQuestionIndex + 1
+						: session.currentQuestionIndex;
+
+				await tx
+					.update(interviewSessionsTable)
+					.set({
+						currentQuestionIndex: nextQuestionIndex,
+					})
+					.where(eq(interviewSessionsTable.id, input.sessionId));
+
+				const { 0: message } = await tx
 					.insert(chatMessagesTable)
 					.values({
 						sessionId: input.sessionId,
 						isAi: true,
-						messageText: newQuestion,
+						messageText: nextQuestionText,
 					})
 					.returning();
 
-				if (!result) {
+				if (!message) {
 					throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
 				}
 
-				return result;
+				return {
+					type: "next-question" as const,
+					message,
+				};
 			});
 
+			if (result.type === "finished") {
+				return result;
+			}
+
 			return {
-				id: result.id,
-				isAi: result.isAi,
-				messageText: result.messageText,
-				createdAt: result.createdAt,
+				type: "next-question" as const,
+				message: {
+					id: result.message.id,
+					isAi: result.message.isAi,
+					messageText: result.message.messageText,
+					createdAt: result.message.createdAt,
+				},
 			};
 		}),
 	finishSession: protectedProcedure
@@ -355,163 +587,8 @@ export const sessionRouter = router({
 		.mutation(async ({ ctx, input }) => {
 			const now = new Date();
 
-			return db.transaction(async (tx) => {
-				const session = await tx.query.interviewSessionsTable.findFirst({
-					where: (interviewSessionsTable, { and, eq }) =>
-						and(
-							eq(interviewSessionsTable.id, input),
-							eq(interviewSessionsTable.userId, ctx.session.user.id),
-						),
-					columns: {
-						id: true,
-						status: true,
-						finishedAt: true,
-						summarize: true,
-					},
-					with: {
-						messages: {
-							columns: {
-								isAi: true,
-								messageText: true,
-							},
-							orderBy: (messages, { asc }) => [asc(messages.createdAt)],
-						},
-						script: {
-							columns: {
-								context: true,
-							},
-							with: {
-								globalCriteria: {
-									columns: {
-										content: true,
-									},
-									with: {
-										type: {
-											columns: {
-												name: true,
-											},
-										},
-									},
-								},
-								questions: {
-									columns: {
-										text: true,
-									},
-									with: {
-										specificCriteria: {
-											columns: {
-												content: true,
-											},
-										},
-									},
-								},
-							},
-						},
-					},
-				});
-
-				if (!session) {
-					throw new TRPCError({ code: "NOT_FOUND" });
-				}
-
-				if (session.status === "complete") {
-					return {
-						streakUpdated: false,
-					};
-				}
-
-				const conversation = session.messages.reduce<
-					Array<{ question: string; answer: string }>
-				>((acc, message) => {
-					if (message.isAi) {
-						acc.push({
-							question: message.messageText,
-							answer: "",
-						});
-						return acc;
-					}
-
-					const lastItem = acc.at(-1);
-					if (lastItem && !lastItem.answer) {
-						lastItem.answer = message.messageText;
-						return acc;
-					}
-
-					acc.push({
-						question: "",
-						answer: message.messageText,
-					});
-					return acc;
-				}, []);
-
-				const normalizedConversation = conversation.filter(
-					(item) => item.question.trim() && item.answer.trim(),
-				);
-
-				const finalEvaluation =
-					normalizedConversation.length > 0
-						? await evaluateAnswer({
-								mode: "session",
-								context: session.script.context ?? "",
-								summary: session.summarize ?? undefined,
-								conversation: normalizedConversation,
-								globalCriteria: session.script.globalCriteria.map((criterion) => ({
-									type: criterion.type.name,
-									content: criterion.content,
-								})),
-								specificCriteria: session.script.questions.flatMap((question) =>
-									question.specificCriteria.map((criterion) => criterion.content),
-								),
-							})
-						: null;
-
-				const user = await tx.query.usersTable.findFirst({
-					where: (usersTable, { eq }) =>
-						eq(usersTable.id, ctx.session.user.id),
-					columns: {
-						currentStreak: true,
-						lastActivityDate: true,
-					},
-				});
-
-				if (!user) {
-					throw new TRPCError({ code: "NOT_FOUND" });
-				}
-
-				let nextStreak = 1;
-
-				if (user.lastActivityDate) {
-					const daysDifference = getUtcDayDifference(now, user.lastActivityDate);
-
-					if (daysDifference <= 0) {
-						nextStreak = user.currentStreak;
-					} else if (daysDifference === 1) {
-						nextStreak = user.currentStreak + 1;
-					}
-				}
-
-				await tx
-					.update(interviewSessionsTable)
-					.set({
-						status: "complete",
-						finishedAt: now,
-						finalScore: finalEvaluation?.score ?? null,
-						expertFeedback: finalEvaluation?.feedback ?? null,
-					})
-					.where(eq(interviewSessionsTable.id, input));
-
-				await tx
-					.update(usersTable)
-					.set({
-						currentStreak: nextStreak,
-						lastActivityDate: now,
-					})
-					.where(eq(usersTable.id, ctx.session.user.id));
-
-				return {
-					streakUpdated: true,
-					currentStreak: nextStreak,
-				};
-			});
+			return db.transaction((tx) =>
+				finalizeSession(tx, ctx.session.user.id, input, now),
+			);
 		}),
 });
