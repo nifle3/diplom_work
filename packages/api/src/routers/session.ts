@@ -4,11 +4,7 @@ import {
 	interviewSessionsTable,
 	usersTable,
 } from "@diplom_work/db/schema/scheme";
-import {
-	evaluateAnswer,
-	planInterviewStep,
-	summarize,
-} from "@diplom_work/llm";
+import { evaluateAnswer, planInterviewStep, summarize } from "@diplom_work/llm";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
@@ -105,30 +101,29 @@ async function finalizeSession(
 		};
 	}
 
-	const conversation = session.messages.reduce<Array<{ question: string; answer: string }>>(
-		(acc, message) => {
-			if (message.isAi) {
-				acc.push({
-					question: message.messageText,
-					answer: "",
-				});
-				return acc;
-			}
-
-			const lastItem = acc.at(-1);
-			if (lastItem && !lastItem.answer) {
-				lastItem.answer = message.messageText;
-				return acc;
-			}
-
+	const conversation = session.messages.reduce<
+		Array<{ question: string; answer: string }>
+	>((acc, message) => {
+		if (message.isAi) {
 			acc.push({
-				question: "",
-				answer: message.messageText,
+				question: message.messageText,
+				answer: "",
 			});
 			return acc;
-		},
-		[],
-	);
+		}
+
+		const lastItem = acc.at(-1);
+		if (lastItem && !lastItem.answer) {
+			lastItem.answer = message.messageText;
+			return acc;
+		}
+
+		acc.push({
+			question: "",
+			answer: message.messageText,
+		});
+		return acc;
+	}, []);
 
 	const normalizedConversation = conversation.filter(
 		(item) => item.question.trim() && item.answer.trim(),
@@ -455,7 +450,8 @@ export const sessionRouter = router({
 				throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
 			}
 
-			const currentTopic = session.script.questions[session.currentQuestionIndex];
+			const currentTopic =
+				session.script.questions[session.currentQuestionIndex];
 
 			if (!currentTopic) {
 				throw new TRPCError({
@@ -518,7 +514,8 @@ export const sessionRouter = router({
 					latestAnswer: input.content,
 					nextTopic: nextTopic?.text,
 					nextTopicCriteria:
-						nextTopic?.specificCriteria.map((criterion) => criterion.content) ?? [],
+						nextTopic?.specificCriteria.map((criterion) => criterion.content) ??
+						[],
 				});
 
 				if (step.decision === "finish") {

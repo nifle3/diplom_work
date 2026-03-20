@@ -1,4 +1,4 @@
-import { Output, generateText } from "ai";
+import { generateText, Output } from "ai";
 import { z } from "zod";
 import { model } from "../model";
 
@@ -57,7 +57,9 @@ function formatCriteria(
 		: "Нет";
 
 	const specificBlock = specificCriteria.length
-		? specificCriteria.map((criterion, index) => `${index + 1}. ${criterion}`).join("\n")
+		? specificCriteria
+				.map((criterion, index) => `${index + 1}. ${criterion}`)
+				.join("\n")
 		: "Нет";
 
 	return { globalBlock, specificBlock };

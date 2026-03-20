@@ -1,5 +1,10 @@
-import { Award, CalendarDays, ChevronLeft, Clock3, FileText } from "lucide-react";
-import type { Route } from "next";
+import {
+	Award,
+	CalendarDays,
+	ChevronLeft,
+	Clock3,
+	FileText,
+} from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
@@ -12,84 +17,14 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { serverTrpc } from "@/lib/trpcServer";
+import { formatDate } from "./_lib/formatDate";
+import { formatDuration } from "./_lib/formatDuration";
+import { getBackHref } from "./_lib/getBackHref";
+import { getScoreTone } from "./_lib/getScoreTone";
 
 export const metadata = {
 	title: "Результаты интервью",
 };
-
-function getScoreTone(score: number | null) {
-	if (score === null) {
-		return {
-			badgeClassName:
-				"border-border bg-muted text-muted-foreground shadow-none",
-			ringClassName: "from-border via-border/70 to-transparent",
-			textClassName: "text-muted-foreground",
-			label: "Нет оценки",
-		};
-	}
-
-	if (score >= 80) {
-		return {
-			badgeClassName:
-				"border-emerald-200 bg-emerald-50 text-emerald-700 shadow-none dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-300",
-			ringClassName:
-				"from-emerald-400 via-emerald-300/60 to-transparent dark:from-emerald-500 dark:via-emerald-400/40",
-			textClassName: "text-emerald-700 dark:text-emerald-300",
-			label: "Сильный результат",
-		};
-	}
-
-	if (score >= 60) {
-		return {
-			badgeClassName:
-				"border-amber-200 bg-amber-50 text-amber-700 shadow-none dark:border-amber-900 dark:bg-amber-950 dark:text-amber-300",
-			ringClassName:
-				"from-amber-400 via-amber-300/60 to-transparent dark:from-amber-500 dark:via-amber-400/40",
-			textClassName: "text-amber-700 dark:text-amber-300",
-			label: "Хорошая база",
-		};
-	}
-
-	return {
-		badgeClassName:
-			"border-rose-200 bg-rose-50 text-rose-700 shadow-none dark:border-rose-900 dark:bg-rose-950 dark:text-rose-300",
-		ringClassName:
-			"from-rose-400 via-rose-300/60 to-transparent dark:from-rose-500 dark:via-rose-400/40",
-		textClassName: "text-rose-700 dark:text-rose-300",
-		label: "Есть зоны роста",
-	};
-}
-
-function formatDate(date: Date | null) {
-	if (!date) return "—";
-
-	return new Intl.DateTimeFormat("ru-RU", {
-		dateStyle: "long",
-		timeStyle: "short",
-	}).format(date);
-}
-
-function formatDuration(startedAt: Date, finishedAt: Date | null) {
-	if (!finishedAt) return "—";
-
-	const totalMinutes = Math.max(
-		1,
-		Math.round((finishedAt.getTime() - startedAt.getTime()) / 60000),
-	);
-
-	if (totalMinutes < 60) {
-		return `${totalMinutes} мин`;
-	}
-
-	const hours = Math.floor(totalMinutes / 60);
-	const minutes = totalMinutes % 60;
-
-	if (minutes === 0) {
-		return `${hours} ч`;
-	}
-
-	return `${hours} ч ${minutes} мин`;
-}
 
 export default async function ResultsPage({
 	params,
@@ -99,16 +34,16 @@ export default async function ResultsPage({
 	const { id } = await params;
 	const trpcCaller = await serverTrpc();
 	const result = await trpcCaller.session.getResultBySessionId(id);
-	const backHref = (result.script?.id
-		? `/script/${result.script.id}`
-		: "/scripts") as Route;
+	const backHref = getBackHref(result.script?.id);
 
 	if (result.status !== "complete") {
 		redirect(`/interview/${id}`);
 	}
 
 	const scoreTone = getScoreTone(result.finalScore);
-	const answeredQuestions = result.questions.filter((item) => item.answer?.trim());
+	const answeredQuestions = result.questions.filter((item) =>
+		item.answer?.trim(),
+	);
 	const answeredCount = answeredQuestions.length;
 
 	return (
@@ -118,12 +53,13 @@ export default async function ResultsPage({
 					<div className="space-y-2">
 						<Link href={backHref}>
 							<Button variant="ghost" size="sm" className="-ml-3 w-fit">
-								<ChevronLeft className="size-4" />
-								К сценарию
+								<ChevronLeft className="size-4" />К сценарию
 							</Button>
 						</Link>
 						<div className="space-y-1">
-							<p className="text-muted-foreground text-sm">Итог прохождения интервью</p>
+							<p className="text-muted-foreground text-sm">
+								Итог прохождения интервью
+							</p>
 							<h1 className="font-semibold text-3xl tracking-tight">
 								{result.script?.title ?? "Результат интервью"}
 							</h1>
@@ -139,7 +75,7 @@ export default async function ResultsPage({
 				</div>
 
 				<div className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.8fr)]">
-					<Card className="overflow-hidden border-0 shadow-xl shadow-black/5">
+					<Card className="overflow-hidden border-0 shadow-black/5 shadow-xl">
 						<CardContent className="p-0">
 							<div className="relative overflow-hidden rounded-xl bg-card p-8">
 								<div
@@ -151,9 +87,13 @@ export default async function ResultsPage({
 											<Award className="size-4" />
 											Финальная оценка
 										</div>
-										<div className={`font-semibold text-6xl ${scoreTone.textClassName}`}>
+										<div
+											className={`font-semibold text-6xl ${scoreTone.textClassName}`}
+										>
 											{result.finalScore ?? "—"}
-											<span className="ml-2 text-2xl text-muted-foreground">/ 100</span>
+											<span className="ml-2 text-2xl text-muted-foreground">
+												/ 100
+											</span>
 										</div>
 										<p className="max-w-xl text-muted-foreground text-sm leading-6">
 											{result.expertFeedback?.trim() ||
@@ -167,7 +107,9 @@ export default async function ResultsPage({
 												<FileText className="size-3.5" />
 												Вопросов
 											</div>
-											<div className="mt-2 font-semibold text-2xl">{answeredCount}</div>
+											<div className="mt-2 font-semibold text-2xl">
+												{answeredCount}
+											</div>
 										</div>
 										<div className="rounded-2xl border bg-background/80 p-4 backdrop-blur">
 											<div className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-[0.18em]">
@@ -193,7 +135,7 @@ export default async function ResultsPage({
 						</CardContent>
 					</Card>
 
-					<Card className="border-0 shadow-lg shadow-black/5">
+					<Card className="border-0 shadow-black/5 shadow-lg">
 						<CardHeader>
 							<CardTitle>Краткая сводка</CardTitle>
 							<CardDescription>
@@ -220,7 +162,8 @@ export default async function ResultsPage({
 									Комментарий
 								</div>
 								<div className="text-sm leading-6">
-									{result.expertFeedback?.trim() || "Комментарий не сформирован."}
+									{result.expertFeedback?.trim() ||
+										"Комментарий не сформирован."}
 								</div>
 							</div>
 						</CardContent>
@@ -241,15 +184,15 @@ export default async function ResultsPage({
 						{answeredQuestions.length === 0 ? (
 							<Card className="border-dashed">
 								<CardContent className="py-10 text-center text-muted-foreground text-sm">
-									Подробный разбор еще не сформирован. Попробуйте открыть страницу
-									чуть позже.
+									Подробный разбор еще не сформирован. Попробуйте открыть
+									страницу чуть позже.
 								</CardContent>
 							</Card>
 						) : (
 							answeredQuestions.map((item, index) => (
 								<Card
 									key={item.id}
-									className="border-0 bg-card/95 shadow-lg shadow-black/5 backdrop-blur"
+									className="border-0 bg-card/95 shadow-black/5 shadow-lg backdrop-blur"
 								>
 									<CardHeader className="gap-3">
 										<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -280,7 +223,7 @@ export default async function ResultsPage({
 											<div className="text-muted-foreground text-xs uppercase tracking-[0.18em]">
 												Заметка по ответу
 											</div>
-											<p className="text-sm leading-7 text-muted-foreground">
+											<p className="text-muted-foreground text-sm leading-7">
 												{item.analysisNote?.trim() ||
 													"Для этого ответа не удалось получить отдельный комментарий."}
 											</p>

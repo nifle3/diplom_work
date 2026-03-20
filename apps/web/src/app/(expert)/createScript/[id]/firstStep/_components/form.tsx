@@ -31,10 +31,12 @@ export default function FirstStepForm({
 	initialData,
 	categories,
 }: FirstStepFormProps) {
-	const { form, isPending, selectedImage, setSelectedImage } = useFirstStepForm({
-		initialData,
-		categories,
-	});
+	const { form, isPending, selectedImage, setSelectedImage } = useFirstStepForm(
+		{
+			initialData,
+			categories,
+		},
+	);
 	const basePath = `/createScript/${initialData.id}`;
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -64,7 +66,7 @@ export default function FirstStepForm({
 						<div className="space-y-3">
 							<div className="font-medium text-sm">Картинка курса</div>
 							<div className="flex flex-col gap-4 md:flex-row md:items-start">
-								<div className="flex h-48 w-full items-center justify-center overflow-hidden border border-dashed border-input bg-muted/20 md:w-80">
+								<div className="flex h-48 w-full items-center justify-center overflow-hidden border border-input border-dashed bg-muted/20 md:w-80">
 									{imageSrc ? (
 										<img
 											src={imageSrc}
