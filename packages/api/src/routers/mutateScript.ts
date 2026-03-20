@@ -21,6 +21,7 @@ export const firstStepScheme = z.object({
 		.string()
 		.max(500, "Описание может содержать только 500 символов")
 		.nullable(),
+	image: z.string().nullable(),
 	categoryId: z.number().positive(),
 });
 
@@ -132,6 +133,7 @@ export const mutateScriptRouter = router({
 				.update(scriptsTable)
 				.set({
 					title: input.title,
+					image: input.image,
 					description: input.description,
 					categoryId: input.categoryId,
 					updatedAt: new Date(),

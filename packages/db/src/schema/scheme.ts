@@ -88,6 +88,7 @@ export const scriptsTable = pgTable("scripts", {
 		.notNull()
 		.references(() => usersTable.id),
 	title: varchar("title", { length: 150 }),
+	image: text("image"),
 	context: text("context"),
 	isDraft: boolean().default(true),
 	description: text(),
