@@ -126,11 +126,11 @@ export const scriptRouter = router({
 					expertName: usersTable.name,
 				})
 				.from(scriptsTable)
-				.leftJoin(
+				.innerJoin(
 					categoriesTable,
 					eq(scriptsTable.categoryId, categoriesTable.id),
 				)
-				.leftJoin(usersTable, eq(scriptsTable.expertId, usersTable.id))
+				.innerJoin(usersTable, eq(scriptsTable.expertId, usersTable.id))
 				.where(whereClause)
 				.orderBy(desc(scriptsTable.createdAt))
 				.limit(limit)

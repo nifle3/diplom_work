@@ -23,8 +23,8 @@ export function ScriptCard({ script }: ScriptCardProps) {
 
 	return (
 		<Link href={{ pathname: `/script/${script.id}` }}>
-			<Card className="flex h-full cursor-pointer flex-col overflow-hidden transition-shadow hover:shadow-lg">
-				<div className="flex h-24 items-center justify-center bg-gradient-to-r from-blue-500 to-purple-500">
+			<Card className="flex h-full cursor-pointer flex-col gap-0 overflow-hidden py-0 transition-shadow hover:shadow-lg">
+				<div className="flex h-32 items-center justify-center bg-gradient-to-r from-blue-500 to-purple-500">
 					{imageSrc ? (
 						<img
 							alt={script.title}
@@ -64,8 +64,8 @@ export function ScriptCard({ script }: ScriptCardProps) {
 
 export function ScriptCardSkeleton() {
 	return (
-		<Card className="flex h-full flex-col">
-			<Skeleton className="h-24 w-full" />
+		<Card className="flex h-full flex-col gap-0 py-0">
+			<Skeleton className="h-32 w-full" />
 			<div className="flex flex-1 flex-col gap-3 px-4 py-4">
 				<Skeleton className="h-4 w-full" />
 				<Skeleton className="h-4 w-3/4" />

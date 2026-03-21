@@ -8,7 +8,7 @@ type ListProps = {
 		categoryId?: string;
 		search?: string;
 	}>;
-};
+}
 
 export default async function ListSlot({ searchParams }: ListProps) {
 	const { page, categoryId, search } = await searchParams;
@@ -41,14 +41,10 @@ export default async function ListSlot({ searchParams }: ListProps) {
 			) : (
 				<>
 					<div className="mb-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-						{coursesData.courses.map((course) => (
+						{coursesData.courses.map((script) => (
 							<ScriptCard
-								key={course.id}
-								id={course.id}
-								title={course.title ?? ""}
-								context={course.description ?? ""}
-								categoryName={course.categoryName ?? ""}
-								expertName={course.expertName ?? ""}
+								script={script}
+								key={script.id}
 							/>
 						))}
 					</div>
