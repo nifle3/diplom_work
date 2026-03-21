@@ -1,5 +1,11 @@
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
 
 type Question = {
 	id: string;
@@ -34,8 +40,8 @@ export function QuestionsSection({ questions }: QuestionsSectionProps) {
 				{questions.length === 0 ? (
 					<Card className="border-dashed">
 						<CardContent className="py-10 text-center text-muted-foreground text-sm">
-							Подробный разбор еще не сформирован. Попробуйте открыть страницу чуть
-							позже.
+							Подробный разбор еще не сформирован. Попробуйте открыть страницу
+							чуть позже.
 						</CardContent>
 					</Card>
 				) : (

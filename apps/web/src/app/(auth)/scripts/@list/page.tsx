@@ -1,4 +1,4 @@
-import { CourseCard } from "@/components/courseCard";
+import { ScriptCard } from "@/components/scriptCard";
 import { serverTrpc } from "@/lib/trpcServer";
 import { PaginationSection } from "./_components/paginationSection";
 
@@ -42,7 +42,7 @@ export default async function ListSlot({ searchParams }: ListProps) {
 				<>
 					<div className="mb-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 						{coursesData.courses.map((course) => (
-							<CourseCard
+							<ScriptCard
 								key={course.id}
 								id={course.id}
 								title={course.title ?? ""}

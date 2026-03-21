@@ -1,3 +1,4 @@
+import type { Route } from "next";
 import { redirect } from "next/navigation";
 import { serverTrpc } from "@/lib/trpcServer";
 import { QuestionsSection } from "./_components/questions-section";
@@ -6,7 +7,6 @@ import { ScoreOverviewCard } from "./_components/score-overview-card";
 import { SummaryCard } from "./_components/summary-card";
 import { getBackHref } from "./_lib/getBackHref";
 import { getScoreTone } from "./_lib/getScoreTone";
-import type { Route } from "next";
 
 export const metadata = {
 	title: "Результаты интервью",

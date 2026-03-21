@@ -51,19 +51,26 @@ export const scriptRouter = router({
 	getLatest: protectedProcedure
 		.input(getLatestScenariosSchema)
 		.query(async ({ input }) => {
-			const scenarios = await db
+			return await db
 				.select({
 					id: scriptsTable.id,
 					title: scriptsTable.title,
+					description: scriptsTable.description,
+					image: scriptsTable.image,
+					categoryName: categoriesTable.name,
+					expertName: usersTable.name,
 				})
 				.from(scriptsTable)
+				.innerJoin(
+					categoriesTable,
+					eq(scriptsTable.categoryId, categoriesTable.id),
+				)
+				.innerJoin(usersTable, eq(scriptsTable.expertId, usersTable.id))
 				.where(
 					and(eq(scriptsTable.isDraft, false), isNull(scriptsTable.deletedAt)),
 				)
 				.orderBy(desc(scriptsTable.createdAt))
 				.limit(input.limit);
-
-			return scenarios;
 		}),
 
 	categories: protectedProcedure.query(async () => {

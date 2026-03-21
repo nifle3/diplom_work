@@ -87,11 +87,11 @@ export const scriptsTable = pgTable("scripts", {
 	expertId: uuid("expert_id")
 		.notNull()
 		.references(() => usersTable.id),
-	title: varchar("title", { length: 150 }),
+	title: varchar("title", { length: 150 }).notNull().default(""),
 	image: text("image"),
 	context: text("context"),
 	isDraft: boolean().default(true),
-	description: text(),
+	description: text().notNull().default(""),
 	createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
 	draftOverAt: timestamp("draft_over_at", { mode: "date" }),
 	updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),

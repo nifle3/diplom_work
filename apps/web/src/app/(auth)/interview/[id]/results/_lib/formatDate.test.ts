@@ -13,7 +13,7 @@ describe("formatDate", () => {
 
 	it("корректно форматирует дату без времени (полдень)", () => {
 		const date = new Date("2025-03-15T12:00:00");
-		expect(formatDate(date)).toMatch('15 марта 2025 г. в 12:00');
+		expect(formatDate(date)).toMatch("15 марта 2025 г. в 12:00");
 	});
 
 	it("форматирует дату в начале дня", () => {

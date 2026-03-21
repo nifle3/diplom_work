@@ -2,7 +2,7 @@ import { Award, CalendarDays, Clock3, FileText } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDate } from "../_lib/formatDate";
 import { formatDuration } from "../_lib/formatDuration";
-import { getScoreTone } from "../_lib/getScoreTone";
+import type { getScoreTone } from "../_lib/getScoreTone";
 
 type ScoreOverviewCardProps = {
 	answeredCount: number;
@@ -36,7 +36,9 @@ export function ScoreOverviewCard({
 								Финальная оценка
 							</div>
 
-							<div className={`font-semibold text-6xl ${scoreTone.textClassName}`}>
+							<div
+								className={`font-semibold text-6xl ${scoreTone.textClassName}`}
+							>
 								{finalScore ?? "—"}
 								<span className="ml-2 text-2xl text-muted-foreground">
 									/ 100
@@ -55,7 +57,9 @@ export function ScoreOverviewCard({
 									<FileText className="size-3.5" />
 									Вопросов
 								</div>
-								<div className="mt-2 font-semibold text-2xl">{answeredCount}</div>
+								<div className="mt-2 font-semibold text-2xl">
+									{answeredCount}
+								</div>
 							</div>
 
 							<div className="rounded-2xl border bg-background/80 p-4 backdrop-blur">

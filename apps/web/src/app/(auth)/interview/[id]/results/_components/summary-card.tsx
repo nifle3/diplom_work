@@ -1,4 +1,10 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
 import { formatDate } from "../_lib/formatDate";
 
 type SummaryCardProps = {
@@ -6,10 +12,7 @@ type SummaryCardProps = {
 	startedAt: Date | null;
 };
 
-export function SummaryCard({
-	expertFeedback,
-	startedAt,
-}: SummaryCardProps) {
+export function SummaryCard({ expertFeedback, startedAt }: SummaryCardProps) {
 	return (
 		<Card className="border-0 shadow-black/5 shadow-lg">
 			<CardHeader>
