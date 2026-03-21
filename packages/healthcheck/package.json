@@ -6,6 +6,9 @@
 			"default": "./src/index.ts"
 		}
 	},
+	"scripts": {
+		"check-types": "tsc --noEmit"
+	},
 	"dependencies": {
 		"@diplom_work/file": "workspace:*",
 		"@diplom_work/db": "workspace:*"

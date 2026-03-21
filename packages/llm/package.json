@@ -7,7 +7,8 @@
 		}
 	},
 	"scripts": {
-		"test": "vitest"
+		"test": "vitest",
+		"check-types": "tsc --noEmit"
 	},
 	"dependencies": {
 		"@ai-sdk/deepseek": "^2.0.24",
