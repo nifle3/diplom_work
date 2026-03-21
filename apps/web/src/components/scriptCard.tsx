@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { getAssetUrl } from "@/lib/assetUrl";
 import { Card } from "./ui/card";
 import { Skeleton } from "./ui/skeleton";
 
@@ -18,13 +19,23 @@ type ScriptCardProps = {
 };
 
 export function ScriptCard({ script }: ScriptCardProps) {
+	const imageSrc = getAssetUrl(script.image);
+
 	return (
 		<Link href={{ pathname: `/script/${script.id}` }}>
 			<Card className="flex h-full cursor-pointer flex-col overflow-hidden transition-shadow hover:shadow-lg">
 				<div className="flex h-24 items-center justify-center bg-gradient-to-r from-blue-500 to-purple-500">
-					<span className="font-bold text-2xl text-white opacity-50">
-						{script.title.charAt(0)}
-					</span>
+					{imageSrc ? (
+						<img
+							alt={script.title}
+							className="h-full w-full object-cover"
+							src={imageSrc}
+						/>
+					) : (
+						<span className="font-bold text-2xl text-white opacity-50">
+							{script.title.charAt(0)}
+						</span>
+					)}
 				</div>
 
 				<div className="flex flex-1 flex-col justify-between px-4 py-4">

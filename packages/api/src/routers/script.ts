@@ -5,6 +5,7 @@ import {
 	scriptsTable,
 	usersTable,
 } from "@diplom_work/db/schema/scheme";
+import { getPersistentLink } from "@diplom_work/file";
 import { TRPCError } from "@trpc/server";
 import { and, count, desc, eq, ilike, isNull } from "drizzle-orm";
 import { z } from "zod";
@@ -51,7 +52,7 @@ export const scriptRouter = router({
 	getLatest: protectedProcedure
 		.input(getLatestScenariosSchema)
 		.query(async ({ input }) => {
-			return await db
+			const dbResult = await db
 				.select({
 					id: scriptsTable.id,
 					title: scriptsTable.title,
@@ -71,6 +72,19 @@ export const scriptRouter = router({
 				)
 				.orderBy(desc(scriptsTable.createdAt))
 				.limit(input.limit);
+
+			const result = Promise.all(
+				dbResult.map(async (item) => {
+					if (!item.image) {
+						return item;
+					}
+
+					const link = await getPersistentLink(item.image);
+					item.image = link;
+					return item;
+				}),
+			);
+			return result;
 		}),
 
 	categories: protectedProcedure.query(async () => {
