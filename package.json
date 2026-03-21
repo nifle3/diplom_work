@@ -22,7 +22,7 @@
 		"db:watch": "turbo -F @diplom_work/db db:watch",
 		"db:stop": "turbo -F @diplom_work/db db:stop",
 		"db:down": "turbo -F @diplom_work/db db:down",
-		"check": "biome check --write ."
+		"lint": "biome check --write ."
 	},
 	"dependencies": {
 		"@diplom_work/env": "workspace:*",

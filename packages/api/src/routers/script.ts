@@ -121,6 +121,7 @@ export const scriptRouter = router({
 					id: scriptsTable.id,
 					title: scriptsTable.title,
 					description: scriptsTable.description,
+					image: scriptsTable.image,
 					categoryName: categoriesTable.name,
 					expertName: usersTable.name,
 				})

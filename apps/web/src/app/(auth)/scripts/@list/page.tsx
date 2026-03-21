@@ -2,13 +2,13 @@ import { ScriptCard } from "@/components/scriptCard";
 import { serverTrpc } from "@/lib/trpcServer";
 import { PaginationSection } from "./_components/paginationSection";
 
-interface ListProps {
+type ListProps = {
 	searchParams: Promise<{
 		page?: string;
 		categoryId?: string;
 		search?: string;
 	}>;
-}
+};
 
 export default async function ListSlot({ searchParams }: ListProps) {
 	const { page, categoryId, search } = await searchParams;
