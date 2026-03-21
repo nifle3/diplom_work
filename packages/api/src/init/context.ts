@@ -1,5 +1,5 @@
+import { randomUUID } from "node:crypto";
 import { auth } from "@diplom_work/auth";
-import { randomUUID } from "crypto";
 import type { NextRequest } from "next/server";
 
 export async function createContext(req: NextRequest) {
