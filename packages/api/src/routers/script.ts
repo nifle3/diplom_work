@@ -5,10 +5,11 @@ import {
 	scriptsTable,
 	usersTable,
 } from "@diplom_work/db/schema/scheme";
+import { getPersistentLink } from "@diplom_work/file";
 import { TRPCError } from "@trpc/server";
-import { and, count, desc, eq, ilike, isNull } from "drizzle-orm";
+import { and, count, desc, eq, ilike, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
-import { protectedProcedure, router } from "../init/routers";
+import { protectedProcedure, publicProcedure, router } from "../init/routers";
 
 export const getLatestScenariosSchema = z.object({
 	limit: z.number().int().min(1).max(20).default(5),
@@ -19,6 +20,11 @@ export const listScenariosSchema = z.object({
 	limit: z.number().int().min(1).max(50).default(12),
 	categoryId: z.number().optional(),
 	search: z.string().optional(),
+});
+
+export const getExpertProfileSchema = z.object({
+	expertId: z.uuid(),
+	categoryId: z.number().int().positive().optional(),
 });
 
 export const scriptRouter = router({
@@ -51,19 +57,40 @@ export const scriptRouter = router({
 	getLatest: protectedProcedure
 		.input(getLatestScenariosSchema)
 		.query(async ({ input }) => {
-			const scenarios = await db
+			const dbResult = await db
 				.select({
 					id: scriptsTable.id,
 					title: scriptsTable.title,
+					description: scriptsTable.description,
+					image: scriptsTable.image,
+					categoryName: categoriesTable.name,
+					expertId: usersTable.id,
+					expertName: usersTable.name,
 				})
 				.from(scriptsTable)
+				.innerJoin(
+					categoriesTable,
+					eq(scriptsTable.categoryId, categoriesTable.id),
+				)
+				.innerJoin(usersTable, eq(scriptsTable.expertId, usersTable.id))
 				.where(
 					and(eq(scriptsTable.isDraft, false), isNull(scriptsTable.deletedAt)),
 				)
 				.orderBy(desc(scriptsTable.createdAt))
 				.limit(input.limit);
 
-			return scenarios;
+			const result = Promise.all(
+				dbResult.map(async (item) => {
+					if (!item.image) {
+						return item;
+					}
+
+					const link = await getPersistentLink(item.image);
+					item.image = link;
+					return item;
+				}),
+			);
+			return result;
 		}),
 
 	categories: protectedProcedure.query(async () => {
@@ -100,15 +127,17 @@ export const scriptRouter = router({
 					id: scriptsTable.id,
 					title: scriptsTable.title,
 					description: scriptsTable.description,
+					image: scriptsTable.image,
 					categoryName: categoriesTable.name,
+					expertId: usersTable.id,
 					expertName: usersTable.name,
 				})
 				.from(scriptsTable)
-				.leftJoin(
+				.innerJoin(
 					categoriesTable,
 					eq(scriptsTable.categoryId, categoriesTable.id),
 				)
-				.leftJoin(usersTable, eq(scriptsTable.expertId, usersTable.id))
+				.innerJoin(usersTable, eq(scriptsTable.expertId, usersTable.id))
 				.where(whereClause)
 				.orderBy(desc(scriptsTable.createdAt))
 				.limit(limit)
@@ -119,6 +148,84 @@ export const scriptRouter = router({
 				total,
 				page,
 				pages,
+			};
+		}),
+
+	getExpertProfile: protectedProcedure
+		.input(getExpertProfileSchema)
+		.query(async ({ input }) => {
+			const expert = await db.query.usersTable.findFirst({
+				where: (usersTable, { and, eq, isNull }) =>
+					and(
+						eq(usersTable.id, input.expertId),
+						eq(usersTable.roleId, 2),
+						isNull(usersTable.deletedAt),
+					),
+				columns: {
+					id: true,
+					name: true,
+					image: true,
+				},
+			});
+
+			if (!expert) {
+				throw new TRPCError({ code: "NOT_FOUND" });
+			}
+
+			const categories = await db
+				.select({
+					id: categoriesTable.id,
+					name: categoriesTable.name,
+					count: sql<number>`count(${scriptsTable.id})`,
+				})
+				.from(scriptsTable)
+				.innerJoin(
+					categoriesTable,
+					eq(scriptsTable.categoryId, categoriesTable.id),
+				)
+				.where(
+					and(
+						eq(scriptsTable.expertId, input.expertId),
+						eq(scriptsTable.isDraft, false),
+						isNull(scriptsTable.deletedAt),
+					),
+				)
+				.groupBy(categoriesTable.id, categoriesTable.name)
+				.orderBy(categoriesTable.name);
+
+			const courses = await db
+				.select({
+					id: scriptsTable.id,
+					title: scriptsTable.title,
+					description: scriptsTable.description,
+					image: scriptsTable.image,
+					categoryId: categoriesTable.id,
+					categoryName: categoriesTable.name,
+					expertId: usersTable.id,
+					expertName: usersTable.name,
+				})
+				.from(scriptsTable)
+				.innerJoin(
+					categoriesTable,
+					eq(scriptsTable.categoryId, categoriesTable.id),
+				)
+				.innerJoin(usersTable, eq(scriptsTable.expertId, usersTable.id))
+				.where(
+					and(
+						eq(scriptsTable.expertId, input.expertId),
+						eq(scriptsTable.isDraft, false),
+						isNull(scriptsTable.deletedAt),
+						input.categoryId
+							? eq(scriptsTable.categoryId, input.categoryId)
+							: undefined,
+					),
+				)
+				.orderBy(desc(scriptsTable.createdAt));
+
+			return {
+				expert,
+				categories,
+				courses,
 			};
 		}),
 

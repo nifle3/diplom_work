@@ -16,6 +16,7 @@ export const expertRouter = router({
 					category: true,
 					globalCriteria: true,
 					questions: {
+						orderBy: (questions, { asc }) => [asc(questions.order)],
 						with: {
 							specificCriteria: true,
 						},

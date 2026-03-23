@@ -231,13 +231,14 @@ export const mutateScriptRouter = router({
 			}
 
 			await db.transaction(async (tx) => {
-				for (const question of input.questions) {
+				for (const [index, question] of input.questions.entries()) {
 					let questionId: string;
 
 					if (question.id) {
 						await tx
 							.update(questionTemplatesTable)
 							.set({
+								order: index,
 								text: question.text,
 							})
 							.where(eq(questionTemplatesTable.id, question.id));
@@ -247,6 +248,7 @@ export const mutateScriptRouter = router({
 							.insert(questionTemplatesTable)
 							.values({
 								scriptId: input.scriptId,
+								order: index,
 								text: question.text,
 							})
 							.returning();

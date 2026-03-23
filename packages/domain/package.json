@@ -9,7 +9,9 @@
 			"default": "./src/error/index.ts"
 		}
 	},
-	"scripts": {},
+	"scripts": {
+		"check-types": "tsc --noEmit"
+	},
 	"dependencies": {},
 	"devDependencies": {
 		"@diplom_work/config": "workspace:*",

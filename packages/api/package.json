@@ -10,7 +10,8 @@
 		}
 	},
 	"scripts": {
-		"test": "vitest"
+		"test": "vitest",
+		"check-types": "tsc --noEmit"
 	},
 	"dependencies": {
 		"@diplom_work/auth": "workspace:*",
