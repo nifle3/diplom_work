@@ -21,6 +21,7 @@
 		"@diplom_work/file": "workspace:*",
 		"@diplom_work/llm": "workspace:*",
 		"@diplom_work/logger": "workspace:*",
+		"@diplom_work/ratelimit": "workspace:*",
 		"@trpc/client": "catalog:",
 		"@trpc/server": "catalog:",
 		"dotenv": "catalog:",

@@ -84,6 +84,9 @@ importers:
       '@diplom_work/healthcheck':
         specifier: workspace:*
         version: link:../../packages/healthcheck
+      '@diplom_work/ratelimit':
+        specifier: workspace:*
+        version: link:../../packages/ratelimit
       '@tanstack/react-form':
         specifier: ^1.28.0
         version: 1.28.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -464,18 +467,6 @@ importers:
       pino-pretty:
         specifier: ^13.1.3
         version: 13.1.3
-    devDependencies:
-      '@diplom_work/config':
-        specifier: workspace:*
-        version: link:../config
-      '@diplom_work/env':
-        specifier: workspace:*
-        version: link:../env
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
-
-  packages/rateLimit:
     devDependencies:
       '@diplom_work/config':
         specifier: workspace:*
