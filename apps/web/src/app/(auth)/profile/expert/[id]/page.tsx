@@ -1,6 +1,6 @@
+import { TRPCError } from "@trpc/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { TRPCError } from "@trpc/server";
 import { ScriptCard } from "@/components/scriptCard";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
@@ -65,7 +65,7 @@ export default async function Page({ params, searchParams }: PageProps) {
 						</Avatar>
 
 						<div>
-							<p className="text-sm uppercase tracking-[0.3em] text-white/70">
+							<p className="text-sm text-white/70 uppercase tracking-[0.3em]">
 								Эксперт
 							</p>
 							<h1 className="mt-2 font-bold text-3xl tracking-tight sm:text-4xl">
