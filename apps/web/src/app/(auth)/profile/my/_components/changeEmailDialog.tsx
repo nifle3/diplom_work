@@ -69,7 +69,7 @@ export function ChangeEmailDialog({ email }: { email: string }) {
 	useEffect(() => {
 		setCurrentEmail(email);
 		form.reset({ email });
-	}, [email]);
+	}, [email, form, setCurrentEmail]);
 
 	return (
 		<Dialog
