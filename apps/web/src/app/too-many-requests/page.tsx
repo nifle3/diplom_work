@@ -9,10 +9,10 @@ export default function TooManyRequestsPage() {
 	return (
 		<div className="flex min-h-[calc(100svh-57px)] items-center justify-center px-6 py-16">
 			<main className="w-full max-w-xl rounded-2xl border bg-card p-8 text-center shadow-sm">
-				<p className="mb-3 font-medium text-muted-foreground text-sm">Ошибка 429</p>
-				<h1 className="mb-4 font-semibold text-3xl">
-					Слишком много запросов
-				</h1>
+				<p className="mb-3 font-medium text-muted-foreground text-sm">
+					Ошибка 429
+				</p>
+				<h1 className="mb-4 font-semibold text-3xl">Слишком много запросов</h1>
 				<p className="mb-8 text-muted-foreground">
 					Вы слишком часто открываете страницы. Подождите немного и попробуйте
 					снова.

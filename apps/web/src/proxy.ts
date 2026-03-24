@@ -1,6 +1,6 @@
 import { pageRateLimit } from "@diplom_work/ratelimit";
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 function getClientFingerprint(req: NextRequest) {
 	const forwardedFor = req.headers.get("x-forwarded-for");
