@@ -44,11 +44,6 @@ export function ChangePasswordDialog() {
 			form.reset();
 			router.refresh();
 		},
-		onError: (error) => {
-			toast(
-				error instanceof Error ? error.message : "Не удалось обновить пароль",
-			);
-		},
 	});
 
 	const form = useForm({

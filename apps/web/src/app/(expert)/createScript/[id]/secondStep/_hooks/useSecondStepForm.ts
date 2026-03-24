@@ -47,11 +47,6 @@ export function useSecondStepForm({
 				toast.success("Сохранено");
 				router.replace(`/createScript/${initialData.id}/thirdStep` as Route);
 			},
-			onError: (error: unknown) => {
-				const message =
-					error instanceof Error ? error.message : "Ошибка при сохранении";
-				toast.error(message);
-			},
 		}),
 	);
 

@@ -79,9 +79,6 @@ export function ExpertsTable({ data }: ExpertsTableProps) {
 				toast("Эксперт удалён");
 				router.refresh();
 			},
-			onError: (error) => {
-				toast(error.message);
-			},
 		}),
 	);
 	const onDelete = async (id: string) => {

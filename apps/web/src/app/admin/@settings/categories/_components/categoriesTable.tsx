@@ -92,9 +92,6 @@ export function CategoriesTable({ data }: CategoriesTableProps) {
 			onError: (error) => {
 				toast(error.message);
 			},
-			onSuccess: () => {
-				router.refresh();
-			},
 		}),
 	);
 

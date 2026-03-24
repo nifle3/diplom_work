@@ -51,9 +51,6 @@ export function ChangeAvatarDialog({
 			form.reset();
 			router.refresh();
 		},
-		onError: (error) => {
-			toast(error instanceof Error ? error.message : error);
-		},
 	});
 
 	const form = useForm({

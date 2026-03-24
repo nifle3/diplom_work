@@ -19,9 +19,6 @@ export default function NewSessionButton({ scriptId }: NewSessionButtonProps) {
 			onSuccess: (data) => {
 				router.push(`/interview/${data}` as Route);
 			},
-			onError: (error) => {
-				toast(error.message);
-			},
 		}),
 	);
 

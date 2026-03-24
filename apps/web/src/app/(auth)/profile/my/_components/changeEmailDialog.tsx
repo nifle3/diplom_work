@@ -39,11 +39,6 @@ export function ChangeEmailDialog({ email }: { email: string }) {
 			});
 			router.refresh();
 		},
-		onError: (error) => {
-			toast(
-				error instanceof Error ? error.message : "Не удалось обновить почту",
-			);
-		},
 	});
 
 	const form = useForm({
