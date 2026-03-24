@@ -48,11 +48,6 @@ export function useThirdStepForm({ initialData }: UseThirdStepFormOptions) {
 				toast.success("Скрипт успешно создан");
 				router.replace("/expert");
 			},
-			onError: (error: unknown) => {
-				const message =
-					error instanceof Error ? error.message : "Ошибка при сохранении";
-				toast.error(message);
-			},
 		}),
 	);
 

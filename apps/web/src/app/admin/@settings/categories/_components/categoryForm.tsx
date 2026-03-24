@@ -23,9 +23,6 @@ export function CategoryForm({ category }: CategoryFormProps) {
 				toast("Категория успешно добавлена");
 				router.refresh();
 			},
-			onError: (error) => {
-				toast(error.message);
-			},
 		}),
 	);
 	const updateMutation = useMutation(
@@ -33,9 +30,6 @@ export function CategoryForm({ category }: CategoryFormProps) {
 			onSuccess: () => {
 				toast("Категория успешно обновлена");
 				router.refresh();
-			},
-			onError: (error) => {
-				toast(error.message);
 			},
 		}),
 	);

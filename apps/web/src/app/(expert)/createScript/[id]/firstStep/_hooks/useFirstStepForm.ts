@@ -56,9 +56,6 @@ export function useFirstStepForm({
 			onSuccess: () => {
 				router.replace(`/createScript/${initialData.id}/secondStep` as Route);
 			},
-			onError: (error) => {
-				toast.error(error.message);
-			},
 		}),
 	);
 

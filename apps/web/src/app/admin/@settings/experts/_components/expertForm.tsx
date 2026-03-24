@@ -17,9 +17,6 @@ export function ExpertForm() {
 				toast("Пользователь добавлен");
 				router.refresh();
 			},
-			onError: (error) => {
-				toast(error.message);
-			},
 		}),
 	);
 
