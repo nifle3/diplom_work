@@ -132,9 +132,6 @@ export function SharedScriptsTable({ data, isDraftTable }: SharedTableProps) {
 				toast("Удаление успешно");
 				router.refresh();
 			},
-			onError: () => {
-				toast("Удаление не успешно");
-			},
 		}),
 	);
 
@@ -143,9 +140,6 @@ export function SharedScriptsTable({ data, isDraftTable }: SharedTableProps) {
 			onSuccess: () => {
 				toast("Опубликовано");
 				router.refresh();
-			},
-			onError: (error) => {
-				toast(error.message);
 			},
 		}),
 	);

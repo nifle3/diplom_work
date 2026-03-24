@@ -38,9 +38,6 @@ export function useInterview(sessionId: string) {
 				setMessages((currentMessages) => [...currentMessages, result.message]);
 				scrollToBottom("auto");
 			},
-			onError: (error) => {
-				toast(error.message);
-			},
 		}),
 	);
 
@@ -55,9 +52,6 @@ export function useInterview(sessionId: string) {
 
 				router.push(`/interview/${sessionId}/results` as Route);
 				router.refresh();
-			},
-			onError: (error) => {
-				toast(error.message);
 			},
 		}),
 	);

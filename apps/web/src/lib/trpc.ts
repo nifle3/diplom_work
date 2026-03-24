@@ -1,5 +1,5 @@
 import type { AppRouter } from "@diplom_work/api/routers/index";
-import { QueryCache, QueryClient } from "@tanstack/react-query";
+import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
 import { createTRPCClient, unstable_httpBatchStreamLink } from "@trpc/client";
 import { createTRPCOptionsProxy } from "@trpc/tanstack-react-query";
 import { toast } from "sonner";
@@ -16,6 +16,12 @@ export const queryClient = new QueryClient({
 			});
 		},
 	}),
+	mutationCache: new MutationCache({
+		onError: (error) => {
+			const errorMessage = error instanceof Error ? error.message : 'Произошла неизвестная ошибка';
+			toast.error(errorMessage);
+		}
+	})
 });
 
 const trpcClient = createTRPCClient<AppRouter>({

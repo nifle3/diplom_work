@@ -15,9 +15,6 @@ export default function CreateScriptButton() {
 			onSuccess: (data) => {
 				router.push(`/createScript/${data}/firstStep` as Route);
 			},
-			onError: (error) => {
-				toast(error.message);
-			},
 		}),
 	);
 
