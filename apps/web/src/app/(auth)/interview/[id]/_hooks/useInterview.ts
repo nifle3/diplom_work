@@ -35,10 +35,7 @@ export function useInterview(sessionId: string) {
 					return;
 				}
 
-				setMessages((currentMessages) => [
-					...currentMessages,
-					result.message,
-				]);
+				setMessages((currentMessages) => [...currentMessages, result.message]);
 				scrollToBottom("auto");
 			},
 			onError: (error) => {
@@ -66,7 +63,11 @@ export function useInterview(sessionId: string) {
 	);
 
 	const handleSend = async () => {
-		if (!inputValue.trim() || newMessage.isPending || finishInterview.isPending) {
+		if (
+			!inputValue.trim() ||
+			newMessage.isPending ||
+			finishInterview.isPending
+		) {
 			return;
 		}
 
