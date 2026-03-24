@@ -29,6 +29,10 @@ export const auth = betterAuth({
 			}
 		},
 	},
+	rateLimit: {
+		window: 10,
+		max: 100,
+	},
 	user: {
 		changeEmail: {
 			enabled: true,

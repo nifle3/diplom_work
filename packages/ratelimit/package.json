@@ -1,0 +1,21 @@
+{
+	"name": "@diplom_work/ratelimit",
+	"type": "module",
+	"exports": {
+		".": {
+			"default": "./src/index.ts"
+		}
+	},
+	"scripts": {
+		"check-types": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@upstash/ratelimit": "^2.0.8",
+		"@upstash/redis": "^1.37.0"
+	},
+	"devDependencies": {
+		"@diplom_work/config": "workspace:*",
+		"@diplom_work/env": "workspace:*",
+		"typescript": "catalog:"
+	}
+}

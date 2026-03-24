@@ -23,6 +23,8 @@ export const env = createEnv({
 		S3_KEY_ID: z.string(),
 		S3_SECRET_KEY: z.string(),
 		S3_BUCKET: z.string(),
+		UPSTASH_REDIS_REST_URL: z.url(),
+		UPSTASH_REDIS_REST_TOKEN: z.string().min(1),
 	},
 	runtimeEnv: process.env,
 	emptyStringAsUndefined: true,

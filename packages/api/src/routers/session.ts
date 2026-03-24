@@ -8,7 +8,7 @@ import { evaluateAnswer, planInterviewStep, summarize } from "@diplom_work/llm";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
-import { protectedProcedure, router } from "../init/routers";
+import { llmProcedure, protectedProcedure, router } from "../init/routers";
 
 const addNewMessageScheme = z.object({
 	sessionId: z.uuid(),
@@ -384,7 +384,7 @@ export const sessionRouter = router({
 				);
 			return results;
 		}),
-	addNewMessage: protectedProcedure
+	addNewMessage: llmProcedure
 		.input(addNewMessageScheme)
 		.mutation(async ({ ctx, input }) => {
 			const session = await db.query.interviewSessionsTable.findFirst({
