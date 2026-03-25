@@ -2,15 +2,7 @@ import { db } from "@diplom_work/db";
 import { usersTable } from "@diplom_work/db/schema/scheme";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
-import { z } from "zod";
 import { protectedProcedure, router } from "../init/routers";
-
-const roleNameCheckInput = z.enum(["admin", "expert"]);
-const roleNameToRoleId = {
-	user: 1,
-	expert: 2,
-	admin: 3,
-};
 
 export const userRouter = router({
 	getStats: protectedProcedure.query(async ({ ctx }) => {
@@ -32,22 +24,4 @@ export const userRouter = router({
 			xp: user?.xp,
 		};
 	}),
-	isUserHasRole: protectedProcedure
-		.input(roleNameCheckInput)
-		.query(async ({ input, ctx }) => {
-			const user = await db.query.usersTable.findFirst({
-				where: (usersTable, { eq }) => eq(usersTable.id, ctx.session.user.id),
-				columns: {
-					roleId: true,
-				},
-			});
-
-			if (!user) {
-				throw new TRPCError({ code: "UNAUTHORIZED" });
-			}
-
-			const requiredRole = roleNameToRoleId[input];
-
-			return user && user.roleId === requiredRole;
-		}),
 });

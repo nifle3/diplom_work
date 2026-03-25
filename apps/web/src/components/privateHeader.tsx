@@ -1,15 +1,19 @@
 import Link from "next/link";
 
-import { serverTrpc } from "@/lib/trpcServer";
-
 import { ThemeToggle } from "./themeToggle";
 import UserMenu from "./userMenu";
 
-export default async function PrivateHeader() {
-	const trpcCaller = await serverTrpc();
-	const isUserExpert = await trpcCaller.user.isUserHasRole("expert");
-	const isUserAdmin = await trpcCaller.user.isUserHasRole("admin");
+type PrivateHeaderProps = {
+	role: string;
+	email: string;
+	username: string;
+};
 
+export default async function PrivateHeader({
+	role,
+	username,
+	email,
+}: Readonly<PrivateHeaderProps>) {
 	return (
 		<header className="bg-transparent">
 			<div className="mx-auto flex max-w-6xl flex-row items-center justify-between px-4 py-3">
@@ -30,7 +34,7 @@ export default async function PrivateHeader() {
 
 				<div className="flex items-center gap-3">
 					<ThemeToggle />
-					<UserMenu isUserAdmin={isUserAdmin} isUserExpert={isUserExpert} />
+					<UserMenu role={role} username={username} email={email} />
 				</div>
 			</div>
 			<hr />
