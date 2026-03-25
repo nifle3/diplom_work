@@ -30,7 +30,7 @@ export const errorMiddleware = t.middleware(async ({ next }) => {
 				throw new TRPCError({
 					code,
 					message: error.message,
-					cause: error,
+					cause: error.cause,
 				});
 			}
 
@@ -38,7 +38,7 @@ export const errorMiddleware = t.middleware(async ({ next }) => {
 				throw new TRPCError({
 					code: "INTERNAL_SERVER_ERROR",
 					message: error.message,
-					cause: error,
+					cause: error.cause,
 				});
 			}
 
@@ -46,7 +46,7 @@ export const errorMiddleware = t.middleware(async ({ next }) => {
 				throw new TRPCError({
 					code: "PAYLOAD_TOO_LARGE",
 					message: error.message,
-					cause: error,
+					cause: error.cause,
 				});
 			}
 
@@ -54,14 +54,14 @@ export const errorMiddleware = t.middleware(async ({ next }) => {
 				throw new TRPCError({
 					code: "INTERNAL_SERVER_ERROR",
 					message: error.message,
-					cause: error,
+					cause: error.cause,
 				});
 			}
 
 			throw new TRPCError({
 				code: "BAD_REQUEST",
 				message: error.message,
-				cause: error,
+				cause: error.cause,
 			});
 		}
 
