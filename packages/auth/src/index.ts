@@ -7,6 +7,7 @@ import { logger } from "@diplom_work/logger/server";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
+import { customSession } from "better-auth/plugins";
 
 export const auth = betterAuth({
 	database: drizzleAdapter(db, {
@@ -39,7 +40,24 @@ export const auth = betterAuth({
 			updateEmailWithoutVerification: true,
 		},
 	},
-	plugins: [nextCookies()],
+	plugins: [
+		nextCookies(),
+		customSession(async ({ user, session }) => {
+			const userWithRole = await db.query.usersTable.findFirst({
+				where: (usersTable, {eq}) => eq(usersTable.id, user.id),
+				with: {
+					role: true,
+				}
+			});
+			return {
+				user: user,
+				session: {
+					...session,
+					role: userWithRole?.role,
+				},
+			}
+		})
+	],
 	advanced: {
 		database: {
 			generateId: () => {
@@ -67,5 +85,19 @@ export const auth = betterAuth({
 					break;
 			}
 		},
+	},
+	session: {
+		freshAge: 5 * 60,
+		cookieCache: {
+			enabled: true,
+			maxAge: 5 * 60,
+			refreshCache: true,
+			strategy: "jwe",
+		},
+		additionalFields: {
+			role: {
+				type: "string"
+			} 
+		}
 	},
 });
