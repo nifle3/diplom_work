@@ -1,10 +1,10 @@
 import type { Route } from "next";
 import { redirect } from "next/navigation";
 import { serverTrpc } from "@/lib/trpcServer";
-import { QuestionsSection } from "./_components/questions-section";
-import { ResultsHeader } from "./_components/results-header";
-import { ScoreOverviewCard } from "./_components/score-overview-card";
-import { SummaryCard } from "./_components/summary-card";
+import { QuestionsSection } from "./_components/questionsSection";
+import { ResultsHeader } from "./_components/resultsHeader";
+import { ScoreOverviewCard } from "./_components/scoreOverviewCard";
+import { SummaryCard } from "./_components/summaryCard";
 import { getBackHref } from "./_lib/getBackHref";
 import { getScoreTone } from "./_lib/getScoreTone";
 
