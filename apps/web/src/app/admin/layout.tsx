@@ -1,28 +1,31 @@
 import { RedirectType, redirect } from "next/navigation";
 
 import PrivateHeader from "@/components/privateHeader";
-import { serverTrpc } from "@/lib/trpcServer";
-import { AdminSidebar } from "./_components/sidebar";
+import { auth } from "@diplom_work/auth";
+import { headers } from "next/headers";
 
 export default async function Layout({
 	settings,
 }: Readonly<{
 	settings: React.ReactNode;
 }>) {
-	const trpcCaller = await serverTrpc();
+	const session = await auth.api.getSession({
+		headers: await headers(),
+	});
 
-	const isUserAdmin = await trpcCaller.user.isUserHasRole("admin");
-	if (!isUserAdmin) {
+	if (!session || !session.session.role) {
+		redirect("/", RedirectType.replace);
+	}
+
+	if (session.session.role !== "expert") {
 		redirect("/dashboard", RedirectType.replace);
 	}
 
+
 	return (
 		<>
-			<PrivateHeader />
-			<div className="flex min-h-screen">
-				<AdminSidebar />
-				<main className="flex-1">{settings}</main>
-			</div>
+			<PrivateHeader username={session.user.name} email={session.user.email} role={session.session.role}/>
+			{settings}
 		</>
 	);
 }
