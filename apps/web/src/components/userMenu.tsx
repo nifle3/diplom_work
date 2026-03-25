@@ -15,13 +15,12 @@ type UserMenuProps = {
 	role: string;
 	username: string;
 	email: string;
-
 };
 
 export default async function UserMenu({
 	role,
 	username,
-	email
+	email,
 }: Readonly<UserMenuProps>) {
 	return (
 		<DropdownMenu>
@@ -40,8 +39,7 @@ export default async function UserMenu({
 						<Link href={{ pathname: "/admin" }} passHref>
 							<DropdownMenuItem>Главное меню админа</DropdownMenuItem>
 						</Link>
-					)
-					 : (
+					) : (
 						<Link href={{ pathname: "/expert" }} passHref>
 							<DropdownMenuItem>Главное меню эксперта</DropdownMenuItem>
 						</Link>

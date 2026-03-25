@@ -10,7 +10,9 @@ type PrivateHeaderProps = {
 };
 
 export default async function PrivateHeader({
-	role, username, email
+	role,
+	username,
+	email,
 }: Readonly<PrivateHeaderProps>) {
 	return (
 		<header className="bg-transparent">
@@ -32,7 +34,7 @@ export default async function PrivateHeader({
 
 				<div className="flex items-center gap-3">
 					<ThemeToggle />
-					<UserMenu role={role} username={username} email={email}/>
+					<UserMenu role={role} username={username} email={email} />
 				</div>
 			</div>
 			<hr />
