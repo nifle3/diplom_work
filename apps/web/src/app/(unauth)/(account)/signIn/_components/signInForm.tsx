@@ -1,14 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { type ChangeEvent, type SubmitEvent, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/authClient";
 
 export default function SignInForm() {
-	const router = useRouter();
 	const [isPending, setIsPending] = useState(false);
 	const [values, setValues] = useState({ email: "", password: "" });
 
@@ -21,7 +19,7 @@ export default function SignInForm() {
 			},
 			{
 				onSuccess: () => {
-					router.replace("/dashboard");
+					window.location.href = "/dashboard";
 				},
 				onError: (ctx) => {
 					toast.error(ctx.error.message);
