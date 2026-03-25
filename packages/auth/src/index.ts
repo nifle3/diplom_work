@@ -44,19 +44,19 @@ export const auth = betterAuth({
 		nextCookies(),
 		customSession(async ({ user, session }) => {
 			const userWithRole = await db.query.usersTable.findFirst({
-				where: (usersTable, {eq}) => eq(usersTable.id, user.id),
+				where: (usersTable, { eq }) => eq(usersTable.id, user.id),
 				with: {
 					role: true,
-				}
+				},
 			});
 			return {
 				user: user,
 				session: {
 					...session,
-					role: userWithRole?.role,
+					role: userWithRole?.role.name,
 				},
-			}
-		})
+			};
+		}),
 	],
 	advanced: {
 		database: {
@@ -96,8 +96,8 @@ export const auth = betterAuth({
 		},
 		additionalFields: {
 			role: {
-				type: "string"
-			} 
-		}
+				type: "string",
+			},
+		},
 	},
 });
