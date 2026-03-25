@@ -9,7 +9,6 @@ import {
 } from "@tanstack/react-table";
 import { Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { Modal } from "@/components/modal";
 import { Button } from "@/components/ui/button";
 import {
@@ -89,8 +88,8 @@ export function CategoriesTable({ data }: CategoriesTableProps) {
 	const router = useRouter();
 	const deleteMutation = useMutation(
 		trpc.category.deleteById.mutationOptions({
-			onError: (error) => {
-				toast(error.message);
+			onMutate: () => {
+				router.refresh();
 			},
 		}),
 	);

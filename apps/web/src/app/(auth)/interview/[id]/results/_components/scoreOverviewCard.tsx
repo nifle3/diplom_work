@@ -68,7 +68,9 @@ export function ScoreOverviewCard({
 									Длительность
 								</div>
 								<div className="mt-2 font-semibold text-2xl">
-									{formatDuration(startedAt, finishedAt)}
+									{startedAt
+										? formatDuration(startedAt, finishedAt)
+										: "Нет даты начала"}
 								</div>
 							</div>
 

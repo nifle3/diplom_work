@@ -18,10 +18,11 @@ export const queryClient = new QueryClient({
 	}),
 	mutationCache: new MutationCache({
 		onError: (error) => {
-			const errorMessage = error instanceof Error ? error.message : 'Произошла неизвестная ошибка';
+			const errorMessage =
+				error instanceof Error ? error.message : "Произошла неизвестная ошибка";
 			toast.error(errorMessage);
-		}
-	})
+		},
+	}),
 });
 
 const trpcClient = createTRPCClient<AppRouter>({

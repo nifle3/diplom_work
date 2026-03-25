@@ -1,4 +1,4 @@
-import { Compass, LogIn } from "lucide-react";
+import { Compass } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import {
 export default function GlobalNotFound() {
 	return (
 		<main className="relative flex min-h-full flex-1 items-center justify-center overflow-hidden px-4 py-10">
-			<div className="-z-10 pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(120,120,120,0.12),transparent_45%)]" />
+			<div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(120,120,120,0.12),transparent_45%)]" />
 
 			<Card className="w-full max-w-xl border-border/70 bg-card/95 backdrop-blur">
 				<CardHeader className="space-y-4 text-center">
@@ -29,8 +29,8 @@ export default function GlobalNotFound() {
 							Страница не найдена
 						</CardTitle>
 						<CardDescription className="mx-auto max-w-md text-base leading-6">
-							Похоже, ссылка устарела или адрес был введён с ошибкой.
-							Попробуйте вернуться назад или перейти на главную страницу.
+							Похоже, ссылка устарела или адрес был введён с ошибкой. Попробуйте
+							вернуться назад или перейти на главную страницу.
 						</CardDescription>
 					</div>
 				</CardHeader>

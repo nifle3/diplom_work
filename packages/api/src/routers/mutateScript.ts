@@ -134,7 +134,7 @@ export const mutateScriptRouter = router({
 				.set({
 					title: input.title,
 					image: input.image,
-					description: input.description,
+					description: input.description ?? "",
 					categoryId: input.categoryId,
 					updatedAt: new Date(),
 				})
