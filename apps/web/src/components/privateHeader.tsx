@@ -1,15 +1,17 @@
 import Link from "next/link";
 
-import { serverTrpc } from "@/lib/trpcServer";
-
 import { ThemeToggle } from "./themeToggle";
 import UserMenu from "./userMenu";
 
 type PrivateHeaderProps = {
 	role: string;
+	email: string;
+	username: string;
 };
 
-export default async function PrivateHeader({ role }: Readonly<PrivateHeaderProps>) {
+export default async function PrivateHeader({
+	role, username, email
+}: Readonly<PrivateHeaderProps>) {
 	return (
 		<header className="bg-transparent">
 			<div className="mx-auto flex max-w-6xl flex-row items-center justify-between px-4 py-3">
@@ -30,7 +32,7 @@ export default async function PrivateHeader({ role }: Readonly<PrivateHeaderProp
 
 				<div className="flex items-center gap-3">
 					<ThemeToggle />
-					<UserMenu role={role}/>
+					<UserMenu role={role} username={username} email={email}/>
 				</div>
 			</div>
 			<hr />
