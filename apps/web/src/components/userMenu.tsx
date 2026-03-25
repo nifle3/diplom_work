@@ -14,13 +14,11 @@ import {
 } from "./ui/dropdown-menu";
 
 type UserMenuProps = {
-	isUserAdmin: boolean;
-	isUserExpert: boolean;
+	role: string;
 };
 
 export default async function UserMenu({
-	isUserAdmin,
-	isUserExpert,
+	role
 }: UserMenuProps) {
 	const head = await headers();
 	const data = await auth.api.getSession({
@@ -40,12 +38,12 @@ export default async function UserMenu({
 					<Link href={{ pathname: "/profile/my" }} passHref>
 						<DropdownMenuItem>Мой профиль</DropdownMenuItem>
 					</Link>
-					{isUserAdmin && (
+					{role === "admin" ? (
 						<Link href={{ pathname: "/admin" }} passHref>
 							<DropdownMenuItem>Главное меню админа</DropdownMenuItem>
 						</Link>
-					)}
-					{isUserExpert && (
+					)
+					 : (
 						<Link href={{ pathname: "/expert" }} passHref>
 							<DropdownMenuItem>Главное меню эксперта</DropdownMenuItem>
 						</Link>

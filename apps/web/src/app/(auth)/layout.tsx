@@ -13,13 +13,13 @@ export default async function UnauthLayout({
 		headers: await headers(),
 	});
 
-	if (!session) {
+	if (!session || !session.session.role) {
 		redirect("/", RedirectType.replace);
 	}
 
 	return (
 		<>
-			<PrivateHeader />
+			<PrivateHeader role={session.session.role}/>
 			{children}
 		</>
 	);
