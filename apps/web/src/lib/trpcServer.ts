@@ -10,6 +10,13 @@ async function serverContext() {
 
 	const requestId = headersObj["x-request-id"] ?? randomUUID();
 
+	const userAgent = headersObj["user-agent"] ?? null;
+
+	const forwardedFor = headersObj["x-forwarded-for"];
+	const clientIp = forwardedFor
+		? forwardedFor.split(",")[0].trim()
+		: (headersObj["x-real-ip"] ?? null);
+
 	const session = await auth.api.getSession({
 		headers: h,
 	});
@@ -17,6 +24,8 @@ async function serverContext() {
 	return {
 		session,
 		requestId,
+		clientIp,
+		userAgent,
 		setCookieHeaders: [] as string[],
 	};
 }
