@@ -94,6 +94,7 @@ const columns: ColumnDef<AchievementRow>[] = [
 	},
 ];
 
+// TODO: REFACTOR ALL
 export function MyAchievementsTable({ data }: MyAchievementsTableProps) {
 	const table = useReactTable({
 		data,

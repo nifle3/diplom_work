@@ -3,7 +3,6 @@
 import { useMutation } from "@tanstack/react-query";
 import {
 	type ColumnDef,
-	flexRender,
 	getCoreRowModel,
 	useReactTable,
 } from "@tanstack/react-table";
@@ -11,16 +10,9 @@ import { Pencil, Trash2, Upload } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { GeneralTable } from "@/components/generalTable";
 import { Modal } from "@/components/modal";
 import { Button } from "@/components/ui/button";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
 import { trpc } from "@/lib/trpc";
 
 export interface ScriptRow {
@@ -158,41 +150,5 @@ export function SharedScriptsTable({ data, isDraftTable }: SharedTableProps) {
 		getCoreRowModel: getCoreRowModel(),
 	});
 
-	return (
-		<Table>
-			<TableHeader>
-				{table.getHeaderGroups().map((headerGroup) => (
-					<TableRow key={headerGroup.id}>
-						{headerGroup.headers.map((header) => (
-							<TableHead key={header.id}>
-								{header.isPlaceholder
-									? null
-									: flexRender(
-											header.column.columnDef.header,
-											header.getContext(),
-										)}
-							</TableHead>
-						))}
-					</TableRow>
-				))}
-			</TableHeader>
-			<TableBody>
-				{table.getRowModel().rows?.length ? (
-					table.getRowModel().rows.map((row) => (
-						<TableRow key={row.id}>
-							{row.getVisibleCells().map((cell) => (
-								<TableCell key={cell.id}>
-									{flexRender(cell.column.columnDef.cell, cell.getContext())}
-								</TableCell>
-							))}
-						</TableRow>
-					))
-				) : (
-					<TableRow>
-						<TableCell className="h-24 text-center">Нет данных</TableCell>
-					</TableRow>
-				)}
-			</TableBody>
-		</Table>
-	);
+	return <GeneralTable table={table} />;
 }
