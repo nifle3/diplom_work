@@ -1,8 +1,7 @@
-import { RedirectType, redirect } from "next/navigation";
-
-import PrivateHeader from "@/components/privateHeader";
 import { auth } from "@diplom_work/auth";
 import { headers } from "next/headers";
+import { RedirectType, redirect } from "next/navigation";
+import PrivateHeader from "@/components/privateHeader";
 
 export default async function Layout({
 	settings,
@@ -21,10 +20,13 @@ export default async function Layout({
 		redirect("/dashboard", RedirectType.replace);
 	}
 
-
 	return (
 		<>
-			<PrivateHeader username={session.user.name} email={session.user.email} role={session.session.role}/>
+			<PrivateHeader
+				username={session.user.name}
+				email={session.user.email}
+				role={session.session.role}
+			/>
 			{settings}
 		</>
 	);

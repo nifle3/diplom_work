@@ -1,9 +1,7 @@
-import { RedirectType, redirect } from "next/navigation";
-
-import PrivateHeader from "@/components/privateHeader";
-import { headers } from "next/headers";
 import { auth } from "@diplom_work/auth";
-
+import { headers } from "next/headers";
+import { RedirectType, redirect } from "next/navigation";
+import PrivateHeader from "@/components/privateHeader";
 
 export default async function ExpertLayout({
 	children,
@@ -22,10 +20,13 @@ export default async function ExpertLayout({
 		redirect("/dashboard", RedirectType.replace);
 	}
 
-
 	return (
 		<>
-			<PrivateHeader username={session.user.name} email={session.user.email} role={session.session.role}/>
+			<PrivateHeader
+				username={session.user.name}
+				email={session.user.email}
+				role={session.session.role}
+			/>
 			{children}
 		</>
 	);

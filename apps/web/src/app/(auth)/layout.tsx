@@ -19,7 +19,11 @@ export default async function UnauthLayout({
 
 	return (
 		<>
-			<PrivateHeader role={session.session.role} username={session.user.name} email={session.user.email}/>
+			<PrivateHeader
+				role={session.session.role}
+				username={session.user.name}
+				email={session.user.email}
+			/>
 			{children}
 		</>
 	);
