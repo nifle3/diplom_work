@@ -35,11 +35,12 @@ export default async function UserMenu({
 					<Link href={{ pathname: "/profile/my" }} passHref>
 						<DropdownMenuItem>Мой профиль</DropdownMenuItem>
 					</Link>
-					{role === "admin" ? (
+					{role === "admin" && (
 						<Link href={{ pathname: "/admin" }} passHref>
 							<DropdownMenuItem>Главное меню админа</DropdownMenuItem>
 						</Link>
-					) : (
+					) }
+					{role === "expert" && (
 						<Link href={{ pathname: "/expert" }} passHref>
 							<DropdownMenuItem>Главное меню эксперта</DropdownMenuItem>
 						</Link>
