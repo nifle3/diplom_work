@@ -28,9 +28,8 @@ interface HistoryRow {
 	} | null;
 }
 
-interface MyHistoryTableProps {
+type MyHistoryTableProps = {
 	data: HistoryRow[];
-	isLoading?: boolean;
 }
 
 const statusMap = {
@@ -131,7 +130,7 @@ const columns: ColumnDef<HistoryRow>[] = [
 	},
 ];
 
-export function MyHistoryTable({ data }: MyHistoryTableProps) {
+export function HistoryScriptTable({ data }: MyHistoryTableProps) {
 	const table = useReactTable({
 		data,
 		columns,

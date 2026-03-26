@@ -240,6 +240,9 @@ export const scriptRouter = router({
 		return await db.query.interviewSessionsTable.findMany({
 			where: (interviewSessionsTable, { eq }) =>
 				eq(interviewSessionsTable.userId, ctx.session.user.id),
+			with: {
+				script: true,
+			}
 		});
 	}),
 });

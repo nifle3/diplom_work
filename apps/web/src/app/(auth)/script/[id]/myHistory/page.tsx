@@ -1,11 +1,4 @@
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
+import { HistoryScriptTable } from "@/components/historyScriptTable";
 import { serverTrpc } from "@/lib/trpcServer";
 
 export default async function Page({
@@ -16,5 +9,5 @@ export default async function Page({
 	const trpcCaller = await serverTrpc();
 	const result = await trpcCaller.script.getUserHistory();
 
-	return <></>;
+	return <HistoryScriptTable data={result}/>;
 }
