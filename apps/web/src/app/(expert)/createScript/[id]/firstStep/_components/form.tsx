@@ -1,6 +1,7 @@
 "use client";
 
 import { ImageIcon } from "lucide-react";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
@@ -68,7 +69,7 @@ export default function FirstStepForm({
 							<div className="flex flex-col gap-4 md:flex-row md:items-start">
 								<div className="flex h-48 w-full items-center justify-center overflow-hidden border border-input border-dashed bg-muted/20 md:w-80">
 									{imageSrc ? (
-										<img
+										<Image
 											src={imageSrc}
 											alt="Превью курса"
 											className="h-full w-full object-cover"

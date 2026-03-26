@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { getAssetUrl } from "@/lib/assetUrl";
 import { Card } from "./ui/card";
@@ -32,7 +33,7 @@ export function ScriptCard({ script }: ScriptCardProps) {
 
 			<div className="flex h-32 items-center justify-center bg-gradient-to-r from-blue-500 to-purple-500">
 				{imageSrc ? (
-					<img
+					<Image
 						alt={script.title}
 						className="h-full w-full object-cover"
 						src={imageSrc}
