@@ -1,8 +1,8 @@
+import { env } from "@diplom_work/env/server";
 import { globalRateLimit, llmRateLimit } from "@diplom_work/ratelimit";
 import { TRPCError } from "@trpc/server";
 import type { Context } from "../init/context";
 import { t } from "../init/trpc";
-import { env } from "@diplom_work/env/server";
 
 function buildRateLimitIdentifier(ctx: Context, path: string) {
 	if (ctx.session?.user.id) {

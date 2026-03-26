@@ -9,5 +9,5 @@ export default async function Page({
 	const trpcCaller = await serverTrpc();
 	const result = await trpcCaller.script.getUserHistory();
 
-	return <HistoryScriptTable data={result}/>;
+	return <HistoryScriptTable data={result} />;
 }

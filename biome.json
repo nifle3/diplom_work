@@ -38,7 +38,7 @@
 		"domains": {
 			"next": "recommended",
 			"turborepo": "recommended",
-			"react": "recommended"	
+			"react": "recommended"
 		},
 		"enabled": true,
 		"rules": {

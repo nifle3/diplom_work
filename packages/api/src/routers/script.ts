@@ -242,7 +242,7 @@ export const scriptRouter = router({
 				eq(interviewSessionsTable.userId, ctx.session.user.id),
 			with: {
 				script: true,
-			}
+			},
 		});
 	}),
 });
