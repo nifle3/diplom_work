@@ -3,12 +3,12 @@
 import { useMutation } from "@tanstack/react-query";
 import {
 	type ColumnDef,
-	flexRender,
 	getCoreRowModel,
 	useReactTable,
 } from "@tanstack/react-table";
 import { Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { GeneralTable } from "@/components/generalTable";
 import { Modal } from "@/components/modal";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,14 +18,6 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
 import { trpc } from "@/lib/trpc";
 import { CategoryForm } from "./categoryForm";
 
@@ -104,43 +96,5 @@ export function CategoriesTable({ data }: CategoriesTableProps) {
 		getCoreRowModel: getCoreRowModel(),
 	});
 
-	return (
-		<Table>
-			<TableHeader>
-				{table.getHeaderGroups().map((headerGroup) => (
-					<TableRow key={headerGroup.id}>
-						{headerGroup.headers.map((header) => (
-							<TableHead key={header.id}>
-								{header.isPlaceholder
-									? null
-									: flexRender(
-											header.column.columnDef.header,
-											header.getContext(),
-										)}
-							</TableHead>
-						))}
-					</TableRow>
-				))}
-			</TableHeader>
-			<TableBody>
-				{table.getRowModel().rows?.length ? (
-					table.getRowModel().rows.map((row) => (
-						<TableRow key={row.id}>
-							{row.getVisibleCells().map((cell) => (
-								<TableCell key={cell.id}>
-									{flexRender(cell.column.columnDef.cell, cell.getContext())}
-								</TableCell>
-							))}
-						</TableRow>
-					))
-				) : (
-					<TableRow>
-						<TableCell colSpan={3} className="h-24 text-center">
-							Нет данных
-						</TableCell>
-					</TableRow>
-				)}
-			</TableBody>
-		</Table>
-	);
+	return <GeneralTable table={table} />;
 }

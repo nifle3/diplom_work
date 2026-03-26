@@ -236,4 +236,13 @@ export const scriptRouter = router({
 
 		return criteriaTypes;
 	}),
+	getUserHistory: protectedProcedure.query(async ({ ctx }) => {
+		return await db.query.interviewSessionsTable.findMany({
+			where: (interviewSessionsTable, { eq }) =>
+				eq(interviewSessionsTable.userId, ctx.session.user.id),
+			with: {
+				script: true,
+			}
+		});
+	}),
 });

@@ -1,6 +1,6 @@
 import { serverTrpc } from "@/lib/trpcServer";
 import { EmptyHistory } from "./_components/emptyHistory";
-import { MyHistoryTable } from "./_components/myHistoryTable";
+import { HistoryScriptTable } from "@/components/historyScriptTable";
 
 export default async function Page() {
 	const trpcCaller = await serverTrpc();
@@ -10,5 +10,5 @@ export default async function Page() {
 		return <EmptyHistory />;
 	}
 
-	return <MyHistoryTable data={data} />;
+	return <HistoryScriptTable data={data} />;
 }

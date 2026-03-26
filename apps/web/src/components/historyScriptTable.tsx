@@ -2,7 +2,6 @@
 
 import {
 	type ColumnDef,
-	flexRender,
 	getCoreRowModel,
 	useReactTable,
 } from "@tanstack/react-table";
@@ -14,6 +13,7 @@ import {
 	XCircle,
 } from "lucide-react";
 import Link from "next/link";
+import { GeneralTable } from "@/components/generalTable";
 
 interface HistoryRow {
 	id: string;
@@ -28,9 +28,8 @@ interface HistoryRow {
 	} | null;
 }
 
-interface MyHistoryTableProps {
+type MyHistoryTableProps = {
 	data: HistoryRow[];
-	isLoading?: boolean;
 }
 
 const statusMap = {
@@ -40,7 +39,7 @@ const statusMap = {
 		color: "text-blue-500",
 		bg: "bg-blue-50 dark:bg-blue-950",
 	},
-	completed: {
+	complete: {
 		label: "Завершено",
 		icon: CheckCircle2,
 		color: "text-green-500",
@@ -131,7 +130,7 @@ const columns: ColumnDef<HistoryRow>[] = [
 	},
 ];
 
-export function MyHistoryTable({ data }: MyHistoryTableProps) {
+export function HistoryScriptTable({ data }: MyHistoryTableProps) {
 	const table = useReactTable({
 		data,
 		columns,
@@ -140,38 +139,7 @@ export function MyHistoryTable({ data }: MyHistoryTableProps) {
 
 	return (
 		<div className="overflow-hidden rounded-xl border bg-card shadow-sm">
-			<table className="w-full">
-				<thead>
-					{table.getHeaderGroups().map((headerGroup) => (
-						<tr key={headerGroup.id} className="border-b bg-muted/30">
-							{headerGroup.headers.map((header) => (
-								<th
-									key={header.id}
-									className="px-4 py-3 text-left font-semibold text-muted-foreground text-xs uppercase tracking-wider"
-								>
-									{header.isPlaceholder
-										? null
-										: flexRender(
-												header.column.columnDef.header,
-												header.getContext(),
-											)}
-								</th>
-							))}
-						</tr>
-					))}
-				</thead>
-				<tbody className="divide-y">
-					{table.getRowModel().rows.map((row) => (
-						<tr key={row.id} className="transition-colors hover:bg-muted/50">
-							{row.getVisibleCells().map((cell) => (
-								<td key={cell.id} className="px-4 py-4">
-									{flexRender(cell.column.columnDef.cell, cell.getContext())}
-								</td>
-							))}
-						</tr>
-					))}
-				</tbody>
-			</table>
+			<GeneralTable table={table} />
 		</div>
 	);
 }
