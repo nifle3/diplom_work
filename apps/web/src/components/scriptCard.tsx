@@ -39,6 +39,7 @@ export function ScriptCard({ script }: ScriptCardProps) {
 						className="h-full w-full object-cover"
 						width={640}
 						height={256}
+						unoptimized
 					/>
 				) : (
 					<span className="font-bold text-2xl text-white opacity-50">
