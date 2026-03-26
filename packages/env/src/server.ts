@@ -25,7 +25,7 @@ export const env = createEnv({
 		S3_BUCKET: z.string(),
 		UPSTASH_REDIS_REST_URL: z.url(),
 		UPSTASH_REDIS_REST_TOKEN: z.string().min(1),
-		RATE_LIMIT_ENABLE: z.boolean().default(true),
+		RATE_LIMIT_ENABLE: z.coerce.boolean().default(true),
 	},
 	runtimeEnv: process.env,
 	emptyStringAsUndefined: true,

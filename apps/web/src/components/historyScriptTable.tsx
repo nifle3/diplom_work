@@ -30,7 +30,7 @@ interface HistoryRow {
 
 type MyHistoryTableProps = {
 	data: HistoryRow[];
-}
+};
 
 const statusMap = {
 	in_progress: {

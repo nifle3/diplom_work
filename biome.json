@@ -35,6 +35,11 @@
 	},
 	"assist": { "actions": { "source": { "organizeImports": "on" } } },
 	"linter": {
+		"domains": {
+			"next": "recommended",
+			"turborepo": "recommended",
+			"react": "recommended"
+		},
 		"enabled": true,
 		"rules": {
 			"recommended": true,
