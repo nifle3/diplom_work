@@ -34,9 +34,11 @@ export function ScriptCard({ script }: ScriptCardProps) {
 			<div className="flex h-32 items-center justify-center bg-gradient-to-r from-blue-500 to-purple-500">
 				{imageSrc ? (
 					<Image
+						src={imageSrc}
 						alt={script.title}
 						className="h-full w-full object-cover"
-						src={imageSrc}
+						width={640}
+						height={256}
 					/>
 				) : (
 					<span className="font-bold text-2xl text-white opacity-50">

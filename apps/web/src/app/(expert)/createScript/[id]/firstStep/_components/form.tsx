@@ -73,6 +73,9 @@ export default function FirstStepForm({
 											src={imageSrc}
 											alt="Превью курса"
 											className="h-full w-full object-cover"
+											width={640}
+											height={384}
+											unoptimized={imageSrc.startsWith("blob:")}
 										/>
 									) : (
 										<div className="flex flex-col items-center gap-2 px-4 text-center text-muted-foreground text-sm">
