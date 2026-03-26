@@ -40,7 +40,7 @@ const statusMap = {
 		color: "text-blue-500",
 		bg: "bg-blue-50 dark:bg-blue-950",
 	},
-	completed: {
+	complete: {
 		label: "Завершено",
 		icon: CheckCircle2,
 		color: "text-green-500",
