@@ -3,9 +3,12 @@
 import {
 	type ColumnDef,
 	getCoreRowModel,
+	getSortedRowModel,
+	type SortingState,
 	useReactTable,
 } from "@tanstack/react-table";
 import {
+	ArrowUpDown,
 	Calendar,
 	CheckCircle2,
 	ChevronRight,
@@ -13,7 +16,9 @@ import {
 	XCircle,
 } from "lucide-react";
 import Link from "next/link";
+import { useMemo, useState } from "react";
 import { GeneralTable } from "@/components/generalTable";
+import { Button } from "@/components/ui/button";
 
 interface HistoryRow {
 	id: string;
@@ -53,6 +58,33 @@ const statusMap = {
 	},
 };
 
+type HistoryStatus = keyof typeof statusMap;
+type StatusFilter = HistoryStatus | "all";
+
+const statusEntries = Object.entries(statusMap) as [
+	HistoryStatus,
+	(typeof statusMap)[HistoryStatus],
+][];
+
+function getPassageTimestamp(row: HistoryRow) {
+	const date = row.finishedAt ?? row.startedAt;
+	if (!date) return 0;
+
+	const timestamp = new Date(date).getTime();
+	return Number.isNaN(timestamp) ? 0 : timestamp;
+}
+
+function getStatusMeta(status: string) {
+	return (
+		statusMap[status as HistoryStatus] ?? {
+			label: status,
+			icon: Clock,
+			color: "text-muted-foreground",
+			bg: "bg-muted",
+		}
+	);
+}
+
 const columns: ColumnDef<HistoryRow>[] = [
 	{
 		accessorKey: "script.title",
@@ -65,7 +97,7 @@ const columns: ColumnDef<HistoryRow>[] = [
 		accessorKey: "status",
 		header: "Статус",
 		cell: ({ row }) => {
-			const status = statusMap[row.original.status as keyof typeof statusMap];
+			const status = getStatusMeta(row.original.status);
 			const Icon = status.icon;
 			return (
 				<div
@@ -95,10 +127,26 @@ const columns: ColumnDef<HistoryRow>[] = [
 		},
 	},
 	{
-		accessorKey: "startedAt",
-		header: "Дата",
+		id: "passageDate",
+		accessorFn: getPassageTimestamp,
+		header: ({ column }) => {
+			const isSorted = column.getIsSorted();
+
+			return (
+				<Button
+					type="button"
+					variant="ghost"
+					size="xs"
+					className="-ml-2 h-8 justify-start px-2"
+					onClick={() => column.toggleSorting(isSorted === "asc")}
+				>
+					Дата прохождения
+					<ArrowUpDown className="h-3.5 w-3.5" />
+				</Button>
+			);
+		},
 		cell: ({ row }) => {
-			const date = row.original.startedAt;
+			const date = row.original.finishedAt ?? row.original.startedAt;
 			if (!date) return <span className="text-muted-foreground">—</span>;
 			return (
 				<div className="flex items-center gap-1.5 text-muted-foreground">
@@ -116,7 +164,7 @@ const columns: ColumnDef<HistoryRow>[] = [
 		id: "actions",
 		header: "",
 		cell: ({ row }) => {
-			if (row.original.status !== "completed") return null;
+			if (row.original.status !== "complete") return null;
 			return (
 				<Link
 					href={`/interview/${row.original.id}/results`}
@@ -131,15 +179,64 @@ const columns: ColumnDef<HistoryRow>[] = [
 ];
 
 export function HistoryScriptTable({ data }: MyHistoryTableProps) {
+	const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+	const [sorting, setSorting] = useState<SortingState>([
+		{ id: "passageDate", desc: true },
+	]);
+
+	const filteredData = useMemo(() => {
+		const filtered = data.filter(
+			(row) => statusFilter === "all" || row.status === statusFilter,
+		);
+
+		return filtered;
+	}, [data, statusFilter]);
+
 	const table = useReactTable({
-		data,
+		data: filteredData,
 		columns,
 		getCoreRowModel: getCoreRowModel(),
+		getSortedRowModel: getSortedRowModel(),
+		onSortingChange: setSorting,
+		state: {
+			sorting,
+		},
 	});
 
 	return (
-		<div className="overflow-hidden rounded-xl border bg-card shadow-sm">
-			<GeneralTable table={table} />
+		<div className="space-y-4">
+			<div className="flex flex-col gap-4 rounded-xl border bg-card p-4 shadow-sm lg:flex-row lg:items-end lg:justify-between">
+				<div className="space-y-3">
+					<div className="font-medium text-muted-foreground text-sm">
+						Статус
+					</div>
+					<div className="flex flex-wrap gap-2">
+						<Button
+							type="button"
+							variant={statusFilter === "all" ? "default" : "outline"}
+							size="sm"
+							onClick={() => setStatusFilter("all")}
+						>
+							Все
+						</Button>
+						{statusEntries.map(([status, meta]) => (
+							<Button
+								key={status}
+								type="button"
+								variant={statusFilter === status ? "default" : "outline"}
+								size="sm"
+								onClick={() => setStatusFilter(status)}
+							>
+								<meta.icon className="h-3.5 w-3.5" />
+								{meta.label}
+							</Button>
+						))}
+					</div>
+				</div>
+			</div>
+			<div className="overflow-hidden rounded-xl border bg-card shadow-sm">
+				<GeneralTable table={table} />
+			</div>
 		</div>
 	);
 }
