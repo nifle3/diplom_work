@@ -14,17 +14,7 @@ export default async function Page({
 }) {
 	const { id } = await params;
 	const trpcCaller = await serverTrpc();
-	let data: Awaited<ReturnType<typeof trpcCaller.script.getInfo>>;
-
-	try {
-		data = await trpcCaller.script.getInfo(id);
-	} catch (error) {
-		if (error instanceof TRPCError && error.code === "NOT_FOUND") {
-			notFound();
-		}
-
-		throw error;
-	}
+	const data = await trpcCaller.script.getInfo(id);
 
 	const imageSrc = getAssetUrl(data.image);
 	const createdAt = data.draftOverAt
@@ -51,12 +41,12 @@ export default async function Page({
 						</div>
 
 						<div className="space-y-4">
-							<p className="text-muted-foreground text-sm uppercase tracking-[0.24em]">
-								Описание курса
-							</p>
 							<h1 className="max-w-3xl font-semibold text-3xl tracking-tight sm:text-4xl lg:text-5xl">
 								{data.title}
 							</h1>
+							<p className="text-muted-foreground text-sm uppercase tracking-[0.24em]">
+								Описание курса
+							</p>
 							<p className="max-w-3xl text-base text-muted-foreground leading-7 sm:text-lg">
 								{data.description?.trim()
 									? data.description
@@ -105,22 +95,6 @@ export default async function Page({
 					) : (
 						<div className="absolute inset-0 bg-gradient-to-br from-sky-500 via-cyan-500 to-emerald-500" />
 					)}
-
-					<div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent" />
-
-					<div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
-						<div className="max-w-sm rounded-2xl border border-white/20 bg-white/10 p-4 text-white backdrop-blur-sm">
-							<p className="text-white/70 text-xs uppercase tracking-[0.22em]">
-								Материал курса
-							</p>
-							<p className="mt-2 font-medium text-lg leading-snug">
-								{data.title}
-							</p>
-							<p className="mt-1 text-sm text-white/75">
-								{data.category?.name ?? "Без категории"}
-							</p>
-						</div>
-					</div>
 				</div>
 			</div>
 		</Card>
