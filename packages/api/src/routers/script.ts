@@ -246,4 +246,17 @@ export const scriptRouter = router({
 			},
 		});
 	}),
+	getUserHistoryByScript: protectedProcedure
+		.input(z.uuid())
+		.query(async ({ input, ctx }) => {
+			return await db.query.interviewSessionsTable.findMany({
+				where: (interviewSessionsTable, { eq, and }) => and(
+					eq(interviewSessionsTable.userId, ctx.session.user.id),
+					eq(interviewSessionsTable.scriptId, input)
+				),
+				with: {
+					script: true
+				}
+			})
+		})
 });
