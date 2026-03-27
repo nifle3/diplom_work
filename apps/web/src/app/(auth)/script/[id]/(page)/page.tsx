@@ -16,6 +16,12 @@ export default async function Page({
 	const data = await trpcCaller.script.getInfo(id);
 
 	const imageSrc = getAssetUrl(data.image);
+	const description =
+		data.description?.trim() || "Описание курса пока не добавлено.";
+	const shortDescription =
+		description.length > 100
+			? `${description.slice(0, 100).trimEnd()}…`
+			: description;
 	const createdAt = data.draftOverAt
 		? data.draftOverAt.toLocaleDateString("ru-RU", {
 				day: "2-digit",
@@ -46,11 +52,28 @@ export default async function Page({
 							<p className="text-muted-foreground text-sm uppercase tracking-[0.24em]">
 								Описание курса
 							</p>
-							<p className="max-w-3xl whitespace-pre-wrap break-words text-base text-muted-foreground leading-7 [overflow-wrap:anywhere] sm:text-lg">
-								{data.description?.trim()
-									? data.description
-									: "Описание курса пока не добавлено."}
-							</p>
+							{description.length > 100 ? (
+								<details className="group max-w-3xl">
+									<summary className="cursor-pointer list-none font-medium text-sky-700 text-sm underline-offset-4 hover:underline">
+										<span className="group-open:hidden">
+											Показать полностью
+										</span>
+										<span className="hidden group-open:inline">
+											Скрыть описание
+										</span>
+									</summary>
+									<p className="mt-3 whitespace-pre-wrap break-words text-base text-muted-foreground leading-7 [overflow-wrap:anywhere] group-open:hidden sm:text-lg">
+										{shortDescription}
+									</p>
+									<p className="mt-3 hidden whitespace-pre-wrap break-words text-base text-muted-foreground leading-7 [overflow-wrap:anywhere] group-open:block sm:text-lg">
+										{description}
+									</p>
+								</details>
+							) : (
+								<p className="max-w-3xl whitespace-pre-wrap break-words text-base text-muted-foreground leading-7 [overflow-wrap:anywhere] sm:text-lg">
+									{description}
+								</p>
+							)}
 							<div className="flex flex-col gap-3 pt-2 sm:flex-row">
 								<NewSessionButton scriptId={id} />
 							</div>
