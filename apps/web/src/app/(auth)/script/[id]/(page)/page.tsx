@@ -1,11 +1,10 @@
-import { TRPCError } from "@trpc/server";
 import Image from "next/image";
-import { notFound } from "next/navigation";
 
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { getAssetUrl } from "@/lib/assetUrl";
 import { serverTrpc } from "@/lib/trpcServer";
+import NewSessionButton from "./_components/newSessionButton";
 
 export default async function Page({
 	params,
@@ -27,7 +26,7 @@ export default async function Page({
 
 	return (
 		<Card className="overflow-hidden border-border/60 bg-background/95 shadow-slate-950/5 shadow-xl">
-			<div className="grid lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
+			<div className="grid lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)] lg:items-start">
 				<div className="relative overflow-hidden p-6 sm:p-8 lg:p-10">
 					<div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.10),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(34,197,94,0.10),transparent_30%)]" />
 					<div className="relative flex h-full flex-col gap-8">
@@ -40,18 +39,21 @@ export default async function Page({
 							</Badge>
 						</div>
 
-						<div className="space-y-4">
-							<h1 className="max-w-3xl font-semibold text-3xl tracking-tight sm:text-4xl lg:text-5xl">
+						<div className="min-w-0 space-y-4">
+							<h1 className="max-w-3xl break-words font-semibold text-3xl tracking-tight sm:text-4xl lg:text-5xl">
 								{data.title}
 							</h1>
 							<p className="text-muted-foreground text-sm uppercase tracking-[0.24em]">
 								Описание курса
 							</p>
-							<p className="max-w-3xl text-base text-muted-foreground leading-7 sm:text-lg">
+							<p className="max-w-3xl whitespace-pre-wrap break-words text-base text-muted-foreground leading-7 [overflow-wrap:anywhere] sm:text-lg">
 								{data.description?.trim()
 									? data.description
 									: "Описание курса пока не добавлено."}
 							</p>
+							<div className="flex flex-col gap-3 pt-2 sm:flex-row">
+								<NewSessionButton scriptId={id} />
+							</div>
 						</div>
 
 						<div className="grid gap-3 sm:grid-cols-3">
@@ -81,7 +83,7 @@ export default async function Page({
 					</div>
 				</div>
 
-				<div className="relative min-h-[280px] border-border/60 border-t lg:min-h-full lg:border-t-0 lg:border-l">
+				<div className="relative h-[280px] self-start overflow-hidden border-border/60 border-t lg:aspect-[4/3] lg:h-auto lg:border-t-0 lg:border-l">
 					{imageSrc ? (
 						<Image
 							src={imageSrc}
