@@ -41,6 +41,7 @@ export const scriptRouter = router({
 				title: true,
 				description: true,
 				draftOverAt: true,
+				image: true,
 			},
 			with: {
 				expert: true,
