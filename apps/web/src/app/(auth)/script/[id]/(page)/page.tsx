@@ -1,16 +1,11 @@
-import Link from "next/link";
+import { TRPCError } from "@trpc/server";
+import Image from "next/image";
+import { notFound } from "next/navigation";
 
-import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardFooter,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { getAssetUrl } from "@/lib/assetUrl";
 import { serverTrpc } from "@/lib/trpcServer";
-import NewSessionButton from "./_components/newSessionButton";
 
 export default async function Page({
 	params,
@@ -19,40 +14,115 @@ export default async function Page({
 }) {
 	const { id } = await params;
 	const trpcCaller = await serverTrpc();
-	const data = await trpcCaller.script.getInfo(id);
+	let data: Awaited<ReturnType<typeof trpcCaller.script.getInfo>>;
+
+	try {
+		data = await trpcCaller.script.getInfo(id);
+	} catch (error) {
+		if (error instanceof TRPCError && error.code === "NOT_FOUND") {
+			notFound();
+		}
+
+		throw error;
+	}
+
+	const imageSrc = getAssetUrl(data.image);
+	const createdAt = data.draftOverAt
+		? data.draftOverAt.toLocaleDateString("ru-RU", {
+				day: "2-digit",
+				month: "long",
+				year: "numeric",
+			})
+		: "Не указана";
 
 	return (
-		<div className="flex justify-center p-8">
-			<Card className="w-full max-w-2xl">
-				<CardHeader>
-					<CardTitle className="text-2xl">{data.title}</CardTitle>
-					<CardDescription className="text-base">
-						{data.category?.name}
-					</CardDescription>
-				</CardHeader>
-				<CardContent>
-					<p className="text-muted-foreground text-sm">{data.description}</p>
-				</CardContent>
-				<CardFooter className="flex flex-col items-start gap-4">
-					<div className="flex flex-col gap-1 text-muted-foreground text-xs">
-						<span>
-							Создано: {data.draftOverAt?.toLocaleDateString("ru-RU")}
-						</span>
-						<span>Автор: {data.expert?.name ?? "Неизвестно"}</span>
+		<Card className="overflow-hidden border-border/60 bg-background/95 shadow-slate-950/5 shadow-xl">
+			<div className="grid lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
+				<div className="relative overflow-hidden p-6 sm:p-8 lg:p-10">
+					<div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.10),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(34,197,94,0.10),transparent_30%)]" />
+					<div className="relative flex h-full flex-col gap-8">
+						<div className="flex flex-wrap gap-2">
+							<Badge variant="secondary" className="bg-sky-100 text-sky-900">
+								{data.category?.name ?? "Без категории"}
+							</Badge>
+							<Badge variant="outline" className="bg-background/80">
+								Дата создания: {createdAt}
+							</Badge>
+						</div>
+
+						<div className="space-y-4">
+							<p className="text-muted-foreground text-sm uppercase tracking-[0.24em]">
+								Описание курса
+							</p>
+							<h1 className="max-w-3xl font-semibold text-3xl tracking-tight sm:text-4xl lg:text-5xl">
+								{data.title}
+							</h1>
+							<p className="max-w-3xl text-base text-muted-foreground leading-7 sm:text-lg">
+								{data.description?.trim()
+									? data.description
+									: "Описание курса пока не добавлено."}
+							</p>
+						</div>
+
+						<div className="grid gap-3 sm:grid-cols-3">
+							<div className="rounded-2xl border border-border/60 bg-background/70 p-4">
+								<p className="text-muted-foreground text-xs uppercase tracking-[0.2em]">
+									Дата создания
+								</p>
+								<p className="mt-2 font-medium text-sm">{createdAt}</p>
+							</div>
+							<div className="rounded-2xl border border-border/60 bg-background/70 p-4">
+								<p className="text-muted-foreground text-xs uppercase tracking-[0.2em]">
+									Категория
+								</p>
+								<p className="mt-2 font-medium text-sm">
+									{data.category?.name ?? "Не указана"}
+								</p>
+							</div>
+							<div className="rounded-2xl border border-border/60 bg-background/70 p-4">
+								<p className="text-muted-foreground text-xs uppercase tracking-[0.2em]">
+									Автор
+								</p>
+								<p className="mt-2 font-medium text-sm">
+									{data.expert?.name ?? "Неизвестно"}
+								</p>
+							</div>
+						</div>
 					</div>
-					<div className="flex w-full gap-3">
-						<NewSessionButton scriptId={id} />
-						<Link
-							href={{ pathname: `/script/${id}/myHistory` }}
-							className="flex-1"
-						>
-							<Button variant="outline" className="w-full">
-								История
-							</Button>
-						</Link>
+				</div>
+
+				<div className="relative min-h-[280px] border-border/60 border-t lg:min-h-full lg:border-t-0 lg:border-l">
+					{imageSrc ? (
+						<Image
+							src={imageSrc}
+							alt={data.title}
+							fill
+							className="object-cover"
+							sizes="(min-width: 1024px) 38vw, 100vw"
+							priority
+							unoptimized
+						/>
+					) : (
+						<div className="absolute inset-0 bg-gradient-to-br from-sky-500 via-cyan-500 to-emerald-500" />
+					)}
+
+					<div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent" />
+
+					<div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
+						<div className="max-w-sm rounded-2xl border border-white/20 bg-white/10 p-4 text-white backdrop-blur-sm">
+							<p className="text-white/70 text-xs uppercase tracking-[0.22em]">
+								Материал курса
+							</p>
+							<p className="mt-2 font-medium text-lg leading-snug">
+								{data.title}
+							</p>
+							<p className="mt-1 text-sm text-white/75">
+								{data.category?.name ?? "Без категории"}
+							</p>
+						</div>
 					</div>
-				</CardFooter>
-			</Card>
-		</div>
+				</div>
+			</div>
+		</Card>
 	);
 }
