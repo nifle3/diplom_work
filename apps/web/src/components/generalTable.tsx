@@ -11,14 +11,15 @@ import {
 } from "./ui/table";
 
 type Props<T> = {
-	table: TableType<T>;
+	headerGroups: ReturnType<TableType<T>["getHeaderGroups"]>;
+	rows: ReturnType<TableType<T>["getRowModel"]>["rows"];
 };
 
-export function GeneralTable<T>({ table }: Readonly<Props<T>>) {
+export function GeneralTable<T>({ headerGroups, rows }: Readonly<Props<T>>) {
 	return (
 		<Table>
 			<TableHeader>
-				{table.getHeaderGroups().map((headerGroup) => (
+				{headerGroups.map((headerGroup) => (
 					<TableRow key={headerGroup.id}>
 						{headerGroup.headers.map((header) => (
 							<TableHead key={header.id}>
@@ -34,8 +35,8 @@ export function GeneralTable<T>({ table }: Readonly<Props<T>>) {
 				))}
 			</TableHeader>
 			<TableBody>
-				{table.getRowModel().rows?.length ? (
-					table.getRowModel().rows.map((row) => (
+				{rows.length ? (
+					rows.map((row) => (
 						<TableRow key={row.id}>
 							{row.getVisibleCells().map((cell) => (
 								<TableCell key={cell.id}>

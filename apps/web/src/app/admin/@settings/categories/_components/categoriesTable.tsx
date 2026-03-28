@@ -96,5 +96,6 @@ export function CategoriesTable({ data }: CategoriesTableProps) {
 		getCoreRowModel: getCoreRowModel(),
 	});
 
-	return <GeneralTable table={table} />;
+	return <GeneralTable headerGroups={table.getHeaderGroups()}
+    rows={table.getRowModel().rows} />;
 }
