@@ -2,7 +2,9 @@
 
 import {
 	type ColumnDef,
+	type ColumnFiltersState,
 	getCoreRowModel,
+	getFilteredRowModel,
 	getSortedRowModel,
 	type SortingState,
 	useReactTable,
@@ -16,7 +18,7 @@ import {
 	XCircle,
 } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { GeneralTable } from "@/components/generalTable";
 import { Button } from "@/components/ui/button";
 
@@ -59,7 +61,6 @@ const statusMap = {
 };
 
 type HistoryStatus = keyof typeof statusMap;
-type StatusFilter = HistoryStatus | "all";
 
 const statusEntries = Object.entries(statusMap) as [
 	HistoryStatus,
@@ -95,7 +96,11 @@ const columns: ColumnDef<HistoryRow>[] = [
 	},
 	{
 		accessorKey: "status",
+		id: "status",
 		header: "Статус",
+		filterFn: (row, columnId, filterValue) => {
+			return row.getValue(columnId) === filterValue;
+		},
 		cell: ({ row }) => {
 			const status = getStatusMeta(row.original.status);
 			const Icon = status.icon;
@@ -179,29 +184,28 @@ const columns: ColumnDef<HistoryRow>[] = [
 ];
 
 export function HistoryScriptTable({ data }: MyHistoryTableProps) {
-	const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 	const [sorting, setSorting] = useState<SortingState>([
 		{ id: "passageDate", desc: true },
 	]);
 
-	const filteredData = useMemo(() => {
-		const filtered = data.filter(
-			(row) => statusFilter === "all" || row.status === statusFilter,
-		);
-
-		return filtered;
-	}, [data, statusFilter]);
-
 	const table = useReactTable({
-		data: filteredData,
+		data,
 		columns,
 		getCoreRowModel: getCoreRowModel(),
+		getFilteredRowModel: getFilteredRowModel(),
 		getSortedRowModel: getSortedRowModel(),
+		onColumnFiltersChange: setColumnFilters,
 		onSortingChange: setSorting,
 		state: {
+			columnFilters,
 			sorting,
 		},
 	});
+	const statusColumn = table.getColumn("status");
+	const activeStatusFilter = statusColumn?.getFilterValue() as
+		| HistoryStatus
+		| undefined;
 
 	return (
 		<div className="space-y-4">
@@ -213,9 +217,9 @@ export function HistoryScriptTable({ data }: MyHistoryTableProps) {
 					<div className="flex flex-wrap gap-2">
 						<Button
 							type="button"
-							variant={statusFilter === "all" ? "default" : "outline"}
+							variant={activeStatusFilter ? "outline" : "default"}
 							size="sm"
-							onClick={() => setStatusFilter("all")}
+							onClick={() => statusColumn?.setFilterValue(undefined)}
 						>
 							Все
 						</Button>
@@ -223,9 +227,9 @@ export function HistoryScriptTable({ data }: MyHistoryTableProps) {
 							<Button
 								key={status}
 								type="button"
-								variant={statusFilter === status ? "default" : "outline"}
+								variant={activeStatusFilter === status ? "default" : "outline"}
 								size="sm"
-								onClick={() => setStatusFilter(status)}
+								onClick={() => statusColumn?.setFilterValue(status)}
 							>
 								<meta.icon className="h-3.5 w-3.5" />
 								{meta.label}
