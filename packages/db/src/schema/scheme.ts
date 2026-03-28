@@ -28,8 +28,6 @@ export const usersTable = pgTable("users", {
 		.references(() => rolesTable.id)
 		.default(1),
 	xp: integer("xp").default(0).notNull(),
-	currentStreak: integer("current_streak").default(0).notNull(),
-	lastActivityDate: timestamp("last_activity_date", { mode: "date" }),
 	deletedAt: timestamp("deleted_at", { mode: "date" }),
 });
 
