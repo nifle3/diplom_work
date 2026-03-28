@@ -2,7 +2,9 @@
 
 import {
 	type ColumnDef,
+	type ColumnFiltersState,
 	getCoreRowModel,
+	getFilteredRowModel,
 	getSortedRowModel,
 	type SortingState,
 	useReactTable,
@@ -20,7 +22,7 @@ import { useState } from "react";
 import { GeneralTable } from "@/components/generalTable";
 import { Button } from "@/components/ui/button";
 
-interface HistoryRow {
+type HistoryRow = {
 	id: string;
 	status: string;
 	finalScore: number | null;
@@ -104,6 +106,7 @@ const columns: ColumnDef<HistoryRow>[] = [
 		accessorFn: (row) => normalizeHistoryStatus(row.status),
 		id: "status",
 		header: "Статус",
+		filterFn: "equalsString",
 		cell: ({ row }) => {
 			const status = getStatusMeta(row.original.status);
 			const Icon = status.icon;
@@ -187,30 +190,37 @@ const columns: ColumnDef<HistoryRow>[] = [
 ];
 
 export function HistoryScriptTable({ data }: MyHistoryTableProps) {
-	const [activeStatusFilter, setActiveStatusFilter] = useState<
-		HistoryStatus | undefined
-	>(undefined);
+	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 	const [sorting, setSorting] = useState<SortingState>([
 		{ id: "passageDate", desc: true },
 	]);
 
-	const filteredData = activeStatusFilter
-		? data.filter(
-				(row) =>
-					normalizeHistoryStatus(row.status) === activeStatusFilter,
-			)
-		: data;
+	const activeStatusFilter = columnFilters.find((f) => f.id === "status")
+		?.value as HistoryStatus | undefined;
+
+	function setActiveStatusFilter(status: HistoryStatus | undefined) {
+		setColumnFilters(status ? [{ id: "status", value: status }] : []);
+	}
 
 	const table = useReactTable({
-		data: filteredData,
+		data,
 		columns,
 		getCoreRowModel: getCoreRowModel(),
 		getSortedRowModel: getSortedRowModel(),
+		getFilteredRowModel: getFilteredRowModel(),
 		onSortingChange: setSorting,
+		onColumnFiltersChange: setColumnFilters,
 		state: {
 			sorting,
+			columnFilters,
 		},
 	});
+
+	console.log("columnFilters:", columnFilters);
+console.log("rows after filter:", table.getRowModel().rows.map(r => ({
+  status: r.original.status,
+  normalized: normalizeHistoryStatus(r.original.status),
+})));
 
 	return (
 		<div className="space-y-4">
