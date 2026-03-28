@@ -33,7 +33,7 @@ type HistoryRow = {
 		id: string;
 		title: string | null;
 	} | null;
-}
+};
 
 type MyHistoryTableProps = {
 	data: HistoryRow[];
@@ -216,12 +216,6 @@ export function HistoryScriptTable({ data }: MyHistoryTableProps) {
 		},
 	});
 
-	console.log("columnFilters:", columnFilters);
-console.log("rows after filter:", table.getRowModel().rows.map(r => ({
-  status: r.original.status,
-  normalized: normalizeHistoryStatus(r.original.status),
-})));
-
 	return (
 		<div className="space-y-4">
 			<div className="flex flex-col gap-4 rounded-xl border bg-card p-4 shadow-sm lg:flex-row lg:items-end lg:justify-between">
@@ -254,7 +248,10 @@ console.log("rows after filter:", table.getRowModel().rows.map(r => ({
 				</div>
 			</div>
 			<div className="overflow-hidden rounded-xl border bg-card shadow-sm">
-				<GeneralTable table={table} />
+				<GeneralTable
+					headerGroups={table.getHeaderGroups()}
+					rows={table.getRowModel().rows}
+				/>
 			</div>
 		</div>
 	);
