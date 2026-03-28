@@ -2,9 +2,7 @@
 
 import {
 	type ColumnDef,
-	type ColumnFiltersState,
 	getCoreRowModel,
-	getFilteredRowModel,
 	getSortedRowModel,
 	type SortingState,
 	useReactTable,
@@ -40,7 +38,7 @@ type MyHistoryTableProps = {
 };
 
 const statusMap = {
-	in_progress: {
+	active: {
 		label: "В процессе",
 		icon: Clock,
 		color: "text-blue-500",
@@ -67,6 +65,12 @@ const statusEntries = Object.entries(statusMap) as [
 	(typeof statusMap)[HistoryStatus],
 ][];
 
+function normalizeHistoryStatus(status: string): HistoryStatus | string {
+	if (status === "in_progress") return "active";
+	if (status === "incomplete") return "active";
+	return status;
+}
+
 function getPassageTimestamp(row: HistoryRow) {
 	const date = row.finishedAt ?? row.startedAt;
 	if (!date) return 0;
@@ -76,8 +80,10 @@ function getPassageTimestamp(row: HistoryRow) {
 }
 
 function getStatusMeta(status: string) {
+	const normalizedStatus = normalizeHistoryStatus(status);
+
 	return (
-		statusMap[status as HistoryStatus] ?? {
+		statusMap[normalizedStatus as HistoryStatus] ?? {
 			label: status,
 			icon: Clock,
 			color: "text-muted-foreground",
@@ -95,12 +101,9 @@ const columns: ColumnDef<HistoryRow>[] = [
 		),
 	},
 	{
-		accessorKey: "status",
+		accessorFn: (row) => normalizeHistoryStatus(row.status),
 		id: "status",
 		header: "Статус",
-		filterFn: (row, columnId, filterValue) => {
-			return row.getValue(columnId) === filterValue;
-		},
 		cell: ({ row }) => {
 			const status = getStatusMeta(row.original.status);
 			const Icon = status.icon;
@@ -184,28 +187,30 @@ const columns: ColumnDef<HistoryRow>[] = [
 ];
 
 export function HistoryScriptTable({ data }: MyHistoryTableProps) {
-	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+	const [activeStatusFilter, setActiveStatusFilter] = useState<
+		HistoryStatus | undefined
+	>(undefined);
 	const [sorting, setSorting] = useState<SortingState>([
 		{ id: "passageDate", desc: true },
 	]);
 
+	const filteredData = activeStatusFilter
+		? data.filter(
+				(row) =>
+					normalizeHistoryStatus(row.status) === activeStatusFilter,
+			)
+		: data;
+
 	const table = useReactTable({
-		data,
+		data: filteredData,
 		columns,
 		getCoreRowModel: getCoreRowModel(),
-		getFilteredRowModel: getFilteredRowModel(),
 		getSortedRowModel: getSortedRowModel(),
-		onColumnFiltersChange: setColumnFilters,
 		onSortingChange: setSorting,
 		state: {
-			columnFilters,
 			sorting,
 		},
 	});
-	const statusColumn = table.getColumn("status");
-	const activeStatusFilter = statusColumn?.getFilterValue() as
-		| HistoryStatus
-		| undefined;
 
 	return (
 		<div className="space-y-4">
@@ -219,7 +224,7 @@ export function HistoryScriptTable({ data }: MyHistoryTableProps) {
 							type="button"
 							variant={activeStatusFilter ? "outline" : "default"}
 							size="sm"
-							onClick={() => statusColumn?.setFilterValue(undefined)}
+							onClick={() => setActiveStatusFilter(undefined)}
 						>
 							Все
 						</Button>
@@ -229,7 +234,7 @@ export function HistoryScriptTable({ data }: MyHistoryTableProps) {
 								type="button"
 								variant={activeStatusFilter === status ? "default" : "outline"}
 								size="sm"
-								onClick={() => statusColumn?.setFilterValue(status)}
+								onClick={() => setActiveStatusFilter(status)}
 							>
 								<meta.icon className="h-3.5 w-3.5" />
 								{meta.label}

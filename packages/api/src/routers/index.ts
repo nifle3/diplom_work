@@ -4,7 +4,6 @@ import { categoryRouter } from "./category";
 import { expertRouter } from "./expert";
 import { expertManagerRouter } from "./expertManager";
 import { fileRouter } from "./file";
-import { interviewHistoryRouter } from "./interviewHistory";
 import { mutateScriptRouter } from "./mutateScript";
 import { profileRouter } from "./profile";
 import { scriptRouter } from "./script";
@@ -24,7 +23,6 @@ export const appRouter = router({
 	session: sessionRouter,
 	category: categoryRouter,
 	expertManager: expertManagerRouter,
-	interviewHistory: interviewHistoryRouter,
 	file: fileRouter,
 });
 
