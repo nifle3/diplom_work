@@ -30,7 +30,6 @@ export const profileRouter = router({
 
 		const { 0: result } = await db
 			.select({
-				currentStreak: usersTable.currentStreak,
 				xp: usersTable.xp,
 				interviewCount: count(interviewSessionsTable.id),
 				achievementCount: count(userAchievementsTable.achievementId),

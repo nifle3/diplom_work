@@ -5,13 +5,16 @@ import { serverTrpc } from "@/lib/trpcServer";
 
 export default async function Page() {
 	const trpcCaller = await serverTrpc();
-	const { currentStreak, xp, interviewCount, achievementCount } =
-		await trpcCaller.profile.getMyProfileStats();
+	const {0: profileStats, 1: streak } =
+		await Promise.all([
+			trpcCaller.profile.getMyProfileStats(),
+			trpcCaller.user.getStreak()
+		]);
 
 	const stats = [
 		{
 			label: "Стрик",
-			value: currentStreak,
+			value: streak,
 			unit: "дней",
 			icon: Flame,
 			color: "text-orange-500",
@@ -20,7 +23,7 @@ export default async function Page() {
 		},
 		{
 			label: "Опыт",
-			value: xp,
+			value: profileStats.xp,
 			unit: "XP",
 			icon: Zap,
 			color: "text-violet-500",
@@ -29,7 +32,7 @@ export default async function Page() {
 		},
 		{
 			label: "Интервью",
-			value: interviewCount,
+			value: profileStats.interviewCount,
 			unit: "",
 			icon: MessageSquare,
 			color: "text-blue-500",
@@ -38,7 +41,7 @@ export default async function Page() {
 		},
 		{
 			label: "Достижений",
-			value: achievementCount,
+			value: profileStats.achievementCount,
 			unit: "",
 			icon: Award,
 			color: "text-amber-500",
