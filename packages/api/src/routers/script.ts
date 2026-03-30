@@ -243,6 +243,11 @@ export const scriptRouter = router({
 				eq(interviewSessionsTable.userId, ctx.session.user.id),
 			with: {
 				script: true,
+				status: {
+					columns: {
+						name: true,
+					},
+				},
 			},
 		});
 	}),
@@ -251,13 +256,18 @@ export const scriptRouter = router({
 		.query(async ({ input, ctx }) => {
 			return await db.query.interviewSessionsTable.findMany({
 				where: (interviewSessionsTable, { eq, and }) =>
-					and(
-						eq(interviewSessionsTable.userId, ctx.session.user.id),
-						eq(interviewSessionsTable.scriptId, input),
-					),
-				with: {
-					script: true,
+				and(
+					eq(interviewSessionsTable.userId, ctx.session.user.id),
+					eq(interviewSessionsTable.scriptId, input),
+				),
+			with: {
+				script: true,
+				status: {
+					columns: {
+						name: true,
+					},
 				},
-			});
-		}),
+			},
+		});
+	}),
 });
