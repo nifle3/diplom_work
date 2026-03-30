@@ -1,6 +1,7 @@
 import { db } from "@diplom_work/db/index";
 import {
 	chatMessagesTable,
+	interviewSessionStatusLogTable,
 	interviewSessionsTable,
 } from "@diplom_work/db/schema/scheme";
 import { statusToId } from "@diplom_work/domain/values/sessionStatus";
@@ -16,6 +17,18 @@ const addNewMessageScheme = z.object({
 });
 
 type TransactionClient = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+type SessionStatusLog = {
+	statusId: number;
+	createdAt: Date;
+	status: {
+		name: string;
+	};
+};
+
+function isTerminalStatus(statusId: number | undefined) {
+	return statusId === statusToId.complete || statusId === statusToId.canceled;
+}
 
 type SessionForFinalEvaluation = {
 	summarize: string | null;
@@ -101,11 +114,24 @@ async function finalizeSession(
 			),
 		columns: {
 			id: true,
-			finishedAt: true,
 			summarize: true,
-			statusId: true,
 		},
 		with: {
+			statusLogs: {
+				columns: {
+					statusId: true,
+					createdAt: true,
+				},
+				with: {
+					status: {
+						columns: {
+							name: true,
+						},
+					},
+				},
+				orderBy: (statusLogs, { desc }) => [desc(statusLogs.createdAt)],
+				limit: 1,
+			},
 			messages: {
 				columns: {
 					isAi: true,
@@ -153,10 +179,9 @@ async function finalizeSession(
 		throw new TRPCError({ code: "NOT_FOUND" });
 	}
 
-	if (
-		session.statusId === statusToId.complete ||
-		session.statusId === statusToId.canceled
-	) {
+	const latestStatusLog = session.statusLogs[0] as SessionStatusLog | undefined;
+
+	if (isTerminalStatus(latestStatusLog?.statusId)) {
 		return {
 			streakUpdated: false,
 		};
@@ -172,11 +197,15 @@ async function finalizeSession(
 		throw new TRPCError({ code: "NOT_FOUND" });
 	}
 
+	await tx.insert(interviewSessionStatusLogTable).values({
+		sessionId,
+		statusId: statusToId.complete,
+		createdAt: now,
+	});
+
 	await tx
 		.update(interviewSessionsTable)
 		.set({
-			statusId: statusToId.complete,
-			finishedAt: now,
 			finalScore: finalEvaluation?.score ?? null,
 			expertFeedback: finalEvaluation?.feedback ?? null,
 		})
@@ -202,9 +231,23 @@ async function cancelInterviewSession(
 		columns: {
 			id: true,
 			summarize: true,
-			statusId: true,
 		},
 		with: {
+			statusLogs: {
+				columns: {
+					statusId: true,
+					createdAt: true,
+				},
+				with: {
+					status: {
+						columns: {
+							name: true,
+						},
+					},
+				},
+				orderBy: (statusLogs, { desc }) => [desc(statusLogs.createdAt)],
+				limit: 1,
+			},
 			messages: {
 				columns: {
 					isAi: true,
@@ -252,10 +295,9 @@ async function cancelInterviewSession(
 		throw new TRPCError({ code: "NOT_FOUND" });
 	}
 
-	if (
-		session.statusId === statusToId.complete ||
-		session.statusId === statusToId.canceled
-	) {
+	const latestStatusLog = session.statusLogs[0] as SessionStatusLog | undefined;
+
+	if (isTerminalStatus(latestStatusLog?.statusId)) {
 		return {
 			canceled: false,
 		};
@@ -263,11 +305,15 @@ async function cancelInterviewSession(
 
 	const finalEvaluation = await getFinalEvaluation(session);
 
+	await tx.insert(interviewSessionStatusLogTable).values({
+		sessionId,
+		statusId: statusToId.canceled,
+		createdAt: now,
+	});
+
 	await tx
 		.update(interviewSessionsTable)
 		.set({
-			statusId: statusToId.canceled,
-			finishedAt: now,
 			finalScore: finalEvaluation?.score ?? null,
 			expertFeedback: finalEvaluation?.feedback ?? null,
 		})
@@ -324,13 +370,18 @@ export const sessionRouter = router({
 						userId: ctx.session.user.id,
 						startedAt: new Date(),
 						scriptId: input,
-						statusId: statusToId.active,
 					})
 					.returning();
 
 				if (!addedSession) {
 					throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
 				}
+
+				await tx.insert(interviewSessionStatusLogTable).values({
+					sessionId: addedSession.id,
+					statusId: statusToId.active,
+					createdAt: new Date(),
+				});
 
 				await tx.insert(chatMessagesTable).values({
 					sessionId: addedSession.id,
@@ -376,13 +427,22 @@ export const sessionRouter = router({
 					finalScore: true,
 					expertFeedback: true,
 					startedAt: true,
-					finishedAt: true,
 				},
 				with: {
-					status: {
+					statusLogs: {
 						columns: {
-							name: true,
+							statusId: true,
+							createdAt: true,
 						},
+						with: {
+							status: {
+								columns: {
+									name: true,
+								},
+							},
+						},
+						orderBy: (statusLogs, { desc }) => [desc(statusLogs.createdAt)],
+						limit: 1,
 					},
 					script: {
 						columns: {
@@ -407,6 +467,13 @@ export const sessionRouter = router({
 			if (!session) {
 				throw new TRPCError({ code: "NOT_FOUND" });
 			}
+
+			const latestStatusLog = session.statusLogs[0] as
+				| SessionStatusLog
+				| undefined;
+			const finishedAt = isTerminalStatus(latestStatusLog?.statusId)
+				? (latestStatusLog?.createdAt ?? null)
+				: null;
 
 			const questions = session.messages.reduce<
 				Array<{
@@ -444,7 +511,13 @@ export const sessionRouter = router({
 			}, []);
 
 			return {
-				...session,
+				id: session.id,
+				finalScore: session.finalScore,
+				expertFeedback: session.expertFeedback,
+				startedAt: session.startedAt,
+				finishedAt,
+				status: latestStatusLog?.status ?? null,
+				script: session.script,
 				questions,
 			};
 		}),
@@ -481,13 +554,27 @@ export const sessionRouter = router({
 					and(
 						eq(interviewSessionsTable.userId, ctx.session.user.id),
 						eq(interviewSessionsTable.id, input.sessionId),
-						eq(interviewSessionsTable.statusId, statusToId.active),
 					),
 				columns: {
 					currentQuestionIndex: true,
 					summarize: true,
 				},
 				with: {
+					statusLogs: {
+						columns: {
+							statusId: true,
+							createdAt: true,
+						},
+						with: {
+							status: {
+								columns: {
+									name: true,
+								},
+							},
+						},
+						orderBy: (statusLogs, { desc }) => [desc(statusLogs.createdAt)],
+						limit: 1,
+					},
 					messages: {
 						where: (messages, { eq }) => eq(messages.isAi, true),
 						orderBy: (messages, { desc }) => [desc(messages.createdAt)],
@@ -530,6 +617,14 @@ export const sessionRouter = router({
 			});
 
 			if (!session) {
+				throw new TRPCError({ code: "NOT_FOUND" });
+			}
+
+			const latestStatusLog = session.statusLogs[0] as
+				| SessionStatusLog
+				| undefined;
+
+			if (latestStatusLog?.statusId !== statusToId.active) {
 				throw new TRPCError({ code: "NOT_FOUND" });
 			}
 

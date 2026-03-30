@@ -5,11 +5,24 @@ import {
 	scriptsTable,
 	usersTable,
 } from "@diplom_work/db/schema/scheme";
+import { statusToId } from "@diplom_work/domain/values/sessionStatus";
 import { getPersistentLink } from "@diplom_work/file";
 import { TRPCError } from "@trpc/server";
 import { and, count, desc, eq, ilike, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
 import { protectedProcedure, router } from "../init/routers";
+
+type SessionStatusLog = {
+	statusId: number;
+	createdAt: Date;
+	status: {
+		name: string;
+	};
+};
+
+function isTerminalStatus(statusId: number | undefined) {
+	return statusId === statusToId.complete || statusId === statusToId.canceled;
+}
 
 export const getLatestScenariosSchema = z.object({
 	limit: z.number().int().min(1).max(20).default(5),
@@ -238,36 +251,84 @@ export const scriptRouter = router({
 		return criteriaTypes;
 	}),
 	getUserHistory: protectedProcedure.query(async ({ ctx }) => {
-		return await db.query.interviewSessionsTable.findMany({
+		const sessions = await db.query.interviewSessionsTable.findMany({
 			where: (interviewSessionsTable, { eq }) =>
 				eq(interviewSessionsTable.userId, ctx.session.user.id),
 			with: {
-				script: true,
-				status: {
+				statusLogs: {
 					columns: {
-						name: true,
+						statusId: true,
+						createdAt: true,
 					},
+					with: {
+						status: {
+							columns: {
+								name: true,
+							},
+						},
+					},
+					orderBy: (statusLogs, { desc }) => [desc(statusLogs.createdAt)],
+					limit: 1,
 				},
+				script: true,
 			},
+		});
+
+		return sessions.map((session) => {
+			const latestStatusLog = session.statusLogs[0] as
+				| SessionStatusLog
+				| undefined;
+
+			return {
+				...session,
+				finishedAt: isTerminalStatus(latestStatusLog?.statusId)
+					? (latestStatusLog?.createdAt ?? null)
+					: null,
+				status: latestStatusLog?.status ?? null,
+			};
 		});
 	}),
 	getUserHistoryByScript: protectedProcedure
 		.input(z.uuid())
 		.query(async ({ input, ctx }) => {
-			return await db.query.interviewSessionsTable.findMany({
+			const sessions = await db.query.interviewSessionsTable.findMany({
 				where: (interviewSessionsTable, { eq, and }) =>
 					and(
 						eq(interviewSessionsTable.userId, ctx.session.user.id),
 						eq(interviewSessionsTable.scriptId, input),
 					),
 				with: {
-					script: true,
-					status: {
+					statusLogs: {
 						columns: {
-							name: true,
+							statusId: true,
+							createdAt: true,
 						},
+						with: {
+							status: {
+								columns: {
+									name: true,
+								},
+							},
+						},
+						orderBy: (statusLogs, { desc }) => [desc(statusLogs.createdAt)],
+						limit: 1,
 					},
+					script: true,
 				},
+			});
+
+			return sessions.map((session) => {
+				const latestStatusLog = session.statusLogs[0] as
+					| SessionStatusLog
+					| undefined;
+
+				return {
+					...session,
+					finishedAt: isTerminalStatus(latestStatusLog?.statusId)
+						? (latestStatusLog?.createdAt ?? null)
+						: null,
+					status: latestStatusLog?.status ?? null,
+				};
 			});
 		}),
 });
