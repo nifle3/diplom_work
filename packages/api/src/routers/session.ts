@@ -17,6 +17,76 @@ const addNewMessageScheme = z.object({
 
 type TransactionClient = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
+type SessionForFinalEvaluation = {
+	summarize: string | null;
+	messages: Array<{
+		isAi: boolean;
+		messageText: string;
+	}>;
+	script: {
+		context: string | null;
+		globalCriteria: Array<{
+			content: string;
+			type: {
+				name: string;
+			};
+		}>;
+		questions: Array<{
+			specificCriteria: Array<{
+				content: string;
+			}>;
+		}>;
+	};
+};
+
+async function getFinalEvaluation(session: SessionForFinalEvaluation) {
+	const conversation = session.messages.reduce<
+		Array<{ question: string; answer: string }>
+	>((acc, message) => {
+		if (message.isAi) {
+			acc.push({
+				question: message.messageText,
+				answer: "",
+			});
+			return acc;
+		}
+
+		const lastItem = acc.at(-1);
+		if (lastItem && !lastItem.answer) {
+			lastItem.answer = message.messageText;
+			return acc;
+		}
+
+		acc.push({
+			question: "",
+			answer: message.messageText,
+		});
+		return acc;
+	}, []);
+
+	const normalizedConversation = conversation.filter(
+		(item) => item.question.trim() && item.answer.trim(),
+	);
+
+	if (normalizedConversation.length === 0) {
+		return null;
+	}
+
+	return evaluateAnswer({
+		mode: "session",
+		context: session.script.context ?? "",
+		summary: session.summarize ?? undefined,
+		conversation: normalizedConversation,
+		globalCriteria: session.script.globalCriteria.map((criterion) => ({
+			type: criterion.type.name,
+			content: criterion.content,
+		})),
+		specificCriteria: session.script.questions.flatMap((question) =>
+			question.specificCriteria.map((criterion) => criterion.content),
+		),
+	});
+}
+
 async function finalizeSession(
 	tx: TransactionClient,
 	userId: string,
@@ -83,56 +153,15 @@ async function finalizeSession(
 		throw new TRPCError({ code: "NOT_FOUND" });
 	}
 
-	if (session.statusId === statusToId.complete) {
+	if (
+		session.statusId === statusToId.complete ||
+		session.statusId === statusToId.canceled
+	) {
 		return {
 			streakUpdated: false,
 		};
 	}
-
-	const conversation = session.messages.reduce<
-		Array<{ question: string; answer: string }>
-	>((acc, message) => {
-		if (message.isAi) {
-			acc.push({
-				question: message.messageText,
-				answer: "",
-			});
-			return acc;
-		}
-
-		const lastItem = acc.at(-1);
-		if (lastItem && !lastItem.answer) {
-			lastItem.answer = message.messageText;
-			return acc;
-		}
-
-		acc.push({
-			question: "",
-			answer: message.messageText,
-		});
-		return acc;
-	}, []);
-
-	const normalizedConversation = conversation.filter(
-		(item) => item.question.trim() && item.answer.trim(),
-	);
-
-	const finalEvaluation =
-		normalizedConversation.length > 0
-			? await evaluateAnswer({
-					mode: "session",
-					context: session.script.context ?? "",
-					summary: session.summarize ?? undefined,
-					conversation: normalizedConversation,
-					globalCriteria: session.script.globalCriteria.map((criterion) => ({
-						type: criterion.type.name,
-						content: criterion.content,
-					})),
-					specificCriteria: session.script.questions.flatMap((question) =>
-						question.specificCriteria.map((criterion) => criterion.content),
-					),
-				})
-			: null;
+	const finalEvaluation = await getFinalEvaluation(session);
 
 	const user = await tx.query.usersTable.findFirst({
 		where: (usersTable, { eq }) => eq(usersTable.id, userId),
@@ -155,6 +184,97 @@ async function finalizeSession(
 
 	return {
 		complete: true,
+	};
+}
+
+async function cancelInterviewSession(
+	tx: TransactionClient,
+	userId: string,
+	sessionId: string,
+	now: Date,
+) {
+	const session = await tx.query.interviewSessionsTable.findFirst({
+		where: (interviewSessionsTable, { and, eq }) =>
+			and(
+				eq(interviewSessionsTable.id, sessionId),
+				eq(interviewSessionsTable.userId, userId),
+			),
+		columns: {
+			id: true,
+			summarize: true,
+			statusId: true,
+		},
+		with: {
+			messages: {
+				columns: {
+					isAi: true,
+					messageText: true,
+				},
+				orderBy: (messages, { asc }) => [asc(messages.createdAt)],
+			},
+			script: {
+				columns: {
+					context: true,
+				},
+				with: {
+					globalCriteria: {
+						columns: {
+							content: true,
+						},
+						with: {
+							type: {
+								columns: {
+									name: true,
+								},
+							},
+						},
+					},
+					questions: {
+						where: (questions, { isNull }) => isNull(questions.deletedAt),
+						orderBy: (questions, { asc }) => [asc(questions.order)],
+						columns: {
+							text: true,
+						},
+						with: {
+							specificCriteria: {
+								columns: {
+									content: true,
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	});
+
+	if (!session) {
+		throw new TRPCError({ code: "NOT_FOUND" });
+	}
+
+	if (
+		session.statusId === statusToId.complete ||
+		session.statusId === statusToId.canceled
+	) {
+		return {
+			canceled: false,
+		};
+	}
+
+	const finalEvaluation = await getFinalEvaluation(session);
+
+	await tx
+		.update(interviewSessionsTable)
+		.set({
+			statusId: statusToId.canceled,
+			finishedAt: now,
+			finalScore: finalEvaluation?.score ?? null,
+			expertFeedback: finalEvaluation?.feedback ?? null,
+		})
+		.where(eq(interviewSessionsTable.id, sessionId));
+
+	return {
+		canceled: true,
 	};
 }
 
@@ -554,6 +674,15 @@ export const sessionRouter = router({
 
 			return db.transaction((tx) =>
 				finalizeSession(tx, ctx.session.user.id, input, now),
+			);
+		}),
+	cancelSession: protectedProcedure
+		.input(z.uuid())
+		.mutation(async ({ ctx, input }) => {
+			const now = new Date();
+
+			return db.transaction((tx) =>
+				cancelInterviewSession(tx, ctx.session.user.id, input, now),
 			);
 		}),
 });

@@ -54,11 +54,27 @@ export function useInterview(sessionId: string) {
 		}),
 	);
 
+	const cancelInterview = useMutation(
+		trpc.session.cancelSession.mutationOptions({
+			onSuccess: (result) => {
+				if (result.canceled) {
+					toast.success("Интервью отменено");
+				} else {
+					toast.success("Интервью уже было завершено");
+				}
+
+				router.push(`/interview/${sessionId}/results` as Route);
+				router.refresh();
+			},
+		}),
+	);
+
 	const handleSend = async () => {
 		if (
 			!inputValue.trim() ||
 			newMessage.isPending ||
-			finishInterview.isPending
+			finishInterview.isPending ||
+			cancelInterview.isPending
 		) {
 			return;
 		}
@@ -82,14 +98,22 @@ export function useInterview(sessionId: string) {
 		await finishInterview.mutateAsync(sessionId);
 	};
 
+	const handleCancel = async () => {
+		if (cancelInterview.isPending) return;
+
+		await cancelInterview.mutateAsync(sessionId);
+	};
+
 	return {
 		messages,
 		inputValue,
 		setInputValue,
 		isSending: newMessage.isPending,
 		isFinishing: finishInterview.isPending,
+		isCanceling: cancelInterview.isPending,
 		messagesEndRef,
 		handleSend,
 		handleFinish,
+		handleCancel,
 	};
 }
