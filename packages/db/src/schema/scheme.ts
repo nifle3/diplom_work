@@ -140,13 +140,9 @@ export const interviewSessionsTable = pgTable("interview_sessions", {
 		.notNull()
 		.references(() => scriptsTable.id),
 	finalScore: integer("final_score"),
-	statusId: integer("status_id").references(
-		() => interviewSessionStatusesTable.id,
-	),
 	expertFeedback: text("expert_feedback"),
 	currentQuestionIndex: integer("current_question_index").default(0).notNull(),
 	startedAt: timestamp("started_at").defaultNow().notNull(),
-	finishedAt: timestamp("finished_at"),
 	summarize: text("summarize"),
 });
 
@@ -155,6 +151,22 @@ export const interviewSessionStatusesTable = pgTable(
 	{
 		id: integer().primaryKey(),
 		name: varchar("status", { length: 20 }).notNull(),
+	},
+);
+
+export const interviewSessionStatusLogTable = pgTable(
+	"interview_session_status_log",
+	{
+		id: uuid("id").primaryKey().defaultRandom(),
+		sessionId: uuid("session_id")
+			.notNull()
+			.references(() => interviewSessionsTable.id),
+		statusId: integer("status_id")
+			.notNull()
+			.references(() => interviewSessionStatusesTable.id),
+		createdAt: timestamp("created_at", { mode: "date" })
+			.defaultNow()
+			.notNull(),
 	},
 );
 
@@ -201,7 +213,15 @@ export const reportsTable = pgTable("reports", {
 		.notNull()
 		.references(() => scriptsTable.id),
 	reason: text("reason").notNull(),
-	status: varchar("status", { length: 20 }).default("new").notNull(),
+	createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const reportStatusLogTable = pgTable("report_status_log", {
+	id: uuid("id").primaryKey().defaultRandom(),
+	reportId: uuid("report_id")
+		.notNull()
+		.references(() => reportsTable.id),
+	status: varchar("status", { length: 20 }).notNull(),
 	createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
 });
 
@@ -277,8 +297,19 @@ export const interviewSessionsRelations = relations(
 			references: [scriptsTable.id],
 		}),
 		messages: many(chatMessagesTable),
+		statusLogs: many(interviewSessionStatusLogTable),
+	}),
+);
+
+export const interviewSessionStatusLogRelations = relations(
+	interviewSessionStatusLogTable,
+	({ one }) => ({
+		session: one(interviewSessionsTable, {
+			fields: [interviewSessionStatusLogTable.sessionId],
+			references: [interviewSessionsTable.id],
+		}),
 		status: one(interviewSessionStatusesTable, {
-			fields: [interviewSessionsTable.statusId],
+			fields: [interviewSessionStatusLogTable.statusId],
 			references: [interviewSessionStatusesTable.id],
 		}),
 	}),
@@ -308,7 +339,7 @@ export const userAchievementsRelations = relations(
 	}),
 );
 
-export const reportsRelations = relations(reportsTable, ({ one }) => ({
+export const reportsRelations = relations(reportsTable, ({ one, many }) => ({
 	reporter: one(usersTable, {
 		fields: [reportsTable.reporterId],
 		references: [usersTable.id],
@@ -317,4 +348,15 @@ export const reportsRelations = relations(reportsTable, ({ one }) => ({
 		fields: [reportsTable.scriptId],
 		references: [scriptsTable.id],
 	}),
+	statusLogs: many(reportStatusLogTable),
 }));
+
+export const reportStatusLogRelations = relations(
+	reportStatusLogTable,
+	({ one }) => ({
+		report: one(reportsTable, {
+			fields: [reportStatusLogTable.reportId],
+			references: [reportsTable.id],
+		}),
+	}),
+);
