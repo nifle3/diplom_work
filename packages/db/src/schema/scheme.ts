@@ -164,9 +164,7 @@ export const interviewSessionStatusLogTable = pgTable(
 		statusId: integer("status_id")
 			.notNull()
 			.references(() => interviewSessionStatusesTable.id),
-		createdAt: timestamp("created_at", { mode: "date" })
-			.defaultNow()
-			.notNull(),
+		createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
 	},
 );
 
