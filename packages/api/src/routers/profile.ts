@@ -5,9 +5,22 @@ import {
 	userAchievementsTable,
 	usersTable,
 } from "@diplom_work/db/schema/scheme";
+import { statusToId } from "@diplom_work/domain/values/sessionStatus";
 import { TRPCError } from "@trpc/server";
 import { and, count, desc, eq, isNull } from "drizzle-orm";
 import { protectedProcedure, router } from "../init/routers";
+
+type SessionStatusLog = {
+	statusId: number;
+	createdAt: Date;
+	status: {
+		name: string;
+	};
+};
+
+function isTerminalStatus(statusId: number | undefined) {
+	return statusId === statusToId.complete || statusId === statusToId.canceled;
+}
 
 export const profileRouter = router({
 	getMyProfile: protectedProcedure.query(async ({ ctx }) => {
@@ -61,18 +74,27 @@ export const profileRouter = router({
 				finalScore: true,
 				expertFeedback: true,
 				startedAt: true,
-				finishedAt: true,
 			},
 			with: {
+				statusLogs: {
+					columns: {
+						statusId: true,
+						createdAt: true,
+					},
+					with: {
+						status: {
+							columns: {
+								name: true,
+							},
+						},
+					},
+					orderBy: (statusLogs, { desc }) => [desc(statusLogs.createdAt)],
+					limit: 1,
+				},
 				script: {
 					columns: {
 						id: true,
 						title: true,
-					},
-				},
-				status: {
-					columns: {
-						name: true,
 					},
 				},
 			},
@@ -81,7 +103,24 @@ export const profileRouter = router({
 			],
 		});
 
-		return sessions;
+		return sessions.map((session) => {
+			const latestStatusLog = session.statusLogs[0] as
+				| SessionStatusLog
+				| undefined;
+			const finishedAt = isTerminalStatus(latestStatusLog?.statusId)
+				? (latestStatusLog?.createdAt ?? null)
+				: null;
+
+			return {
+				id: session.id,
+				finalScore: session.finalScore,
+				expertFeedback: session.expertFeedback,
+				startedAt: session.startedAt,
+				finishedAt,
+				script: session.script,
+				status: latestStatusLog?.status ?? null,
+			};
+		});
 	}),
 	getMyAchivements: protectedProcedure.query(async ({ ctx }) => {
 		const achievements = await db
