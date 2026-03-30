@@ -23,9 +23,7 @@ export function useInterview(sessionId: string) {
 
 				if (result.type === "finished") {
 					if (result.result.streakUpdated) {
-						toast.success(
-							"Интервью завершено",
-						);
+						toast.success("Интервью завершено");
 					} else {
 						toast.success("Интервью уже завершено");
 					}
@@ -45,7 +43,7 @@ export function useInterview(sessionId: string) {
 		trpc.session.finishSession.mutationOptions({
 			onSuccess: (result) => {
 				if (result.complete) {
-					toast.success(`Интервью завершено`);
+					toast.success("Интервью завершено");
 				} else {
 					toast.success("Интервью уже завершено");
 				}

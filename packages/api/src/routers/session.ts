@@ -3,12 +3,12 @@ import {
 	chatMessagesTable,
 	interviewSessionsTable,
 } from "@diplom_work/db/schema/scheme";
+import { statusToId } from "@diplom_work/domain/values/sessionStatus";
 import { evaluateAnswer, planInterviewStep, summarize } from "@diplom_work/llm";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { llmProcedure, protectedProcedure, router } from "../init/routers";
-import { statusToId } from "@diplom_work/domain/values/sessionStatus";
 
 const addNewMessageScheme = z.object({
 	sessionId: z.uuid(),
@@ -83,7 +83,7 @@ async function finalizeSession(
 		throw new TRPCError({ code: "NOT_FOUND" });
 	}
 
-	if (session.statusId === statusToId["complete"]) {
+	if (session.statusId === statusToId.complete) {
 		return {
 			streakUpdated: false,
 		};
@@ -136,8 +136,7 @@ async function finalizeSession(
 
 	const user = await tx.query.usersTable.findFirst({
 		where: (usersTable, { eq }) => eq(usersTable.id, userId),
-		columns: {
-		},
+		columns: {},
 	});
 
 	if (!user) {
@@ -147,7 +146,7 @@ async function finalizeSession(
 	await tx
 		.update(interviewSessionsTable)
 		.set({
-			statusId: statusToId["complete"],
+			statusId: statusToId.complete,
 			finishedAt: now,
 			finalScore: finalEvaluation?.score ?? null,
 			expertFeedback: finalEvaluation?.feedback ?? null,
@@ -262,7 +261,7 @@ export const sessionRouter = router({
 					status: {
 						columns: {
 							name: true,
-						}
+						},
 					},
 					script: {
 						columns: {
@@ -361,7 +360,7 @@ export const sessionRouter = router({
 					and(
 						eq(interviewSessionsTable.userId, ctx.session.user.id),
 						eq(interviewSessionsTable.id, input.sessionId),
-						eq(interviewSessionsTable.statusId, statusToId["active"]),
+						eq(interviewSessionsTable.statusId, statusToId.active),
 					),
 				columns: {
 					currentQuestionIndex: true,

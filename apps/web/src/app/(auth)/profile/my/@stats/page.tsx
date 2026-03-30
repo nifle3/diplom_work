@@ -5,11 +5,10 @@ import { serverTrpc } from "@/lib/trpcServer";
 
 export default async function Page() {
 	const trpcCaller = await serverTrpc();
-	const {0: profileStats, 1: streak } =
-		await Promise.all([
-			trpcCaller.profile.getMyProfileStats(),
-			trpcCaller.user.getStreak()
-		]);
+	const { 0: profileStats, 1: streak } = await Promise.all([
+		trpcCaller.profile.getMyProfileStats(),
+		trpcCaller.user.getStreak(),
+	]);
 
 	const stats = [
 		{

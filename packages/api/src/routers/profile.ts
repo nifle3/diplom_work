@@ -73,8 +73,8 @@ export const profileRouter = router({
 				status: {
 					columns: {
 						name: true,
-					}
-				}
+					},
+				},
 			},
 			orderBy: (interviewSessionsTable, { desc }) => [
 				desc(interviewSessionsTable.startedAt),

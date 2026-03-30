@@ -67,7 +67,6 @@ const statusEntries = Object.entries(statusMap) as [
 	(typeof statusMap)[HistoryStatus],
 ][];
 
-
 function getPassageTimestamp(row: HistoryRow) {
 	const date = row.finishedAt ?? row.startedAt;
 	if (!date) return 0;
@@ -174,7 +173,7 @@ const columns: ColumnDef<HistoryRow>[] = [
 				>
 					Продолжить
 					<ChevronRight className="h-4 w-4" />
-				</Link>
+				</Link>;
 			}
 
 			if (row.original.status !== "complete") return null;

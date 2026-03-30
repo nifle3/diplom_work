@@ -21,7 +21,7 @@ export default async function ResultsPage({
 	const trpcCaller = await serverTrpc();
 	const result = await trpcCaller.session.getResultBySessionId(id);
 
-	if (result.status !== "complete") {
+	if (result.status?.name !== "complete") {
 		redirect(`/interview/${id}`);
 	}
 

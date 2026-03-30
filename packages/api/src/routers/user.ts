@@ -1,5 +1,8 @@
 import { db } from "@diplom_work/db";
-import { interviewSessionsTable, usersTable } from "@diplom_work/db/schema/scheme";
+import {
+	interviewSessionsTable,
+	usersTable,
+} from "@diplom_work/db/schema/scheme";
 import { TRPCError } from "@trpc/server";
 import { desc, eq } from "drizzle-orm";
 import { protectedProcedure, router } from "../init/routers";
@@ -64,7 +67,7 @@ export const userRouter = router({
 			if (!dayString) {
 				break;
 			}
-			
+
 			const currentDate = new Date(dayString);
 
 			if (currentDate.getTime() === expectedDate.getTime()) {
