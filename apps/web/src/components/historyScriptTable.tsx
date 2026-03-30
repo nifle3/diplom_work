@@ -183,7 +183,6 @@ const columns: ColumnDef<HistoryRow>[] = [
 				);
 			}
 
-			if (statusName !== "complete") return null;
 			return (
 				<Link
 					href={`/interview/${row.original.id}/results`}
