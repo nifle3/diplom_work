@@ -243,6 +243,11 @@ export const scriptRouter = router({
 				eq(interviewSessionsTable.userId, ctx.session.user.id),
 			with: {
 				script: true,
+				status: {
+					columns: {
+						name: true,
+					},
+				},
 			},
 		});
 	}),
@@ -257,6 +262,11 @@ export const scriptRouter = router({
 					),
 				with: {
 					script: true,
+					status: {
+						columns: {
+							name: true,
+						},
+					},
 				},
 			});
 		}),

@@ -24,7 +24,9 @@ import { Button } from "@/components/ui/button";
 
 type HistoryRow = {
 	id: string;
-	status: string;
+	status: {
+		name: string;
+	} | null;
 	finalScore: number | null;
 	expertFeedback: string | null;
 	startedAt: Date | string | null;
@@ -52,7 +54,7 @@ const statusMap = {
 		color: "text-green-500",
 		bg: "bg-green-50 dark:bg-green-950",
 	},
-	cancelled: {
+	canceled: {
 		label: "Отменено",
 		icon: XCircle,
 		color: "text-red-500",
@@ -67,12 +69,6 @@ const statusEntries = Object.entries(statusMap) as [
 	(typeof statusMap)[HistoryStatus],
 ][];
 
-function normalizeHistoryStatus(status: string): HistoryStatus | string {
-	if (status === "in_progress") return "active";
-	if (status === "incomplete") return "active";
-	return status;
-}
-
 function getPassageTimestamp(row: HistoryRow) {
 	const date = row.finishedAt ?? row.startedAt;
 	if (!date) return 0;
@@ -82,10 +78,8 @@ function getPassageTimestamp(row: HistoryRow) {
 }
 
 function getStatusMeta(status: string) {
-	const normalizedStatus = normalizeHistoryStatus(status);
-
 	return (
-		statusMap[normalizedStatus as HistoryStatus] ?? {
+		statusMap[status as HistoryStatus] ?? {
 			label: status,
 			icon: Clock,
 			color: "text-muted-foreground",
@@ -103,12 +97,12 @@ const columns: ColumnDef<HistoryRow>[] = [
 		),
 	},
 	{
-		accessorFn: (row) => normalizeHistoryStatus(row.status),
 		id: "status",
 		header: "Статус",
 		filterFn: "equalsString",
 		cell: ({ row }) => {
-			const status = getStatusMeta(row.original.status);
+			const statusName = row.original.status?.name ?? "—";
+			const status = getStatusMeta(statusName);
 			const Icon = status.icon;
 			return (
 				<div
@@ -175,13 +169,26 @@ const columns: ColumnDef<HistoryRow>[] = [
 		id: "actions",
 		header: "",
 		cell: ({ row }) => {
-			if (row.original.status !== "complete") return null;
+			const statusName = row.original.status?.name;
+
+			if (statusName === "active") {
+				return (
+					<Link
+						href={`/interview/${row.original.id}`}
+						className="inline-flex items-center gap-1 font-medium text-sm text-violet-600 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300"
+					>
+						Продолжить
+						<ChevronRight className="h-4 w-4" />
+					</Link>
+				);
+			}
+
 			return (
 				<Link
 					href={`/interview/${row.original.id}/results`}
 					className="inline-flex items-center gap-1 font-medium text-sm text-violet-600 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300"
 				>
-					Подробнее
+					Результаты
 					<ChevronRight className="h-4 w-4" />
 				</Link>
 			);

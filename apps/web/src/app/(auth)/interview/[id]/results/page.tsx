@@ -21,12 +21,17 @@ export default async function ResultsPage({
 	const trpcCaller = await serverTrpc();
 	const result = await trpcCaller.session.getResultBySessionId(id);
 
-	if (result.status !== "complete") {
+	if (
+		result.status?.name !== "complete" &&
+		result.status?.name !== "canceled"
+	) {
 		redirect(`/interview/${id}`);
 	}
 
 	const backHref = getBackHref(result.script?.id);
 	const scoreTone = getScoreTone(result.finalScore);
+	const scoreLabel =
+		result.status?.name === "canceled" ? "Отменено" : scoreTone.label;
 	const answeredQuestions = result.questions.filter((item) =>
 		item.answer?.trim(),
 	);
@@ -37,7 +42,7 @@ export default async function ResultsPage({
 				<ResultsHeader
 					backHref={backHref as Route}
 					description={result.script?.description}
-					scoreLabel={scoreTone.label}
+					scoreLabel={scoreLabel}
 					scoreBadgeClassName={scoreTone.badgeClassName}
 					title={result.script?.title}
 				/>

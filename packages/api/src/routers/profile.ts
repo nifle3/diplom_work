@@ -58,7 +58,6 @@ export const profileRouter = router({
 				eq(interviewSessionsTable.userId, ctx.session.user.id),
 			columns: {
 				id: true,
-				status: true,
 				finalScore: true,
 				expertFeedback: true,
 				startedAt: true,
@@ -69,6 +68,11 @@ export const profileRouter = router({
 					columns: {
 						id: true,
 						title: true,
+					},
+				},
+				status: {
+					columns: {
+						name: true,
 					},
 				},
 			},

@@ -139,14 +139,24 @@ export const interviewSessionsTable = pgTable("interview_sessions", {
 	scriptId: uuid("script_id")
 		.notNull()
 		.references(() => scriptsTable.id),
-	status: varchar("status", { length: 20 }).default("active").notNull(),
 	finalScore: integer("final_score"),
+	statusId: integer("status_id").references(
+		() => interviewSessionStatusesTable.id,
+	),
 	expertFeedback: text("expert_feedback"),
 	currentQuestionIndex: integer("current_question_index").default(0).notNull(),
 	startedAt: timestamp("started_at").defaultNow().notNull(),
 	finishedAt: timestamp("finished_at"),
 	summarize: text("summarize"),
 });
+
+export const interviewSessionStatusesTable = pgTable(
+	"interview_session_statuses",
+	{
+		id: integer().primaryKey(),
+		name: varchar("status", { length: 20 }).notNull(),
+	},
+);
 
 export const chatMessagesTable = pgTable("chat_messages", {
 	id: uuid("id").primaryKey().defaultRandom(),
@@ -267,6 +277,10 @@ export const interviewSessionsRelations = relations(
 			references: [scriptsTable.id],
 		}),
 		messages: many(chatMessagesTable),
+		status: one(interviewSessionStatusesTable, {
+			fields: [interviewSessionsTable.statusId],
+			references: [interviewSessionStatusesTable.id],
+		}),
 	}),
 );
 

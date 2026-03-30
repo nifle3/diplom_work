@@ -23,9 +23,7 @@ export function useInterview(sessionId: string) {
 
 				if (result.type === "finished") {
 					if (result.result.streakUpdated) {
-						toast.success(
-							`Интервью завершено. Стрик: ${result.result.currentStreak}`,
-						);
+						toast.success("Интервью завершено");
 					} else {
 						toast.success("Интервью уже завершено");
 					}
@@ -44,10 +42,25 @@ export function useInterview(sessionId: string) {
 	const finishInterview = useMutation(
 		trpc.session.finishSession.mutationOptions({
 			onSuccess: (result) => {
-				if (result.streakUpdated) {
-					toast.success(`Интервью завершено. Стрик: ${result.currentStreak}`);
+				if (result.complete) {
+					toast.success("Интервью завершено");
 				} else {
 					toast.success("Интервью уже завершено");
+				}
+
+				router.push(`/interview/${sessionId}/results` as Route);
+				router.refresh();
+			},
+		}),
+	);
+
+	const cancelInterview = useMutation(
+		trpc.session.cancelSession.mutationOptions({
+			onSuccess: (result) => {
+				if (result.canceled) {
+					toast.success("Интервью отменено");
+				} else {
+					toast.success("Интервью уже было завершено");
 				}
 
 				router.push(`/interview/${sessionId}/results` as Route);
@@ -60,7 +73,8 @@ export function useInterview(sessionId: string) {
 		if (
 			!inputValue.trim() ||
 			newMessage.isPending ||
-			finishInterview.isPending
+			finishInterview.isPending ||
+			cancelInterview.isPending
 		) {
 			return;
 		}
@@ -84,14 +98,22 @@ export function useInterview(sessionId: string) {
 		await finishInterview.mutateAsync(sessionId);
 	};
 
+	const handleCancel = async () => {
+		if (cancelInterview.isPending) return;
+
+		await cancelInterview.mutateAsync(sessionId);
+	};
+
 	return {
 		messages,
 		inputValue,
 		setInputValue,
 		isSending: newMessage.isPending,
 		isFinishing: finishInterview.isPending,
+		isCanceling: cancelInterview.isPending,
 		messagesEndRef,
 		handleSend,
 		handleFinish,
+		handleCancel,
 	};
 }

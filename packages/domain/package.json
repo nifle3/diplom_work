@@ -7,6 +7,9 @@
 		},
 		"./error": {
 			"default": "./src/error/index.ts"
+		},
+		"./values/*": {
+			"default": "./src/values/*.ts"
 		}
 	},
 	"scripts": {

@@ -22,11 +22,11 @@ export function ResultsHeader({
 	return (
 		<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 			<div className="space-y-2">
-				<Link href={backHref}>
-					<Button variant="ghost" size="sm" className="-ml-3 w-fit">
+				<Button asChild variant="ghost" size="sm" className="-ml-3 w-fit">
+					<Link href={backHref}>
 						<ChevronLeft className="size-4" />К сценарию
-					</Button>
-				</Link>
+					</Link>
+				</Button>
 
 				<div className="space-y-1">
 					<p className="text-muted-foreground text-sm">

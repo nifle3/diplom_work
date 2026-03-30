@@ -17,6 +17,7 @@ type ModalWindowProps = {
 	children: React.ReactNode;
 	action: () => void;
 	asChild?: boolean;
+	actionVariant?: React.ComponentProps<typeof AlertDialogAction>["variant"];
 };
 
 export function Modal({
@@ -26,6 +27,7 @@ export function Modal({
 	children,
 	action,
 	asChild,
+	actionVariant,
 }: ModalWindowProps) {
 	return (
 		<AlertDialog>
@@ -37,7 +39,9 @@ export function Modal({
 				</AlertDialogHeader>
 				<AlertDialogFooter>
 					<AlertDialogCancel>Отмена</AlertDialogCancel>
-					<AlertDialogAction onClick={action}>{actionName}</AlertDialogAction>
+					<AlertDialogAction onClick={action} variant={actionVariant}>
+						{actionName}
+					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>
 		</AlertDialog>
