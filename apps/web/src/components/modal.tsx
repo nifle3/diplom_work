@@ -39,10 +39,7 @@ export function Modal({
 				</AlertDialogHeader>
 				<AlertDialogFooter>
 					<AlertDialogCancel>Отмена</AlertDialogCancel>
-					<AlertDialogAction
-						onClick={action}
-						variant={actionVariant}
-					>
+					<AlertDialogAction onClick={action} variant={actionVariant}>
 						{actionName}
 					</AlertDialogAction>
 				</AlertDialogFooter>

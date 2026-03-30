@@ -1,14 +1,14 @@
 import { ChevronLeft } from "lucide-react";
-import Link from "next/link";
 import type { Route } from "next";
-import { serverTrpc } from "@/lib/trpcServer";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { serverTrpc } from "@/lib/trpcServer";
+import { getBackHref } from "../results/_lib/getBackHref";
 import { CancelInterviewButton } from "./_components/cancelInterviewButton";
 import { InterviewChatFooter } from "./_components/interviewChatFooter";
 import { InterviewLiveMessages } from "./_components/interviewLiveMessages";
 import { InterviewProvider } from "./_components/interviewProvider";
 import { MessageItem } from "./_components/messageItem";
-import { getBackHref } from "../results/_lib/getBackHref";
 
 export const metadata = {
 	title: "Интервью",
