@@ -2,24 +2,18 @@ import { db } from "@diplom_work/db/index";
 import {
 	chatMessagesTable,
 	interviewSessionsTable,
-	usersTable,
 } from "@diplom_work/db/schema/scheme";
 import { evaluateAnswer, planInterviewStep, summarize } from "@diplom_work/llm";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { llmProcedure, protectedProcedure, router } from "../init/routers";
+import { statusToId } from "@diplom_work/domain/values/sessionStatus";
 
 const addNewMessageScheme = z.object({
 	sessionId: z.uuid(),
 	content: z.string().min(1).max(4000),
 });
-
-const MILLISECONDS_IN_DAY = 24 * 60 * 60 * 1000;
-
-function getUtcDayStart(date: Date) {
-	return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
-}
 
 type TransactionClient = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
@@ -37,9 +31,9 @@ async function finalizeSession(
 			),
 		columns: {
 			id: true,
-			status: true,
 			finishedAt: true,
 			summarize: true,
+			statusId: true,
 		},
 		with: {
 			messages: {
@@ -89,7 +83,7 @@ async function finalizeSession(
 		throw new TRPCError({ code: "NOT_FOUND" });
 	}
 
-	if (session.status === "complete") {
+	if (session.statusId === statusToId["complete"]) {
 		return {
 			streakUpdated: false,
 		};
@@ -153,7 +147,7 @@ async function finalizeSession(
 	await tx
 		.update(interviewSessionsTable)
 		.set({
-			status: "complete",
+			statusId: statusToId["complete"],
 			finishedAt: now,
 			finalScore: finalEvaluation?.score ?? null,
 			expertFeedback: finalEvaluation?.feedback ?? null,
@@ -259,13 +253,17 @@ export const sessionRouter = router({
 					),
 				columns: {
 					id: true,
-					status: true,
 					finalScore: true,
 					expertFeedback: true,
 					startedAt: true,
 					finishedAt: true,
 				},
 				with: {
+					status: {
+						columns: {
+							name: true,
+						}
+					},
 					script: {
 						columns: {
 							id: true,
@@ -363,7 +361,7 @@ export const sessionRouter = router({
 					and(
 						eq(interviewSessionsTable.userId, ctx.session.user.id),
 						eq(interviewSessionsTable.id, input.sessionId),
-						eq(interviewSessionsTable.status, "active"),
+						eq(interviewSessionsTable.statusId, statusToId["active"]),
 					),
 				columns: {
 					currentQuestionIndex: true,

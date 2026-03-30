@@ -273,6 +273,10 @@ export const interviewSessionsRelations = relations(
 			references: [scriptsTable.id],
 		}),
 		messages: many(chatMessagesTable),
+		status: one(interviewSessionStatusesTable, {
+			fields: [interviewSessionsTable.statusId],
+			references: [interviewSessionStatusesTable.id]
+		})
 	}),
 );
 

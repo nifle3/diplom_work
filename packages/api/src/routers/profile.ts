@@ -58,7 +58,6 @@ export const profileRouter = router({
 				eq(interviewSessionsTable.userId, ctx.session.user.id),
 			columns: {
 				id: true,
-				status: true,
 				finalScore: true,
 				expertFeedback: true,
 				startedAt: true,
@@ -71,6 +70,11 @@ export const profileRouter = router({
 						title: true,
 					},
 				},
+				status: {
+					columns: {
+						name: true,
+					}
+				}
 			},
 			orderBy: (interviewSessionsTable, { desc }) => [
 				desc(interviewSessionsTable.startedAt),
