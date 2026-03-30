@@ -324,6 +324,7 @@ export const sessionRouter = router({
 						userId: ctx.session.user.id,
 						startedAt: new Date(),
 						scriptId: input,
+						statusId: statusToId.active,
 					})
 					.returning();
 
