@@ -67,11 +67,6 @@ const statusEntries = Object.entries(statusMap) as [
 	(typeof statusMap)[HistoryStatus],
 ][];
 
-function normalizeHistoryStatus(status: string): HistoryStatus | string {
-	if (status === "in_progress") return "active";
-	if (status === "incomplete") return "active";
-	return status;
-}
 
 function getPassageTimestamp(row: HistoryRow) {
 	const date = row.finishedAt ?? row.startedAt;
@@ -82,10 +77,8 @@ function getPassageTimestamp(row: HistoryRow) {
 }
 
 function getStatusMeta(status: string) {
-	const normalizedStatus = normalizeHistoryStatus(status);
-
 	return (
-		statusMap[normalizedStatus as HistoryStatus] ?? {
+		statusMap[status as HistoryStatus] ?? {
 			label: status,
 			icon: Clock,
 			color: "text-muted-foreground",
@@ -103,7 +96,6 @@ const columns: ColumnDef<HistoryRow>[] = [
 		),
 	},
 	{
-		accessorFn: (row) => normalizeHistoryStatus(row.status),
 		id: "status",
 		header: "Статус",
 		filterFn: "equalsString",
@@ -175,13 +167,23 @@ const columns: ColumnDef<HistoryRow>[] = [
 		id: "actions",
 		header: "",
 		cell: ({ row }) => {
+			if (row.original.status === "active") {
+				<Link
+					href={`/interview/${row.original.id}`}
+					className="inline-flex items-center gap-1 font-medium text-sm text-violet-600 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300"
+				>
+					Продолжить
+					<ChevronRight className="h-4 w-4" />
+				</Link>
+			}
+
 			if (row.original.status !== "complete") return null;
 			return (
 				<Link
 					href={`/interview/${row.original.id}/results`}
 					className="inline-flex items-center gap-1 font-medium text-sm text-violet-600 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300"
 				>
-					Подробнее
+					Результаты
 					<ChevronRight className="h-4 w-4" />
 				</Link>
 			);
