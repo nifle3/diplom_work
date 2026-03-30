@@ -24,7 +24,7 @@ export function useInterview(sessionId: string) {
 				if (result.type === "finished") {
 					if (result.result.streakUpdated) {
 						toast.success(
-							`Интервью завершено. Стрик: ${result.result.currentStreak}`,
+							"Интервью завершено",
 						);
 					} else {
 						toast.success("Интервью уже завершено");
@@ -44,8 +44,8 @@ export function useInterview(sessionId: string) {
 	const finishInterview = useMutation(
 		trpc.session.finishSession.mutationOptions({
 			onSuccess: (result) => {
-				if (result.streakUpdated) {
-					toast.success(`Интервью завершено. Стрик: ${result.currentStreak}`);
+				if (result.complete) {
+					toast.success(`Интервью завершено`);
 				} else {
 					toast.success("Интервью уже завершено");
 				}

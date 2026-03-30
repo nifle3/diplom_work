@@ -21,12 +21,6 @@ function getUtcDayStart(date: Date) {
 	return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
 }
 
-function getUtcDayDifference(current: Date, previous: Date) {
-	return Math.floor(
-		(getUtcDayStart(current) - getUtcDayStart(previous)) / MILLISECONDS_IN_DAY,
-	);
-}
-
 type TransactionClient = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 async function finalizeSession(
@@ -149,25 +143,11 @@ async function finalizeSession(
 	const user = await tx.query.usersTable.findFirst({
 		where: (usersTable, { eq }) => eq(usersTable.id, userId),
 		columns: {
-			currentStreak: true,
-			lastActivityDate: true,
 		},
 	});
 
 	if (!user) {
 		throw new TRPCError({ code: "NOT_FOUND" });
-	}
-
-	let nextStreak = 1;
-
-	if (user.lastActivityDate) {
-		const daysDifference = getUtcDayDifference(now, user.lastActivityDate);
-
-		if (daysDifference <= 0) {
-			nextStreak = user.currentStreak;
-		} else if (daysDifference === 1) {
-			nextStreak = user.currentStreak + 1;
-		}
 	}
 
 	await tx
@@ -180,17 +160,8 @@ async function finalizeSession(
 		})
 		.where(eq(interviewSessionsTable.id, sessionId));
 
-	await tx
-		.update(usersTable)
-		.set({
-			currentStreak: nextStreak,
-			lastActivityDate: now,
-		})
-		.where(eq(usersTable.id, userId));
-
 	return {
-		streakUpdated: true,
-		currentStreak: nextStreak,
+		complete: true,
 	};
 }
 
