@@ -13,9 +13,16 @@ import {
 type Props<T> = {
 	headerGroups: ReturnType<TableType<T>["getHeaderGroups"]>;
 	rows: ReturnType<TableType<T>["getRowModel"]>["rows"];
+	emptyMessage?: string;
 };
 
-export function GeneralTable<T>({ headerGroups, rows }: Readonly<Props<T>>) {
+export function GeneralTable<T>({
+	headerGroups,
+	rows,
+	emptyMessage = "Нет данных",
+}: Readonly<Props<T>>) {
+	const emptyColSpan = headerGroups[0]?.headers.length ?? 1;
+
 	return (
 		<Table>
 			<TableHeader>
@@ -47,8 +54,8 @@ export function GeneralTable<T>({ headerGroups, rows }: Readonly<Props<T>>) {
 					))
 				) : (
 					<TableRow>
-						<TableCell colSpan={3} className="h-24 text-center">
-							Нет данных
+						<TableCell colSpan={emptyColSpan} className="h-24 text-center">
+							{emptyMessage}
 						</TableCell>
 					</TableRow>
 				)}

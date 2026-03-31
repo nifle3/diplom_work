@@ -39,6 +39,14 @@ export default function Layout({
 							🏆 Достижения
 						</Button>
 					</Link>
+					<Link href={{ pathname: "/profile/my/reports" }} passHref>
+						<Button
+							variant="ghost"
+							className="rounded-full hover:bg-gradient-to-r hover:from-violet-600 hover:to-indigo-600 hover:text-white"
+						>
+							🚩 Жалобы
+						</Button>
+					</Link>
 				</div>
 			</div>
 

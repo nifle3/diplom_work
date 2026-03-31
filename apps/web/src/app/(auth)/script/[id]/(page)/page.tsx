@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { getAssetUrl } from "@/lib/assetUrl";
 import { serverTrpc } from "@/lib/trpcServer";
 import NewSessionButton from "./_components/newSessionButton";
+import { ReportScriptButton } from "./_components/reportScriptButton";
 
 export default async function Page({
 	params,
@@ -76,6 +77,7 @@ export default async function Page({
 							)}
 							<div className="flex flex-col gap-3 pt-2 sm:flex-row">
 								<NewSessionButton scriptId={id} />
+								<ReportScriptButton scriptId={id} />
 							</div>
 						</div>
 

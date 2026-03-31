@@ -4,9 +4,11 @@ import CreateScriptButton from "./_components/createScriptButton";
 export default function Layout({
 	draftScripts,
 	completeScripts,
+	reports,
 }: Readonly<{
 	draftScripts: ReactNode;
 	completeScripts: ReactNode;
+	reports: ReactNode;
 }>) {
 	return (
 		<div className="min-h-screen bg-white text-black dark:bg-black dark:text-white">
@@ -26,6 +28,13 @@ export default function Layout({
 				<section>
 					<h2 className="mb-4 font-semibold text-xl">Мои сценарии</h2>
 					{completeScripts}
+				</section>
+
+				<section className="mt-12">
+					<h2 className="mb-4 font-semibold text-xl">
+						Жалобы на мои курсы
+					</h2>
+					{reports}
 				</section>
 			</main>
 		</div>
