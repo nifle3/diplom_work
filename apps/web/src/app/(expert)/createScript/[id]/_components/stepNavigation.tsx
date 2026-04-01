@@ -1,6 +1,7 @@
 import type { Route } from "next";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 interface StepNavigationProps {
@@ -9,31 +10,57 @@ interface StepNavigationProps {
 }
 
 export function StepNavigation({ basePath, currentStep }: StepNavigationProps) {
-	const router = useRouter();
 	const steps = [
-		{ id: 1, path: "firstStep" },
-		{ id: 2, path: "secondStep" },
-		{ id: 3, path: "thirdStep" },
+		{
+			id: 1,
+			label: "База",
+			description: "Обложка и описание",
+			path: "firstStep",
+		},
+		{
+			id: 2,
+			label: "Критерии",
+			description: "Контекст и оценки",
+			path: "secondStep",
+		},
+		{
+			id: 3,
+			label: "Вопросы",
+			description: "Шаблоны интервью",
+			path: "thirdStep",
+		},
 	];
 
 	return (
-		<div className="mb-6 flex items-center gap-4">
-			<div className="font-medium text-lg">
-				Шаг {currentStep} из 3: Основная информация
+		<nav className="mb-4 flex flex-col gap-3 rounded-2xl border border-border/60 bg-card/90 p-3 shadow-sm backdrop-blur sm:flex-row sm:items-center">
+			<div className="flex items-center gap-3">
+				<Badge variant="secondary" className="h-7 gap-1.5 px-2.5 text-xs">
+					Шаг {currentStep} из 3
+				</Badge>
+				<div className="flex flex-col gap-0.5">
+					<p className="font-medium leading-none text-sm">Создание курса</p>
+					<p className="text-muted-foreground text-xs">
+						Переходите между этапами, не теряя данные.
+					</p>
+				</div>
 			</div>
-			<div className="ml-auto flex gap-2">
+
+			<div className="flex flex-wrap gap-2 sm:ml-auto">
 				{steps.map((step) => (
 					<Button
 						key={step.id}
-						type="button"
-						variant={currentStep === step.id ? "default" : "ghost"}
+						asChild
+						variant={currentStep === step.id ? "default" : "outline"}
 						size="sm"
-						onClick={() => router.push(`${basePath}/${step.path}` as Route)}
+						className="justify-start"
 					>
-						{step.id}
+						<Link href={`${basePath}/${step.path}` as Route}>
+							<span className="font-semibold">{step.id}</span>
+							<span>{step.label}</span>
+						</Link>
 					</Button>
 				))}
 			</div>
-		</div>
+		</nav>
 	);
 }

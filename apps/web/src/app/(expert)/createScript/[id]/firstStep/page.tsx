@@ -9,8 +9,6 @@ export default async function Page({
 }) {
 	const scriptId = (await params).id;
 
-	console.debug(`scriptId is ${scriptId}`);
-
 	const trpcCaller = await serverTrpc();
 	const { 0: data, 1: categories } = await Promise.all([
 		trpcCaller.expert.getFullScript(scriptId),
