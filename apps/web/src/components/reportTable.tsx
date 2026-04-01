@@ -6,21 +6,21 @@ import {
 	getCoreRowModel,
 	useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDown, CheckCircle2, Clock3, ShieldAlert } from "lucide-react";
+import { CheckCircle2, ChevronDown, Clock3, ShieldAlert } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { GeneralTable } from "@/components/generalTable";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { type ReportStatus, reportStatuses } from "@/lib/reportStatus";
 import { trpc } from "@/lib/trpc";
-import { reportStatuses, type ReportStatus } from "@/lib/reportStatus";
 
 export type ReportRow = {
 	id: string;
@@ -65,22 +65,26 @@ const statusMeta: Record<
 	new: {
 		label: "Новая",
 		icon: ShieldAlert,
-		className: "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-300",
+		className:
+			"border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-300",
 	},
 	in_review: {
 		label: "На проверке",
 		icon: Clock3,
-		className: "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300",
+		className:
+			"border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300",
 	},
 	resolved: {
 		label: "Решено",
 		icon: CheckCircle2,
-		className: "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-300",
+		className:
+			"border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-300",
 	},
 	rejected: {
 		label: "Отклонено",
 		icon: ShieldAlert,
-		className: "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900 dark:bg-rose-950 dark:text-rose-300",
+		className:
+			"border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900 dark:bg-rose-950 dark:text-rose-300",
 	},
 };
 
@@ -167,7 +171,7 @@ export function ReportTable({
 			accessorKey: "reason",
 			header: "Причина",
 			cell: ({ row }) => (
-				<p className="max-w-xl whitespace-pre-wrap break-words text-sm leading-6 text-muted-foreground">
+				<p className="max-w-xl whitespace-pre-wrap break-words text-muted-foreground text-sm leading-6">
 					{row.original.reason}
 				</p>
 			),
@@ -176,7 +180,7 @@ export function ReportTable({
 			accessorKey: "createdAt",
 			header: "Создано",
 			cell: ({ row }) => (
-				<div className="text-sm text-muted-foreground">
+				<div className="text-muted-foreground text-sm">
 					{formatDate(row.original.createdAt)}
 				</div>
 			),
@@ -189,7 +193,9 @@ export function ReportTable({
 			header: "Действия",
 			cell: ({ row }) => {
 				const currentStatus = row.original.status;
-				const options = reportStatuses.filter((status) => status !== currentStatus);
+				const options = reportStatuses.filter(
+					(status) => status !== currentStatus,
+				);
 
 				return (
 					<DropdownMenu>
@@ -199,22 +205,22 @@ export function ReportTable({
 								<ChevronDown className="size-4" />
 							</Button>
 						</DropdownMenuTrigger>
-							<DropdownMenuContent align="end">
-								{options.map((status) => (
-									<DropdownMenuItem
-										key={status}
-										onSelect={async () => {
-											await changeStatusMutation.mutateAsync({
-												reportId: row.original.id,
-												status,
-											});
-										}}
-									>
-										{statusMeta[status].label}
-									</DropdownMenuItem>
-								))}
-							</DropdownMenuContent>
-						</DropdownMenu>
+						<DropdownMenuContent align="end">
+							{options.map((status) => (
+								<DropdownMenuItem
+									key={status}
+									onSelect={async () => {
+										await changeStatusMutation.mutateAsync({
+											reportId: row.original.id,
+											status,
+										});
+									}}
+								>
+									{statusMeta[status].label}
+								</DropdownMenuItem>
+							))}
+						</DropdownMenuContent>
+					</DropdownMenu>
 				);
 			},
 		});

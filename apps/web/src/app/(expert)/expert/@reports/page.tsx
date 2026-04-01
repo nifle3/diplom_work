@@ -1,5 +1,5 @@
-import { serverTrpc } from "@/lib/trpcServer";
 import { ReportTable } from "@/components/reportTable";
+import { serverTrpc } from "@/lib/trpcServer";
 
 export default async function Page() {
 	const trpcCaller = await serverTrpc();

@@ -14,7 +14,12 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
+import {
+	Field,
+	FieldDescription,
+	FieldGroup,
+	FieldLabel,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
 	InputGroup,
@@ -42,10 +47,12 @@ export default function FirstStepForm({
 	initialData,
 	categories,
 }: FirstStepFormProps) {
-	const { form, isPending, selectedImage, setSelectedImage } = useFirstStepForm({
-		initialData,
-		categories,
-	});
+	const { form, isPending, selectedImage, setSelectedImage } = useFirstStepForm(
+		{
+			initialData,
+			categories,
+		},
+	);
 	const basePath = `/createScript/${initialData.id}`;
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -70,8 +77,8 @@ export default function FirstStepForm({
 					form.handleSubmit();
 				}}
 			>
-				<Card className="overflow-hidden border-border/60 bg-card/90 shadow-xl shadow-foreground/5 backdrop-blur">
-					<CardHeader className="border-b border-border/60 px-5 pt-5">
+				<Card className="overflow-hidden border-border/60 bg-card/90 shadow-foreground/5 shadow-xl backdrop-blur">
+					<CardHeader className="border-border/60 border-b px-5 pt-5">
 						<div className="flex flex-wrap items-center gap-2">
 							<Badge variant="secondary">Шаг 1</Badge>
 							<Badge variant="outline">Основная информация</Badge>
@@ -147,9 +154,11 @@ export default function FirstStepForm({
 													onBlur={field.handleBlur}
 													onChange={(e) => {
 														const val = e.target.value;
-														field.handleChange(val ? Number(val) : (null as never));
+														field.handleChange(
+															val ? Number(val) : (null as never),
+														);
 													}}
-													className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+													className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs outline-none transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:ring-ring/50"
 												>
 													<option value="">Выберите категорию</option>
 													{categories.map((cat) => (
@@ -170,7 +179,7 @@ export default function FirstStepForm({
 										карточках.
 									</FieldDescription>
 
-									<div className="flex flex-col gap-3 rounded-2xl border border-dashed border-border/70 bg-muted/30 p-3">
+									<div className="flex flex-col gap-3 rounded-2xl border border-border/70 border-dashed bg-muted/30 p-3">
 										<div className="flex min-h-56 items-center justify-center overflow-hidden rounded-xl border border-border/60 bg-background/90">
 											{imageSrc ? (
 												<Image
@@ -241,8 +250,12 @@ export default function FirstStepForm({
 						</fieldset>
 					</CardContent>
 
-					<CardFooter className="flex flex-col gap-3 border-t border-border/60 bg-gradient-to-b from-background/40 to-background px-5 py-5 sm:flex-row sm:justify-end">
-						<Button type="submit" disabled={isPending} className="w-full sm:w-auto">
+					<CardFooter className="flex flex-col gap-3 border-border/60 border-t bg-gradient-to-b from-background/40 to-background px-5 py-5 sm:flex-row sm:justify-end">
+						<Button
+							type="submit"
+							disabled={isPending}
+							className="w-full sm:w-auto"
+						>
 							{isPending ? "Сохранение..." : "Сохранить и продолжить"}
 						</Button>
 					</CardFooter>

@@ -57,8 +57,8 @@ export function ThirdStepForm({ initialData }: ThirdStepFormProps) {
 					form.handleSubmit();
 				}}
 			>
-				<Card className="overflow-hidden border-border/60 bg-card/90 shadow-xl shadow-foreground/5 backdrop-blur">
-					<CardHeader className="border-b border-border/60 px-5 pt-5">
+				<Card className="overflow-hidden border-border/60 bg-card/90 shadow-foreground/5 shadow-xl backdrop-blur">
+					<CardHeader className="border-border/60 border-b px-5 pt-5">
 						<div className="flex flex-wrap items-center gap-2">
 							<Badge variant="secondary">Шаг 3</Badge>
 							<Badge variant="outline">Финальная публикация</Badge>
@@ -129,7 +129,7 @@ export function ThirdStepForm({ initialData }: ThirdStepFormProps) {
 
 															<div className="rounded-xl border border-border/60 border-l-4 border-l-primary/30 bg-muted/20 p-3">
 																<div className="mb-3 flex items-center justify-between gap-2">
-																	<FieldLabel className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+																	<FieldLabel className="text-muted-foreground text-xs uppercase tracking-[0.2em]">
 																		Критерии для этого вопроса
 																	</FieldLabel>
 																	<Badge variant="outline" className="h-7 px-2">
@@ -141,7 +141,9 @@ export function ThirdStepForm({ initialData }: ThirdStepFormProps) {
 																	{question.specificCriteria.map(
 																		(criterion, cIndex) => (
 																			<div
-																				key={criterion.id ?? `${qIndex}-${cIndex}`}
+																				key={
+																					criterion.id ?? `${qIndex}-${cIndex}`
+																				}
 																				className="grid gap-2 md:grid-cols-[minmax(0,1fr)_auto]"
 																			>
 																				<Input
@@ -157,8 +159,7 @@ export function ThirdStepForm({ initialData }: ThirdStepFormProps) {
 																						};
 																						next[qIndex] = {
 																							...next[qIndex],
-																							specificCriteria:
-																								updatedCriteria,
+																							specificCriteria: updatedCriteria,
 																						};
 																						field.handleChange(next);
 																					}}
@@ -215,7 +216,7 @@ export function ThirdStepForm({ initialData }: ThirdStepFormProps) {
 						</fieldset>
 					</CardContent>
 
-					<CardFooter className="flex flex-col gap-3 border-t border-border/60 bg-gradient-to-b from-background/40 to-background px-5 py-5 sm:flex-row sm:justify-between">
+					<CardFooter className="flex flex-col gap-3 border-border/60 border-t bg-gradient-to-b from-background/40 to-background px-5 py-5 sm:flex-row sm:justify-between">
 						<Button asChild variant="outline" className="w-full sm:w-auto">
 							<Link href={`${basePath}/secondStep` as Route}>Назад</Link>
 						</Button>
@@ -224,7 +225,12 @@ export function ThirdStepForm({ initialData }: ThirdStepFormProps) {
 							<p className="text-muted-foreground text-xs leading-5">
 								После публикации черновик станет обычным курсом в системе.
 							</p>
-							<Button type="submit" disabled={isPending} size="lg" className="w-full sm:w-auto">
+							<Button
+								type="submit"
+								disabled={isPending}
+								size="lg"
+								className="w-full sm:w-auto"
+							>
 								{isPending ? "Публикация..." : "Опубликовать сценарий"}
 							</Button>
 						</div>

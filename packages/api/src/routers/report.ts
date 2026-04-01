@@ -12,7 +12,12 @@ import {
 import { TRPCError } from "@trpc/server";
 import { and, eq, ilike, isNull } from "drizzle-orm";
 import { z } from "zod";
-import { adminProcedure, expertProcedure, protectedProcedure, router } from "../init/routers";
+import {
+	adminProcedure,
+	expertProcedure,
+	protectedProcedure,
+	router,
+} from "../init/routers";
 
 const reportInputSchema = z.object({
 	scriptId: z.uuid(),
@@ -87,10 +92,7 @@ async function getRelevantScriptIds({
 	const scripts = await db
 		.select({ id: scriptsTable.id })
 		.from(scriptsTable)
-		.leftJoin(
-			categoriesTable,
-			eq(scriptsTable.categoryId, categoriesTable.id),
-		)
+		.leftJoin(categoriesTable, eq(scriptsTable.categoryId, categoriesTable.id))
 		.where(whereClause);
 
 	return scripts.map((script) => script.id);
@@ -102,7 +104,8 @@ async function loadReports(scriptIds: string[]) {
 	}
 
 	const reports = (await db.query.reportsTable.findMany({
-		where: (reportsTable, { inArray }) => inArray(reportsTable.scriptId, scriptIds),
+		where: (reportsTable, { inArray }) =>
+			inArray(reportsTable.scriptId, scriptIds),
 		orderBy: (reportsTable, { desc }) => [desc(reportsTable.createdAt)],
 		with: {
 			reporter: {
@@ -155,79 +158,84 @@ async function loadReports(scriptIds: string[]) {
 }
 
 export const reportRouter = router({
-	create: protectedProcedure.input(reportInputSchema).mutation(async ({ input, ctx }) => {
-		const existingReport = await db.query.reportsTable.findFirst({
-			where: (reportsTable, { and, eq }) =>
-				and(
-					eq(reportsTable.reporterId, ctx.session!.user.id),
-					eq(reportsTable.scriptId, input.scriptId),
-				),
-			orderBy: (reportsTable, { desc }) => [desc(reportsTable.createdAt)],
-			with: {
-				statusLogs: {
-					columns: {
-						status: true,
-						createdAt: true,
+	create: protectedProcedure
+		.input(reportInputSchema)
+		.mutation(async ({ input, ctx }) => {
+			const existingReport = await db.query.reportsTable.findFirst({
+				where: (reportsTable, { and, eq }) =>
+					and(
+						eq(reportsTable.reporterId, ctx.session!.user.id),
+						eq(reportsTable.scriptId, input.scriptId),
+					),
+				orderBy: (reportsTable, { desc }) => [desc(reportsTable.createdAt)],
+				with: {
+					statusLogs: {
+						columns: {
+							status: true,
+							createdAt: true,
+						},
+						orderBy: (statusLogs, { desc }) => [desc(statusLogs.createdAt)],
+						limit: 1,
 					},
-					orderBy: (statusLogs, { desc }) => [desc(statusLogs.createdAt)],
-					limit: 1,
 				},
-			},
-		});
-
-		const existingStatus = existingReport?.statusLogs[0]?.status;
-		if (existingReport && (existingStatus === "new" || existingStatus === "in_review")) {
-			return { id: existingReport.id };
-		}
-
-		const script = await db.query.scriptsTable.findFirst({
-			where: (scriptsTable, { and, eq, isNull }) =>
-				and(
-					eq(scriptsTable.id, input.scriptId),
-					eq(scriptsTable.isDraft, false),
-					isNull(scriptsTable.deletedAt),
-				),
-			columns: {
-				id: true,
-				expertId: true,
-			},
-		});
-
-		if (!script) {
-			throw new TRPCError({
-				code: "NOT_FOUND",
-				message: "Курс не найден",
 			});
-		}
 
-		const now = new Date();
-		const created = await db
-			.insert(reportsTable)
-			.values({
-				reporterId: ctx.session!.user.id,
-				scriptId: input.scriptId,
-				reason: input.reason,
+			const existingStatus = existingReport?.statusLogs[0]?.status;
+			if (
+				existingReport &&
+				(existingStatus === "new" || existingStatus === "in_review")
+			) {
+				return { id: existingReport.id };
+			}
+
+			const script = await db.query.scriptsTable.findFirst({
+				where: (scriptsTable, { and, eq, isNull }) =>
+					and(
+						eq(scriptsTable.id, input.scriptId),
+						eq(scriptsTable.isDraft, false),
+						isNull(scriptsTable.deletedAt),
+					),
+				columns: {
+					id: true,
+					expertId: true,
+				},
+			});
+
+			if (!script) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Курс не найден",
+				});
+			}
+
+			const now = new Date();
+			const created = await db
+				.insert(reportsTable)
+				.values({
+					reporterId: ctx.session!.user.id,
+					scriptId: input.scriptId,
+					reason: input.reason,
+					createdAt: now,
+				})
+				.returning({ id: reportsTable.id });
+
+			const reportId = created[0]?.id;
+
+			if (!reportId) {
+				throw new TRPCError({
+					code: "INTERNAL_SERVER_ERROR",
+					message: "Не удалось создать жалобу",
+				});
+			}
+
+			await db.insert(reportStatusLogTable).values({
+				reportId,
+				status: "new",
 				createdAt: now,
-			})
-			.returning({ id: reportsTable.id });
-
-		const reportId = created[0]?.id;
-
-		if (!reportId) {
-			throw new TRPCError({
-				code: "INTERNAL_SERVER_ERROR",
-				message: "Не удалось создать жалобу",
 			});
-		}
 
-		await db.insert(reportStatusLogTable).values({
-			reportId,
-			status: "new",
-			createdAt: now,
-		});
-
-		return { id: reportId };
-	}),
+			return { id: reportId };
+		}),
 	myList: protectedProcedure.query(async ({ ctx }) => {
 		const reports = (await db.query.reportsTable.findMany({
 			where: (reportsTable, { eq }) =>
@@ -282,27 +290,31 @@ export const reportRouter = router({
 			statusUpdatedAt: report.statusLogs[0]?.createdAt ?? report.createdAt,
 		}));
 	}),
-	adminList: adminProcedure.input(listReportsSchema).query(async ({ input }) => {
-		const scriptIds = await getRelevantScriptIds(input ?? {});
-		const reports = await loadReports(scriptIds);
+	adminList: adminProcedure
+		.input(listReportsSchema)
+		.query(async ({ input }) => {
+			const scriptIds = await getRelevantScriptIds(input ?? {});
+			const reports = await loadReports(scriptIds);
 
-		return input?.status
-			? reports.filter((report) => report.status === input.status)
-			: reports;
-	}),
-	expertList: expertProcedure.input(listReportsSchema).query(async ({ input, ctx }) => {
-		const scriptIds = await getRelevantScriptIds({
-			...input,
-			expertId: ctx.session!.user.id,
-		});
-		const reports = await loadReports(scriptIds);
+			return input?.status
+				? reports.filter((report) => report.status === input.status)
+				: reports;
+		}),
+	expertList: expertProcedure
+		.input(listReportsSchema)
+		.query(async ({ input, ctx }) => {
+			const scriptIds = await getRelevantScriptIds({
+				...input,
+				expertId: ctx.session!.user.id,
+			});
+			const reports = await loadReports(scriptIds);
 
-		return input?.status
-			? reports.filter((report) => report.status === input.status)
-			: reports;
-	}),
+			return input?.status
+				? reports.filter((report) => report.status === input.status)
+				: reports;
+		}),
 	getById: protectedProcedure.input(z.uuid()).query(async ({ input, ctx }) => {
-		const report = await db.query.reportsTable.findFirst({
+		const report = (await db.query.reportsTable.findFirst({
 			where: (reportsTable, { eq }) => eq(reportsTable.id, input),
 			with: {
 				reporter: {
@@ -340,7 +352,7 @@ export const reportRouter = router({
 					orderBy: (statusLogs, { desc }) => [desc(statusLogs.createdAt)],
 				},
 			},
-		}) as ReportWithRelations | undefined;
+		})) as ReportWithRelations | undefined;
 
 		if (!report) {
 			throw new TRPCError({ code: "NOT_FOUND" });

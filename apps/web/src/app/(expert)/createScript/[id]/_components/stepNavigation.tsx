@@ -38,7 +38,7 @@ export function StepNavigation({ basePath, currentStep }: StepNavigationProps) {
 					Шаг {currentStep} из 3
 				</Badge>
 				<div className="flex flex-col gap-0.5">
-					<p className="font-medium leading-none text-sm">Создание курса</p>
+					<p className="font-medium text-sm leading-none">Создание курса</p>
 					<p className="text-muted-foreground text-xs">
 						Переходите между этапами, не теряя данные.
 					</p>

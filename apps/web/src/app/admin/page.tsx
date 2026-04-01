@@ -18,9 +18,7 @@ export default function Page() {
 				экспертов, достижения и жалобы на курсы.
 			</p>
 			<Button asChild>
-				<Link href={"/admin/reports" as any}>
-					Перейти к жалобам
-				</Link>
+				<Link href={"/admin/reports" as any}>Перейти к жалобам</Link>
 			</Button>
 		</div>
 	);

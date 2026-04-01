@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
-import Link from "next/link";
 import { ArrowLeft, BadgeCheck, Layers3, Sparkles } from "lucide-react";
+import Link from "next/link";
+import type { ReactNode } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -43,7 +43,12 @@ export default function Layout({
 
 			<div className="relative mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-4 pb-12 sm:px-6 sm:pb-16 lg:px-8 lg:py-6 lg:pb-20">
 				<div className="flex items-center justify-between gap-4">
-					<Button asChild variant="ghost" size="sm" className="px-0 text-muted-foreground">
+					<Button
+						asChild
+						variant="ghost"
+						size="sm"
+						className="px-0 text-muted-foreground"
+					>
 						<Link href="/expert">
 							<ArrowLeft data-icon="inline-start" />
 							Вернуться к черновикам
@@ -60,7 +65,7 @@ export default function Layout({
 				</div>
 
 				<div className="grid gap-4 pb-2 lg:grid-cols-[280px_minmax(0,1fr)]">
-					<Card className="border-border/60 bg-card/90 shadow-lg shadow-foreground/5 backdrop-blur">
+					<Card className="border-border/60 bg-card/90 shadow-foreground/5 shadow-lg backdrop-blur">
 						<CardHeader className="flex flex-col gap-3 px-5 pt-5">
 							<div className="flex flex-wrap items-center gap-2">
 								<Badge variant="outline" className="gap-1.5">
@@ -68,8 +73,7 @@ export default function Layout({
 									Создание курса
 								</Badge>
 								<Badge variant="secondary" className="gap-1.5">
-									<BadgeCheck />
-									3 шага
+									<BadgeCheck />3 шага
 								</Badge>
 							</div>
 
@@ -78,8 +82,9 @@ export default function Layout({
 									Собираем сценарий без лишнего шума
 								</CardTitle>
 								<CardDescription className="text-sm leading-6">
-									Заполняйте форму по шагам. Ниже еще есть место для продолжения,
-									поэтому экран не должен восприниматься как финальный.
+									Заполняйте форму по шагам. Ниже еще есть место для
+									продолжения, поэтому экран не должен восприниматься как
+									финальный.
 								</CardDescription>
 							</div>
 						</CardHeader>
@@ -93,7 +98,7 @@ export default function Layout({
 											{step.id}
 										</Badge>
 										<div className="flex flex-col gap-1">
-											<p className="font-medium leading-none text-sm">
+											<p className="font-medium text-sm leading-none">
 												{step.title}
 											</p>
 											<p className="text-muted-foreground text-sm leading-5">

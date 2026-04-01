@@ -31,9 +31,7 @@ export default function Layout({
 				</section>
 
 				<section className="mt-12">
-					<h2 className="mb-4 font-semibold text-xl">
-						Жалобы на мои курсы
-					</h2>
+					<h2 className="mb-4 font-semibold text-xl">Жалобы на мои курсы</h2>
 					{reports}
 				</section>
 			</main>

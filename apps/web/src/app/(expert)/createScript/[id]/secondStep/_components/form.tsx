@@ -58,8 +58,8 @@ export default function SecondStepForm({
 					form.handleSubmit();
 				}}
 			>
-				<Card className="overflow-hidden border-border/60 bg-card/90 shadow-xl shadow-foreground/5 backdrop-blur">
-					<CardHeader className="border-b border-border/60 px-5 pt-5">
+				<Card className="overflow-hidden border-border/60 bg-card/90 shadow-foreground/5 shadow-xl backdrop-blur">
+					<CardHeader className="border-border/60 border-b px-5 pt-5">
 						<div className="flex flex-wrap items-center gap-2">
 							<Badge variant="secondary">Шаг 2</Badge>
 							<Badge variant="outline">Критерии оценки</Badge>
@@ -109,10 +109,12 @@ export default function SecondStepForm({
 								<div className="rounded-2xl border border-border/60 bg-muted/20 p-3">
 									<div className="mb-4 flex flex-wrap items-center justify-between gap-2">
 										<div className="flex flex-col gap-1">
-											<FieldLabel className="text-base">Критерии оценки</FieldLabel>
+											<FieldLabel className="text-base">
+												Критерии оценки
+											</FieldLabel>
 											<p className="text-muted-foreground text-xs sm:text-sm">
-												Добавляйте критерии, которые помогут оценивать ответы
-												на интервью.
+												Добавляйте критерии, которые помогут оценивать ответы на
+												интервью.
 											</p>
 										</div>
 										<form.Field name="criteria">
@@ -142,7 +144,7 @@ export default function SecondStepForm({
 																};
 																field.handleChange(next);
 															}}
-															className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+															className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs outline-none transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:ring-ring/50"
 														>
 															{criteriaTypes.map((type) => (
 																<option key={type.id} value={type.id}>
@@ -193,12 +195,16 @@ export default function SecondStepForm({
 						</fieldset>
 					</CardContent>
 
-					<CardFooter className="flex flex-col gap-3 border-t border-border/60 bg-gradient-to-b from-background/40 to-background px-5 py-5 sm:flex-row sm:justify-between">
+					<CardFooter className="flex flex-col gap-3 border-border/60 border-t bg-gradient-to-b from-background/40 to-background px-5 py-5 sm:flex-row sm:justify-between">
 						<Button asChild variant="outline" className="w-full sm:w-auto">
 							<Link href={`${basePath}/firstStep` as Route}>Назад</Link>
 						</Button>
 
-						<Button type="submit" disabled={isPending} className="w-full sm:w-auto">
+						<Button
+							type="submit"
+							disabled={isPending}
+							className="w-full sm:w-auto"
+						>
 							{isPending ? "Сохранение..." : "Сохранить и продолжить"}
 						</Button>
 					</CardFooter>
