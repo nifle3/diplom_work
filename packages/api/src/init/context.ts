@@ -1,8 +1,13 @@
 import { randomUUID } from "node:crypto";
-import { auth } from "@diplom_work/auth";
-import type { NextRequest } from "next/server";
+import { defaultDependencies, type AppDependencies } from "./dependencies";
 
-function getClientIp(req: NextRequest) {
+type RequestLike = {
+	headers: Pick<Headers, "get" | "entries">;
+};
+
+type AuthHeadersLike = Record<string, string>;
+
+function getClientIp(req: RequestLike) {
 	const forwardedFor = req.headers.get("x-forwarded-for");
 	if (forwardedFor) {
 		return forwardedFor.split(",")[0]?.trim() ?? null;
@@ -11,9 +16,12 @@ function getClientIp(req: NextRequest) {
 	return req.headers.get("x-real-ip");
 }
 
-export async function createContext(req: NextRequest) {
-	const session = await auth.api.getSession({
-		headers: req.headers,
+export async function createContext(
+	req: RequestLike,
+	dependencies: AppDependencies = defaultDependencies,
+) {
+	const session = await dependencies.auth.api.getSession({
+		headers: Object.fromEntries(req.headers.entries()) as AuthHeadersLike,
 	});
 	const requestId = req.headers.get("x-request-id") ?? randomUUID();
 	const clientIp = getClientIp(req);
@@ -25,6 +33,10 @@ export async function createContext(req: NextRequest) {
 		clientIp,
 		userAgent,
 		setCookieHeaders: [] as string[],
+		auth: dependencies.auth,
+		db: dependencies.db,
+		file: dependencies.file,
+		llm: dependencies.llm,
 	};
 }
 

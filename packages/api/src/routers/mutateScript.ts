@@ -1,4 +1,3 @@
-import { db } from "@diplom_work/db";
 import {
 	questionTemplatesTable,
 	scriptCriteriaTable,
@@ -63,9 +62,9 @@ export type ThirdStepScheme = z.infer<typeof thirdStepScheme>;
 
 export const mutateScriptRouter = router({
 	postDraft: protectedProcedure
-		.input(z.string())
-		.mutation(async ({ ctx, input }) => {
-			const script = await db.query.scriptsTable.findFirst({
+	.input(z.string())
+	.mutation(async ({ ctx, input }) => {
+			const script = await ctx.db.query.scriptsTable.findFirst({
 				where: (scriptsTable, { eq, isNull, and }) =>
 					and(eq(scriptsTable.id, input), isNull(scriptsTable.deletedAt)),
 			});
@@ -89,7 +88,7 @@ export const mutateScriptRouter = router({
 				});
 			}
 
-			await db
+			await ctx.db
 				.update(scriptsTable)
 				.set({
 					isDraft: false,
@@ -105,9 +104,9 @@ export const mutateScriptRouter = router({
 				);
 		}),
 	deleteScript: protectedProcedure
-		.input(z.string())
-		.mutation(async ({ ctx, input }) => {
-			const script = await db.query.scriptsTable.findFirst({
+	.input(z.string())
+	.mutation(async ({ ctx, input }) => {
+			const script = await ctx.db.query.scriptsTable.findFirst({
 				where: (scriptsTable, { eq, and, isNull }) =>
 					and(eq(scriptsTable.id, input), isNull(scriptsTable.deletedAt)),
 			});
@@ -119,7 +118,7 @@ export const mutateScriptRouter = router({
 				throw new TRPCError({ code: "FORBIDDEN" });
 			}
 
-			await db
+			await ctx.db
 				.update(scriptsTable)
 				.set({
 					deletedAt: new Date(),
@@ -127,9 +126,9 @@ export const mutateScriptRouter = router({
 				.where(and(eq(scriptsTable.id, input), isNull(scriptsTable.deletedAt)));
 		}),
 	mutateFirstStep: protectedProcedure
-		.input(firstStepScheme)
-		.mutation(async ({ ctx, input }) => {
-			await db
+	.input(firstStepScheme)
+	.mutation(async ({ ctx, input }) => {
+			await ctx.db
 				.update(scriptsTable)
 				.set({
 					title: input.title,
@@ -147,9 +146,9 @@ export const mutateScriptRouter = router({
 				);
 		}),
 	mutateSecondStep: protectedProcedure
-		.input(secondStepScheme)
-		.mutation(async ({ ctx, input }) => {
-			const script = await db.query.scriptsTable.findFirst({
+	.input(secondStepScheme)
+	.mutation(async ({ ctx, input }) => {
+			const script = await ctx.db.query.scriptsTable.findFirst({
 				where: (scriptsTable, { eq, and, isNull }) =>
 					and(
 						eq(scriptsTable.id, input.scriptId),
@@ -165,7 +164,7 @@ export const mutateScriptRouter = router({
 				throw new TRPCError({ code: "FORBIDDEN" });
 			}
 
-			await db.transaction(async (tx) => {
+			await ctx.db.transaction(async (tx) => {
 				await tx
 					.update(scriptsTable)
 					.set({
@@ -212,9 +211,9 @@ export const mutateScriptRouter = router({
 			});
 		}),
 	mutateThirdStep: protectedProcedure
-		.input(thirdStepScheme)
-		.mutation(async ({ ctx, input }) => {
-			const script = await db.query.scriptsTable.findFirst({
+	.input(thirdStepScheme)
+	.mutation(async ({ ctx, input }) => {
+			const script = await ctx.db.query.scriptsTable.findFirst({
 				where: (scriptsTable, { eq, and, isNull }) =>
 					and(
 						eq(scriptsTable.id, input.scriptId),
@@ -230,7 +229,7 @@ export const mutateScriptRouter = router({
 				throw new TRPCError({ code: "FORBIDDEN" });
 			}
 
-			await db.transaction(async (tx) => {
+			await ctx.db.transaction(async (tx) => {
 				for (const [index, question] of input.questions.entries()) {
 					let questionId: string;
 

@@ -1,4 +1,3 @@
-import { db } from "@diplom_work/db";
 import {
 	achievementsTable,
 	interviewSessionsTable,
@@ -23,7 +22,7 @@ function isTerminalStatus(statusId: number | undefined) {
 
 export const profileRouter = router({
 	getMyProfile: protectedProcedure.query(async ({ ctx }) => {
-		const user = await db.query.usersTable.findFirst({
+		const user = await ctx.db.query.usersTable.findFirst({
 			where: (usersTable, { and, eq, isNull }) =>
 				and(
 					eq(usersTable.id, ctx.session.user.id),
@@ -42,20 +41,20 @@ export const profileRouter = router({
 
 		const [user, interviewCountResult, achievementCountResult] =
 			await Promise.all([
-				db.query.usersTable.findFirst({
+				ctx.db.query.usersTable.findFirst({
 					where: (usersTable, { and, eq, isNull }) =>
 						and(eq(usersTable.id, userId), isNull(usersTable.deletedAt)),
 					columns: {
 						xp: true,
 					},
 				}),
-				db
+				ctx.db
 					.select({
 						value: count(interviewSessionsTable.id),
 					})
 					.from(interviewSessionsTable)
 					.where(eq(interviewSessionsTable.userId, userId)),
-				db
+				ctx.db
 					.select({
 						value: count(userAchievementsTable.achievementId),
 					})
@@ -74,7 +73,7 @@ export const profileRouter = router({
 		};
 	}),
 	getMyHistory: protectedProcedure.query(async ({ ctx }) => {
-		const sessions = await db.query.interviewSessionsTable.findMany({
+		const sessions = await ctx.db.query.interviewSessionsTable.findMany({
 			where: (interviewSessionsTable, { eq }) =>
 				eq(interviewSessionsTable.userId, ctx.session.user.id),
 			columns: {
@@ -131,7 +130,7 @@ export const profileRouter = router({
 		});
 	}),
 	getMyAchivements: protectedProcedure.query(async ({ ctx }) => {
-		const achievements = await db
+		const achievements = await ctx.db
 			.select({
 				awardedAt: userAchievementsTable.awardedAt,
 				id: achievementsTable.id,

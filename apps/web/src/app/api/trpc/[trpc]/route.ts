@@ -1,4 +1,5 @@
 import { createContext } from "@diplom_work/api/init/context";
+import { defaultDependencies } from "@diplom_work/api/init/dependencies";
 import { appRouter } from "@diplom_work/api/routers/index";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import type { NextRequest } from "next/server";
@@ -8,7 +9,7 @@ function handler(req: NextRequest) {
 		endpoint: "/api/trpc",
 		req,
 		router: appRouter,
-		createContext: () => createContext(req),
+		createContext: () => createContext(req, defaultDependencies),
 	});
 }
 export { handler as GET, handler as POST };

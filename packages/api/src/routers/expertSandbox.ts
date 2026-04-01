@@ -1,13 +1,12 @@
-import { db } from "@diplom_work/db/index";
 import {
 	chatMessagesTable,
 	interviewSessionsTable,
 } from "@diplom_work/db/schema/scheme";
-import { evaluateAnswer, planInterviewStep, summarize } from "@diplom_work/llm";
 import { TRPCError } from "@trpc/server";
-import { and, asc, eq, inArray, isNull } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 
+import type { Context } from "../init/context";
 import { expertProcedure, router } from "../init/routers";
 
 const sandboxAnswerSchema = z.object({
@@ -78,13 +77,14 @@ function buildConversation(
 }
 
 async function rebuildSummary(
+	llm: Context["llm"],
 	messages: Array<Pick<SandboxMessage, "isAi" | "messageText">>,
 ) {
 	const conversation = buildConversation(messages);
 	let summary = "";
 
 	for (const pair of conversation) {
-		summary = await summarize({
+		summary = await llm.summarize({
 			humanResponse: pair.answer,
 			aiQuestion: pair.question,
 			prevSummarization: summary,
@@ -94,7 +94,11 @@ async function rebuildSummary(
 	return summary || null;
 }
 
-async function loadSandboxSession(sessionId: string, userId: string) {
+async function loadSandboxSession(
+	db: Context["db"],
+	sessionId: string,
+	userId: string,
+) {
 	return db.query.interviewSessionsTable.findFirst({
 		where: (interviewSessionsTable, { and, eq }) =>
 			and(
@@ -162,11 +166,16 @@ export const expertSandboxRouter = router({
 	createSession: expertProcedure
 		.input(z.uuid())
 		.mutation(async ({ ctx, input }) => {
-			const script = await db.query.scriptsTable.findFirst({
+			const userId = ctx.session?.user.id;
+			if (!userId) {
+				throw new TRPCError({ code: "UNAUTHORIZED" });
+			}
+
+			const script = await ctx.db.query.scriptsTable.findFirst({
 				where: (scriptsTable, { and, eq, isNull }) =>
 					and(
 						eq(scriptsTable.id, input),
-						eq(scriptsTable.expertId, ctx.session.user.id),
+						eq(scriptsTable.expertId, userId),
 						isNull(scriptsTable.deletedAt),
 					),
 				columns: {
@@ -205,12 +214,12 @@ export const expertSandboxRouter = router({
 				});
 			}
 
-			const session = await db.transaction(async (tx) => {
+			const session = await ctx.db.transaction(async (tx) => {
 				const [createdSession] = await tx
 					.insert(interviewSessionsTable)
 					.values({
 						currentQuestionIndex: 0,
-						userId: ctx.session.user.id,
+						userId,
 						startedAt: new Date(),
 						scriptId: input,
 					})
@@ -235,7 +244,16 @@ export const expertSandboxRouter = router({
 			return session.id;
 		}),
 	getSession: expertProcedure.input(z.uuid()).query(async ({ ctx, input }) => {
-		const session = await loadSandboxSession(input, ctx.session.user.id);
+		const userId = ctx.session?.user.id;
+		if (!userId) {
+			throw new TRPCError({ code: "UNAUTHORIZED" });
+		}
+
+		const session = await loadSandboxSession(
+			ctx.db,
+			input,
+			userId,
+		);
 
 		if (!session) {
 			throw new TRPCError({
@@ -249,9 +267,15 @@ export const expertSandboxRouter = router({
 	sendAnswer: expertProcedure
 		.input(sandboxAnswerSchema)
 		.mutation(async ({ ctx, input }) => {
+			const userId = ctx.session?.user.id;
+			if (!userId) {
+				throw new TRPCError({ code: "UNAUTHORIZED" });
+			}
+
 			const session = await loadSandboxSession(
+				ctx.db,
 				input.sessionId,
-				ctx.session.user.id,
+				userId,
 			);
 
 			if (!session) {
@@ -278,13 +302,13 @@ export const expertSandboxRouter = router({
 				});
 			}
 
-			const summary = await summarize({
+			const summary = await ctx.llm.summarize({
 				humanResponse: input.content,
 				aiQuestion: lastMessage.messageText,
 				prevSummarization: session.summarize ?? "",
 			});
 
-			const answerEvaluation = await evaluateAnswer({
+			const answerEvaluation = await ctx.llm.evaluateAnswer({
 				mode: "answer",
 				context: session.script.context ?? "",
 				question: lastMessage.messageText,
@@ -310,7 +334,7 @@ export const expertSandboxRouter = router({
 			const nextTopic =
 				session.script.questions[session.currentQuestionIndex + 1];
 
-			const step = await planInterviewStep({
+			const step = await ctx.llm.planInterviewStep({
 				context: session.script.context ?? "",
 				summary,
 				currentTopic: currentTopic.text,
@@ -330,7 +354,7 @@ export const expertSandboxRouter = router({
 			});
 			const finalEvaluation =
 				step.decision === "finish"
-					? await evaluateAnswer({
+					? await ctx.llm.evaluateAnswer({
 							mode: "session",
 							context: session.script.context ?? "",
 							summary,
@@ -347,7 +371,7 @@ export const expertSandboxRouter = router({
 						})
 					: null;
 
-			const result = await db.transaction(async (tx) => {
+			const result = await ctx.db.transaction(async (tx) => {
 				await tx
 					.update(interviewSessionsTable)
 					.set({
@@ -419,9 +443,15 @@ export const expertSandboxRouter = router({
 	rewindSession: expertProcedure
 		.input(rewindSandboxSchema)
 		.mutation(async ({ ctx, input }) => {
+			const userId = ctx.session?.user.id;
+			if (!userId) {
+				throw new TRPCError({ code: "UNAUTHORIZED" });
+			}
+
 			const session = await loadSandboxSession(
+				ctx.db,
 				input.sessionId,
-				ctx.session.user.id,
+				userId,
 			);
 
 			if (!session) {
@@ -455,13 +485,13 @@ export const expertSandboxRouter = router({
 				.slice(selectedIndex + 1)
 				.map((message) => message.id);
 
-			const summary = await rebuildSummary(keptMessages);
+			const summary = await rebuildSummary(ctx.llm, keptMessages);
 			const nextQuestionIndex = Math.max(
 				0,
 				keptMessages.filter((message) => message.isAi).length - 1,
 			);
 
-			await db.transaction(async (tx) => {
+			await ctx.db.transaction(async (tx) => {
 				if (removedIds.length > 0) {
 					await tx
 						.delete(chatMessagesTable)

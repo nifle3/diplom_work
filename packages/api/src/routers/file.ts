@@ -1,5 +1,4 @@
 import { randomUUID } from "node:crypto";
-import { getPersistentUploadLink } from "@diplom_work/file";
 import { z } from "zod";
 import { protectedProcedure, router } from "../init/routers";
 
@@ -10,10 +9,10 @@ const input = z.object({
 });
 
 export const fileRouter = router({
-	getUploadLink: protectedProcedure.input(input).mutation(async ({ input }) => {
+	getUploadLink: protectedProcedure.input(input).mutation(async ({ input, ctx }) => {
 		const ext = input.filename.split(".").pop();
 		const key = `${input.folder}/${randomUUID()}.${ext}`;
-		const url = await getPersistentUploadLink(key, input.contentType);
+		const url = await ctx.file.getPersistentUploadLink(key, input.contentType);
 
 		return { url, key };
 	}),

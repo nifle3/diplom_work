@@ -175,7 +175,10 @@ export function SandboxWorkspace({
 						analysisNote: result.analysisNote,
 					};
 				}
-				nextMessages.push(result.message);
+				nextMessages.push({
+					...result.message,
+					analysisNote: null,
+				});
 				return nextMessages;
 			});
 			setActiveSession((currentSession) =>

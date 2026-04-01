@@ -1,4 +1,3 @@
-import { db } from "@diplom_work/db";
 import {
 	interviewSessionsTable,
 	usersTable,
@@ -11,7 +10,7 @@ import { protectedProcedure, router } from "../init/routers";
 export const userRouter = router({
 	getStats: protectedProcedure.query(async ({ ctx }) => {
 		const userId = ctx.session?.user.id;
-		const users = await db
+		const users = await ctx.db
 			.select()
 			.from(usersTable)
 			.where(eq(usersTable.id, userId))
@@ -28,7 +27,7 @@ export const userRouter = router({
 		};
 	}),
 	getStreak: protectedProcedure.query(async ({ ctx }) => {
-		const sessions = await db.query.interviewSessionsTable.findMany({
+		const sessions = await ctx.db.query.interviewSessionsTable.findMany({
 			columns: {
 				id: true,
 				startedAt: true,

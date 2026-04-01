@@ -1,4 +1,3 @@
-import { db } from "@diplom_work/db";
 import {
 	categoriesTable,
 	criteriaTypesTable,
@@ -6,7 +5,6 @@ import {
 	usersTable,
 } from "@diplom_work/db/schema/scheme";
 import { statusToId } from "@diplom_work/domain/values/sessionStatus";
-import { getPersistentLink } from "@diplom_work/file";
 import { TRPCError } from "@trpc/server";
 import { and, count, desc, eq, ilike, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
@@ -41,8 +39,8 @@ export const getExpertProfileSchema = z.object({
 });
 
 export const scriptRouter = router({
-	getInfo: protectedProcedure.input(z.uuid()).query(async ({ input }) => {
-		const script = await db.query.scriptsTable.findFirst({
+	getInfo: protectedProcedure.input(z.uuid()).query(async ({ input, ctx }) => {
+		const script = await ctx.db.query.scriptsTable.findFirst({
 			where: (scriptsTable, { eq, and, isNull }) =>
 				and(
 					eq(scriptsTable.id, input),
@@ -70,8 +68,8 @@ export const scriptRouter = router({
 	}),
 	getLatest: protectedProcedure
 		.input(getLatestScenariosSchema)
-		.query(async ({ input }) => {
-			const dbResult = await db
+		.query(async ({ input, ctx }) => {
+			const dbResult = await ctx.db
 				.select({
 					id: scriptsTable.id,
 					title: scriptsTable.title,
@@ -99,7 +97,7 @@ export const scriptRouter = router({
 						return item;
 					}
 
-					const link = await getPersistentLink(item.image);
+					const link = await ctx.file.getPersistentLink(item.image);
 					item.image = link;
 					return item;
 				}),
@@ -107,8 +105,8 @@ export const scriptRouter = router({
 			return result;
 		}),
 
-	categories: protectedProcedure.query(async () => {
-		const categories = await db
+	categories: protectedProcedure.query(async ({ ctx }) => {
+		const categories = await ctx.db
 			.select({ id: categoriesTable.id, name: categoriesTable.name })
 			.from(categoriesTable);
 
@@ -117,7 +115,7 @@ export const scriptRouter = router({
 
 	list: protectedProcedure
 		.input(listScenariosSchema)
-		.query(async ({ input }) => {
+		.query(async ({ input, ctx }) => {
 			const { page, limit, categoryId, search } = input;
 			const offset = (page - 1) * limit;
 
@@ -128,7 +126,7 @@ export const scriptRouter = router({
 				search ? ilike(scriptsTable.title, `%${search}%`) : undefined,
 			);
 
-			const totalResult = await db
+			const totalResult = await ctx.db
 				.select({ count: count() })
 				.from(scriptsTable)
 				.where(whereClause);
@@ -136,7 +134,7 @@ export const scriptRouter = router({
 			const total = totalResult[0]?.count ?? 0;
 			const pages = Math.ceil(total / limit);
 
-			const courses = await db
+			const courses = await ctx.db
 				.select({
 					id: scriptsTable.id,
 					title: scriptsTable.title,
@@ -167,8 +165,8 @@ export const scriptRouter = router({
 
 	getExpertProfile: protectedProcedure
 		.input(getExpertProfileSchema)
-		.query(async ({ input }) => {
-			const expert = await db.query.usersTable.findFirst({
+		.query(async ({ input, ctx }) => {
+			const expert = await ctx.db.query.usersTable.findFirst({
 				where: (usersTable, { and, eq, isNull }) =>
 					and(
 						eq(usersTable.id, input.expertId),
@@ -186,7 +184,7 @@ export const scriptRouter = router({
 				throw new TRPCError({ code: "NOT_FOUND" });
 			}
 
-			const categories = await db
+			const categories = await ctx.db
 				.select({
 					id: categoriesTable.id,
 					name: categoriesTable.name,
@@ -207,7 +205,7 @@ export const scriptRouter = router({
 				.groupBy(categoriesTable.id, categoriesTable.name)
 				.orderBy(categoriesTable.name);
 
-			const courses = await db
+			const courses = await ctx.db
 				.select({
 					id: scriptsTable.id,
 					title: scriptsTable.title,
@@ -243,15 +241,15 @@ export const scriptRouter = router({
 			};
 		}),
 
-	criteriaTypes: protectedProcedure.query(async () => {
-		const criteriaTypes = await db
+	criteriaTypes: protectedProcedure.query(async ({ ctx }) => {
+		const criteriaTypes = await ctx.db
 			.select({ id: criteriaTypesTable.id, name: criteriaTypesTable.name })
 			.from(criteriaTypesTable);
 
 		return criteriaTypes;
 	}),
 	getUserHistory: protectedProcedure.query(async ({ ctx }) => {
-		const sessions = await db.query.interviewSessionsTable.findMany({
+		const sessions = await ctx.db.query.interviewSessionsTable.findMany({
 			where: (interviewSessionsTable, { eq }) =>
 				eq(interviewSessionsTable.userId, ctx.session.user.id),
 			with: {
@@ -291,7 +289,7 @@ export const scriptRouter = router({
 	getUserHistoryByScript: protectedProcedure
 		.input(z.uuid())
 		.query(async ({ input, ctx }) => {
-			const sessions = await db.query.interviewSessionsTable.findMany({
+			const sessions = await ctx.db.query.interviewSessionsTable.findMany({
 				where: (interviewSessionsTable, { eq, and }) =>
 					and(
 						eq(interviewSessionsTable.userId, ctx.session.user.id),

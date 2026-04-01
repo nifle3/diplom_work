@@ -1,4 +1,3 @@
-import { db } from "@diplom_work/db";
 import { statusToId } from "@diplom_work/domain/values/sessionStatus";
 
 import { protectedProcedure, router } from "../init/routers";
@@ -18,7 +17,7 @@ export const activityRouter = router({
 	getLatestUserActivity: protectedProcedure.query(async ({ ctx }) => {
 		const userId = ctx.session?.user.id;
 
-		const sessions = await db.query.interviewSessionsTable.findMany({
+		const sessions = await ctx.db.query.interviewSessionsTable.findMany({
 			where: (interviewSessionsTable, { eq }) =>
 				eq(interviewSessionsTable.userId, userId),
 			columns: {

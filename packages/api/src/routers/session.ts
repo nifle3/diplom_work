@@ -1,4 +1,3 @@
-import { db } from "@diplom_work/db/index";
 import {
 	chatMessagesTable,
 	interviewSessionStatusLogTable,
@@ -6,11 +5,11 @@ import {
 	usersTable,
 } from "@diplom_work/db/schema/scheme";
 import { statusToId } from "@diplom_work/domain/values/sessionStatus";
-import { evaluateAnswer, planInterviewStep, summarize } from "@diplom_work/llm";
 import { TRPCError } from "@trpc/server";
 import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { syncUserAchievements } from "../achievements/metrics";
+import type { Context } from "../init/context";
 import { llmProcedure, protectedProcedure, router } from "../init/routers";
 import { calculateInterviewExperience } from "./sessionExperience";
 
@@ -19,7 +18,7 @@ const addNewMessageScheme = z.object({
 	content: z.string().min(1).max(4000),
 });
 
-type TransactionClient = Parameters<Parameters<typeof db.transaction>[0]>[0];
+type TransactionClient = Parameters<Parameters<Context["db"]["transaction"]>[0]>[0];
 
 type SessionStatusLog = {
 	statusId: number;
@@ -55,7 +54,10 @@ type SessionForFinalEvaluation = {
 	};
 };
 
-async function getFinalEvaluation(session: SessionForFinalEvaluation) {
+async function getFinalEvaluation(
+	session: SessionForFinalEvaluation,
+	llm: Context["llm"],
+) {
 	const conversation = session.messages.reduce<
 		Array<{ question: string; answer: string }>
 	>((acc, message) => {
@@ -88,7 +90,7 @@ async function getFinalEvaluation(session: SessionForFinalEvaluation) {
 		return null;
 	}
 
-	return evaluateAnswer({
+	return llm.evaluateAnswer({
 		mode: "session",
 		context: session.script.context ?? "",
 		summary: session.summarize ?? undefined,
@@ -105,6 +107,7 @@ async function getFinalEvaluation(session: SessionForFinalEvaluation) {
 
 async function finalizeSession(
 	tx: TransactionClient,
+	llm: Context["llm"],
 	userId: string,
 	sessionId: string,
 	now: Date,
@@ -191,7 +194,7 @@ async function finalizeSession(
 			experienceGained: 0,
 		};
 	}
-	const finalEvaluation = await getFinalEvaluation(session);
+	const finalEvaluation = await getFinalEvaluation(session, llm);
 	const experienceGained = calculateInterviewExperience(
 		finalEvaluation?.score ?? null,
 	);
@@ -241,6 +244,7 @@ async function finalizeSession(
 
 async function cancelInterviewSession(
 	tx: TransactionClient,
+	llm: Context["llm"],
 	userId: string,
 	sessionId: string,
 	now: Date,
@@ -326,7 +330,7 @@ async function cancelInterviewSession(
 		};
 	}
 
-	const finalEvaluation = await getFinalEvaluation(session);
+	const finalEvaluation = await getFinalEvaluation(session, llm);
 
 	await tx.insert(interviewSessionStatusLogTable).values({
 		sessionId,
@@ -351,7 +355,7 @@ export const sessionRouter = router({
 	createNewSession: protectedProcedure
 		.input(z.string())
 		.mutation(async ({ ctx, input }) => {
-			const script = await db.query.scriptsTable.findFirst({
+			const script = await ctx.db.query.scriptsTable.findFirst({
 				where: (scriptsTable, { and, eq, isNull }) =>
 					and(eq(scriptsTable.id, input), isNull(scriptsTable.deletedAt)),
 				columns: {
@@ -385,7 +389,7 @@ export const sessionRouter = router({
 				});
 			}
 
-			const result = await db.transaction(async (tx) => {
+			const result = await ctx.db.transaction(async (tx) => {
 				const { 0: addedSession } = await tx
 					.insert(interviewSessionsTable)
 					.values({
@@ -420,7 +424,7 @@ export const sessionRouter = router({
 	getScriptByInterviewId: protectedProcedure
 		.input(z.uuid())
 		.query(async ({ ctx, input }) => {
-			const result = await db.query.interviewSessionsTable.findFirst({
+			const result = await ctx.db.query.interviewSessionsTable.findFirst({
 				where: (interviewSessionsTable, { eq, and }) =>
 					and(
 						eq(interviewSessionsTable.id, input),
@@ -439,7 +443,7 @@ export const sessionRouter = router({
 	getResultBySessionId: protectedProcedure
 		.input(z.uuid())
 		.query(async ({ ctx, input }) => {
-			const session = await db.query.interviewSessionsTable.findFirst({
+			const session = await ctx.db.query.interviewSessionsTable.findFirst({
 				where: (interviewSessionsTable, { eq, and }) =>
 					and(
 						eq(interviewSessionsTable.id, input),
@@ -550,7 +554,7 @@ export const sessionRouter = router({
 	getAllHistory: protectedProcedure
 		.input(z.string())
 		.query(async ({ ctx, input }) => {
-			const results = await db
+			const results = await ctx.db
 				.select({
 					id: chatMessagesTable.id,
 					messageText: chatMessagesTable.messageText,
@@ -575,7 +579,7 @@ export const sessionRouter = router({
 	addNewMessage: llmProcedure
 		.input(addNewMessageScheme)
 		.mutation(async ({ ctx, input }) => {
-			const session = await db.query.interviewSessionsTable.findFirst({
+			const session = await ctx.db.query.interviewSessionsTable.findFirst({
 				where: (interviewSessionsTable, { eq, and }) =>
 					and(
 						eq(interviewSessionsTable.userId, ctx.session.user.id),
@@ -670,13 +674,13 @@ export const sessionRouter = router({
 				});
 			}
 
-			const sum = await summarize({
+			const sum = await ctx.llm.summarize({
 				humanResponse: input.content,
 				aiQuestion: lastAiMessage.messageText,
 				prevSummarization: session.summarize ?? "",
 			});
 
-			const answerEvaluation = await evaluateAnswer({
+			const answerEvaluation = await ctx.llm.evaluateAnswer({
 				mode: "answer",
 				context: session.script.context ?? "",
 				question: lastAiMessage.messageText,
@@ -691,7 +695,7 @@ export const sessionRouter = router({
 				),
 			});
 
-			const result = await db.transaction(async (tx) => {
+			const result = await ctx.db.transaction(async (tx) => {
 				await tx
 					.update(interviewSessionsTable)
 					.set({
@@ -709,7 +713,7 @@ export const sessionRouter = router({
 				const nextTopic =
 					session.script.questions[session.currentQuestionIndex + 1] ?? null;
 
-				const step = await planInterviewStep({
+				const step = await ctx.llm.planInterviewStep({
 					context: session.script.context ?? "",
 					summary: sum,
 					currentTopic: currentTopic.text,
@@ -731,6 +735,7 @@ export const sessionRouter = router({
 				if (step.decision === "finish") {
 					const finalized = await finalizeSession(
 						tx,
+						ctx.llm,
 						ctx.session.user.id,
 						input.sessionId,
 						new Date(),
@@ -794,8 +799,8 @@ export const sessionRouter = router({
 		.mutation(async ({ ctx, input }) => {
 			const now = new Date();
 
-			return db.transaction((tx) =>
-				finalizeSession(tx, ctx.session.user.id, input, now),
+			return ctx.db.transaction((tx) =>
+				finalizeSession(tx, ctx.llm, ctx.session.user.id, input, now),
 			);
 		}),
 	cancelSession: protectedProcedure
@@ -803,8 +808,8 @@ export const sessionRouter = router({
 		.mutation(async ({ ctx, input }) => {
 			const now = new Date();
 
-			return db.transaction((tx) =>
-				cancelInterviewSession(tx, ctx.session.user.id, input, now),
+			return ctx.db.transaction((tx) =>
+				cancelInterviewSession(tx, ctx.llm, ctx.session.user.id, input, now),
 			);
 		}),
 });

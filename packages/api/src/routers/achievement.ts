@@ -1,4 +1,3 @@
-import { db } from "@diplom_work/db";
 import {
 	achievementsTable,
 	userAchievementsTable,
@@ -24,8 +23,8 @@ async function validateAchievementFormula(formula: string) {
 }
 
 export const achievementRouter = router({
-	getAll: adminProcedure.query(async () => {
-		return db
+	getAll: adminProcedure.query(async ({ ctx }) => {
+		return ctx.db
 			.select({
 				id: achievementsTable.id,
 				name: achievementsTable.name,
@@ -54,10 +53,10 @@ export const achievementRouter = router({
 	}),
 	create: adminProcedure
 		.input(baseAchievementSchema)
-		.mutation(async ({ input }) => {
+		.mutation(async ({ input, ctx }) => {
 			await validateAchievementFormula(input.formula);
 
-			const [achievement] = await db
+			const [achievement] = await ctx.db
 				.insert(achievementsTable)
 				.values({
 					name: input.name,
@@ -73,7 +72,7 @@ export const achievementRouter = router({
 				throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
 			}
 
-			await syncAllUserAchievements(db);
+			await syncAllUserAchievements(ctx.db);
 
 			return achievement;
 		}),
@@ -83,10 +82,10 @@ export const achievementRouter = router({
 				id: achievementIdSchema,
 			}),
 		)
-		.mutation(async ({ input }) => {
+		.mutation(async ({ input, ctx }) => {
 			await validateAchievementFormula(input.formula);
 
-			const result = await db
+			const result = await ctx.db
 				.update(achievementsTable)
 				.set({
 					name: input.name,
@@ -102,12 +101,12 @@ export const achievementRouter = router({
 				throw new TRPCError({ code: "NOT_FOUND" });
 			}
 
-			await syncAllUserAchievements(db);
+			await syncAllUserAchievements(ctx.db);
 
 			return result[0];
 		}),
-	recalculateAll: adminProcedure.mutation(async () => {
-		const result = await syncAllUserAchievements(db);
+	recalculateAll: adminProcedure.mutation(async ({ ctx }) => {
+		const result = await syncAllUserAchievements(ctx.db);
 		return result;
 	}),
 });

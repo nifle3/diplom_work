@@ -1,4 +1,3 @@
-import { db } from "@diplom_work/db";
 import { categoriesTable, scriptsTable } from "@diplom_work/db/schema/scheme";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, isNull } from "drizzle-orm";
@@ -10,7 +9,7 @@ export const expertRouter = router({
 	getFullScript: protectedProcedure
 		.input(z.uuid())
 		.query(async ({ input, ctx }) => {
-			const data = await db.query.scriptsTable.findFirst({
+			const data = await ctx.db.query.scriptsTable.findFirst({
 				where: (scriptsTable, { eq }) => eq(scriptsTable.id, input),
 				with: {
 					category: true,
@@ -41,7 +40,7 @@ export const expertRouter = router({
 			return data;
 		}),
 	createNewDraft: protectedProcedure.mutation(async ({ ctx }) => {
-		const returningValue = await db
+		const returningValue = await ctx.db
 			.insert(scriptsTable)
 			.values({
 				isDraft: true,
@@ -61,7 +60,7 @@ export const expertRouter = router({
 		return newScript.id;
 	}),
 	getMyDrafts: protectedProcedure.query(async ({ ctx }) => {
-		const scripts = await db
+		const scripts = await ctx.db
 			.select({
 				id: scriptsTable.id,
 				title: scriptsTable.title,
@@ -86,7 +85,7 @@ export const expertRouter = router({
 		return scripts;
 	}),
 	getMyScripts: protectedProcedure.query(async ({ ctx }) => {
-		const scripts = await db
+		const scripts = await ctx.db
 			.select({
 				id: scriptsTable.id,
 				title: scriptsTable.title,

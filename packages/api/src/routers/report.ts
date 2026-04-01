@@ -1,4 +1,3 @@
-import { db } from "@diplom_work/db";
 import {
 	categoriesTable,
 	reportStatusLogTable,
@@ -18,6 +17,7 @@ import {
 	protectedProcedure,
 	router,
 } from "../init/routers";
+import type { Context } from "../init/context";
 
 const reportInputSchema = z.object({
 	scriptId: z.uuid(),
@@ -69,7 +69,9 @@ function getCurrentStatus(report: ReportWithRelations) {
 	return report.statusLogs[0]?.status ?? "new";
 }
 
-async function getRelevantScriptIds({
+async function getRelevantScriptIds(
+	db: Pick<Context["db"], "select" | "query">,
+	{
 	categoryId,
 	scriptId,
 	search,
@@ -98,7 +100,7 @@ async function getRelevantScriptIds({
 	return scripts.map((script) => script.id);
 }
 
-async function loadReports(scriptIds: string[]) {
+async function loadReports(db: Context["db"], scriptIds: string[]) {
 	if (scriptIds.length === 0) {
 		return [];
 	}
@@ -161,7 +163,7 @@ export const reportRouter = router({
 	create: protectedProcedure
 		.input(reportInputSchema)
 		.mutation(async ({ input, ctx }) => {
-			const existingReport = await db.query.reportsTable.findFirst({
+			const existingReport = await ctx.db.query.reportsTable.findFirst({
 				where: (reportsTable, { and, eq }) =>
 					and(
 						eq(reportsTable.reporterId, ctx.session!.user.id),
@@ -188,7 +190,7 @@ export const reportRouter = router({
 				return { id: existingReport.id };
 			}
 
-			const script = await db.query.scriptsTable.findFirst({
+			const script = await ctx.db.query.scriptsTable.findFirst({
 				where: (scriptsTable, { and, eq, isNull }) =>
 					and(
 						eq(scriptsTable.id, input.scriptId),
@@ -209,7 +211,7 @@ export const reportRouter = router({
 			}
 
 			const now = new Date();
-			const created = await db
+			const created = await ctx.db
 				.insert(reportsTable)
 				.values({
 					reporterId: ctx.session!.user.id,
@@ -228,7 +230,7 @@ export const reportRouter = router({
 				});
 			}
 
-			await db.insert(reportStatusLogTable).values({
+			await ctx.db.insert(reportStatusLogTable).values({
 				reportId,
 				status: "new",
 				createdAt: now,
@@ -237,7 +239,7 @@ export const reportRouter = router({
 			return { id: reportId };
 		}),
 	myList: protectedProcedure.query(async ({ ctx }) => {
-		const reports = (await db.query.reportsTable.findMany({
+		const reports = (await ctx.db.query.reportsTable.findMany({
 			where: (reportsTable, { eq }) =>
 				eq(reportsTable.reporterId, ctx.session!.user.id),
 			orderBy: (reportsTable, { desc }) => [desc(reportsTable.createdAt)],
@@ -292,9 +294,9 @@ export const reportRouter = router({
 	}),
 	adminList: adminProcedure
 		.input(listReportsSchema)
-		.query(async ({ input }) => {
-			const scriptIds = await getRelevantScriptIds(input ?? {});
-			const reports = await loadReports(scriptIds);
+		.query(async ({ input, ctx }) => {
+			const scriptIds = await getRelevantScriptIds(ctx.db, input ?? {});
+			const reports = await loadReports(ctx.db, scriptIds);
 
 			return input?.status
 				? reports.filter((report) => report.status === input.status)
@@ -303,18 +305,18 @@ export const reportRouter = router({
 	expertList: expertProcedure
 		.input(listReportsSchema)
 		.query(async ({ input, ctx }) => {
-			const scriptIds = await getRelevantScriptIds({
+			const scriptIds = await getRelevantScriptIds(ctx.db, {
 				...input,
 				expertId: ctx.session!.user.id,
 			});
-			const reports = await loadReports(scriptIds);
+			const reports = await loadReports(ctx.db, scriptIds);
 
 			return input?.status
 				? reports.filter((report) => report.status === input.status)
 				: reports;
 		}),
 	getById: protectedProcedure.input(z.uuid()).query(async ({ input, ctx }) => {
-		const report = (await db.query.reportsTable.findFirst({
+		const report = (await ctx.db.query.reportsTable.findFirst({
 			where: (reportsTable, { eq }) => eq(reportsTable.id, input),
 			with: {
 				reporter: {
@@ -379,8 +381,8 @@ export const reportRouter = router({
 	}),
 	changeStatus: adminProcedure
 		.input(changeReportStatusSchema)
-		.mutation(async ({ input }) => {
-			const report = await db.query.reportsTable.findFirst({
+		.mutation(async ({ input, ctx }) => {
+			const report = await ctx.db.query.reportsTable.findFirst({
 				where: (reportsTable, { eq }) => eq(reportsTable.id, input.reportId),
 				columns: {
 					id: true,
@@ -391,7 +393,7 @@ export const reportRouter = router({
 				throw new TRPCError({ code: "NOT_FOUND" });
 			}
 
-			await db.insert(reportStatusLogTable).values({
+			await ctx.db.insert(reportStatusLogTable).values({
 				reportId: input.reportId,
 				status: input.status,
 				createdAt: new Date(),
