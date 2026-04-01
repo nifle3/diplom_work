@@ -1,6 +1,6 @@
 import { Award, Sparkles } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { SandboxSession } from "../_types";
 
@@ -47,28 +47,28 @@ export function SandboxFinalCard({ finalEvaluation }: SandboxFinalCardProps) {
 			</CardHeader>
 
 			<CardContent className="space-y-4">
-				<p className="text-sm leading-7 text-muted-foreground">
+				<p className="text-muted-foreground text-sm leading-7">
 					{finalEvaluation.feedback}
 				</p>
 
 				<div className="rounded-2xl border bg-muted/20 p-4">
-					<div className="mb-2 flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+					<div className="mb-2 flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-[0.18em]">
 						<Award className="size-3.5" />
 						Короткий вывод
 					</div>
-					<p className="text-sm leading-7">
-						{finalEvaluation.analysisNote}
-					</p>
+					<p className="text-sm leading-7">{finalEvaluation.analysisNote}</p>
 				</div>
 
 				<div className="grid gap-3 md:grid-cols-2">
 					<div className="rounded-2xl border bg-background/80 p-4">
-						<div className="mb-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+						<div className="mb-2 text-muted-foreground text-xs uppercase tracking-[0.18em]">
 							Сильные стороны
 						</div>
 						<ul className="space-y-2 text-sm leading-6">
 							{finalEvaluation.strengths.length > 0 ? (
-								finalEvaluation.strengths.map((item) => <li key={item}>• {item}</li>)
+								finalEvaluation.strengths.map((item) => (
+									<li key={item}>• {item}</li>
+								))
 							) : (
 								<li className="text-muted-foreground">Пока не выделены.</li>
 							)}
@@ -76,12 +76,14 @@ export function SandboxFinalCard({ finalEvaluation }: SandboxFinalCardProps) {
 					</div>
 
 					<div className="rounded-2xl border bg-background/80 p-4">
-						<div className="mb-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+						<div className="mb-2 text-muted-foreground text-xs uppercase tracking-[0.18em]">
 							Зоны роста
 						</div>
 						<ul className="space-y-2 text-sm leading-6">
 							{finalEvaluation.improvements.length > 0 ? (
-								finalEvaluation.improvements.map((item) => <li key={item}>• {item}</li>)
+								finalEvaluation.improvements.map((item) => (
+									<li key={item}>• {item}</li>
+								))
 							) : (
 								<li className="text-muted-foreground">Пока не выделены.</li>
 							)}

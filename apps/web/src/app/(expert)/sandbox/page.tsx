@@ -36,12 +36,15 @@ export default async function SandboxPage({
 				context: session.script.context,
 			}
 		: scriptId
-			? await trpcCaller.expert.getFullScript(scriptId).then((script) => ({
-					id: script.id,
-					title: script.title,
-					description: script.description,
-					context: script.context,
-				})).catch(() => null)
+			? await trpcCaller.expert
+					.getFullScript(scriptId)
+					.then((script) => ({
+						id: script.id,
+						title: script.title,
+						description: script.description,
+						context: script.context,
+					}))
+					.catch(() => null)
 			: null;
 
 	const draftScripts = draftScriptsRaw.map((script) => ({

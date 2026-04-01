@@ -94,10 +94,7 @@ async function rebuildSummary(
 	return summary || null;
 }
 
-async function loadSandboxSession(
-	sessionId: string,
-	userId: string,
-) {
+async function loadSandboxSession(sessionId: string, userId: string) {
 	return db.query.interviewSessionsTable.findFirst({
 		where: (interviewSessionsTable, { and, eq }) =>
 			and(
@@ -237,20 +234,18 @@ export const expertSandboxRouter = router({
 
 			return session.id;
 		}),
-	getSession: expertProcedure
-		.input(z.uuid())
-		.query(async ({ ctx, input }) => {
-			const session = await loadSandboxSession(input, ctx.session.user.id);
+	getSession: expertProcedure.input(z.uuid()).query(async ({ ctx, input }) => {
+		const session = await loadSandboxSession(input, ctx.session.user.id);
 
-			if (!session) {
-				throw new TRPCError({
-					code: "NOT_FOUND",
-					message: "Sandbox-сессия не найдена",
-				});
-			}
+		if (!session) {
+			throw new TRPCError({
+				code: "NOT_FOUND",
+				message: "Sandbox-сессия не найдена",
+			});
+		}
 
-			return session;
-		}),
+		return session;
+	}),
 	sendAnswer: expertProcedure
 		.input(sandboxAnswerSchema)
 		.mutation(async ({ ctx, input }) => {
@@ -266,7 +261,8 @@ export const expertSandboxRouter = router({
 				});
 			}
 
-			const currentTopic = session.script.questions[session.currentQuestionIndex];
+			const currentTopic =
+				session.script.questions[session.currentQuestionIndex];
 			if (!currentTopic) {
 				throw new TRPCError({
 					code: "BAD_REQUEST",
@@ -311,7 +307,8 @@ export const expertSandboxRouter = router({
 				},
 			];
 
-			const nextTopic = session.script.questions[session.currentQuestionIndex + 1];
+			const nextTopic =
+				session.script.questions[session.currentQuestionIndex + 1];
 
 			const step = await planInterviewStep({
 				context: session.script.context ?? "",
@@ -422,7 +419,10 @@ export const expertSandboxRouter = router({
 	rewindSession: expertProcedure
 		.input(rewindSandboxSchema)
 		.mutation(async ({ ctx, input }) => {
-			const session = await loadSandboxSession(input.sessionId, ctx.session.user.id);
+			const session = await loadSandboxSession(
+				input.sessionId,
+				ctx.session.user.id,
+			);
 
 			if (!session) {
 				throw new TRPCError({

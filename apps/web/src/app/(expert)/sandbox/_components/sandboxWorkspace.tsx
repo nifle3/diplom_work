@@ -1,20 +1,26 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
+import { Bot, ChevronLeft, RotateCcw, Sparkles, User } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChatInput } from "@/app/(auth)/interview/[id]/(page)/_components/chatInput";
 import { TypingIndicator } from "@/app/(auth)/interview/[id]/(page)/_components/typingIndicator";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
 import { cn } from "@/lib/utils";
-import { Bot, ChevronLeft, RotateCcw, Sparkles, User } from "lucide-react";
 import type {
 	SandboxScript,
 	SandboxSelectedScript,
@@ -59,7 +65,9 @@ export function SandboxWorkspace({
 
 	const allScripts = useMemo(() => {
 		return [...publishedScripts, ...draftScripts].sort((left, right) => {
-			return (right.createdAt?.getTime() ?? 0) - (left.createdAt?.getTime() ?? 0);
+			return (
+				(right.createdAt?.getTime() ?? 0) - (left.createdAt?.getTime() ?? 0)
+			);
 		});
 	}, [draftScripts, publishedScripts]);
 
@@ -229,17 +237,16 @@ export function SandboxWorkspace({
 							Проверьте свой курс так, как это сделает кандидат
 						</h1>
 						<p className="max-w-3xl text-muted-foreground text-sm leading-6">
-							Запустите сценарий, посмотрите мгновенную обратную связь под каждым
-							ответом и при необходимости вернитесь к любому своему сообщению,
-							чтобы переписать его с этого места.
+							Запустите сценарий, посмотрите мгновенную обратную связь под
+							каждым ответом и при необходимости вернитесь к любому своему
+							сообщению, чтобы переписать его с этого места.
 						</p>
 					</div>
 
 					<div className="flex shrink-0 flex-wrap items-center gap-2">
 						<Button asChild variant="outline">
 							<Link href="/expert">
-								<ChevronLeft className="size-4" />
-								В кабинет
+								<ChevronLeft className="size-4" />В кабинет
 							</Link>
 						</Button>
 						{hasActiveSession && (
@@ -278,9 +285,7 @@ export function SandboxWorkspace({
 											<SandboxMessageItem
 												key={message.id}
 												message={message}
-												onRewind={
-													message.isAi ? undefined : handleRewind
-												}
+												onRewind={message.isAi ? undefined : handleRewind}
 												rewindDisabled={rewindSession.isPending}
 											/>
 										))}
@@ -322,7 +327,7 @@ export function SandboxWorkspace({
 
 								<CardContent className="space-y-4">
 									<div className="rounded-3xl border bg-background/80 p-5">
-										<p className="text-sm leading-7 text-muted-foreground">
+										<p className="text-muted-foreground text-sm leading-7">
 											Этот sandbox привязан к конкретному курсу. Нажмите старт,
 											чтобы начать прохождение именно этого сценария.
 										</p>
@@ -348,7 +353,7 @@ export function SandboxWorkspace({
 
 								<CardContent className="space-y-4">
 									{selectedSessionId ? (
-										<div className="rounded-2xl border border-dashed bg-muted/30 p-4 text-sm text-muted-foreground">
+										<div className="rounded-2xl border border-dashed bg-muted/30 p-4 text-muted-foreground text-sm">
 											Сессия не найдена. Возможно, она была удалена или ссылка
 											устарела.
 										</div>
@@ -409,10 +414,8 @@ export function SandboxWorkspace({
 							<CardHeader>
 								<CardTitle className="text-lg">Как пользоваться</CardTitle>
 							</CardHeader>
-							<CardContent className="space-y-3 text-sm leading-6 text-muted-foreground">
-								<p>
-									1. Выберите свой курс и начните сценарий.
-								</p>
+							<CardContent className="space-y-3 text-muted-foreground text-sm leading-6">
+								<p>1. Выберите свой курс и начните сценарий.</p>
 								<p>
 									2. После каждого ответа вы увидите короткий фидбек прямо под
 									сообщением.
@@ -490,7 +493,7 @@ function SandboxMessageItem({
 
 				{!isAi && analysisNote?.trim() ? (
 					<div className="mt-2 w-full rounded-2xl border border-emerald-200 bg-emerald-50/80 p-3 text-emerald-950 text-xs leading-6 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-200">
-						<div className="mb-1 font-medium uppercase tracking-[0.16em] text-[10px]">
+						<div className="mb-1 font-medium text-[10px] uppercase tracking-[0.16em]">
 							Быстрый фидбек
 						</div>
 						{analysisNote}
