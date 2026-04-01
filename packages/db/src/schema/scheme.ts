@@ -184,6 +184,9 @@ export const achievementsTable = pgTable("achievements", {
 	name: varchar("name", { length: 100 }).notNull(),
 	description: text("description").notNull(),
 	iconUrl: text("icon_url"),
+	formula: text("formula").notNull().default("false"),
+	createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+	updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
 });
 
 export const userAchievementsTable = pgTable(

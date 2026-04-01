@@ -10,6 +10,7 @@ import { evaluateAnswer, planInterviewStep, summarize } from "@diplom_work/llm";
 import { TRPCError } from "@trpc/server";
 import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
+import { syncUserAchievements } from "../achievements/metrics";
 import { llmProcedure, protectedProcedure, router } from "../init/routers";
 import { calculateInterviewExperience } from "./sessionExperience";
 
@@ -228,6 +229,8 @@ async function finalizeSession(
 			})
 			.where(eq(usersTable.id, userId));
 	}
+
+	await syncUserAchievements(tx, userId);
 
 	return {
 		complete: true,

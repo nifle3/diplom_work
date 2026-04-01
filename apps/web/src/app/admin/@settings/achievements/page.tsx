@@ -1,13 +1,9 @@
-import { Construction } from "lucide-react";
+import { serverTrpc } from "@/lib/trpcServer";
+import { AchievementsTable } from "./_components/achievementsTable";
 
-export default function AchievementsPage() {
-	return (
-		<div className="container mx-auto flex min-h-[400px] flex-col items-center justify-center p-6">
-			<Construction className="mb-4 h-16 w-16 text-muted-foreground" />
-			<h1 className="mb-2 font-bold text-2xl">Раздел в разработке</h1>
-			<p className="text-center text-muted-foreground">
-				Управление достижениями появится в ближайшее время.
-			</p>
-		</div>
-	);
+export default async function Page() {
+	const trpcCaller = await serverTrpc();
+	const data = await trpcCaller.achievement.getAll();
+
+	return <AchievementsTable data={data} />;
 }

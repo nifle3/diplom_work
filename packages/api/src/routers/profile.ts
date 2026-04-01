@@ -3,11 +3,10 @@ import {
 	achievementsTable,
 	interviewSessionsTable,
 	userAchievementsTable,
-	usersTable,
 } from "@diplom_work/db/schema/scheme";
 import { statusToId } from "@diplom_work/domain/values/sessionStatus";
 import { TRPCError } from "@trpc/server";
-import { and, count, desc, eq, isNull } from "drizzle-orm";
+import { count, desc, eq } from "drizzle-orm";
 import { protectedProcedure, router } from "../init/routers";
 
 type SessionStatusLog = {
@@ -41,29 +40,38 @@ export const profileRouter = router({
 	getMyProfileStats: protectedProcedure.query(async ({ ctx }) => {
 		const userId = ctx.session.user.id;
 
-		const { 0: result } = await db
-			.select({
-				xp: usersTable.xp,
-				interviewCount: count(interviewSessionsTable.id),
-				achievementCount: count(userAchievementsTable.achievementId),
-			})
-			.from(usersTable)
-			.where(and(eq(usersTable.id, userId), isNull(usersTable.deletedAt)))
-			.leftJoin(
-				interviewSessionsTable,
-				eq(interviewSessionsTable.userId, usersTable.id),
-			)
-			.leftJoin(
-				userAchievementsTable,
-				eq(userAchievementsTable.userId, usersTable.id),
-			)
-			.groupBy(usersTable.id);
+		const [user, interviewCountResult, achievementCountResult] =
+			await Promise.all([
+				db.query.usersTable.findFirst({
+					where: (usersTable, { and, eq, isNull }) =>
+						and(eq(usersTable.id, userId), isNull(usersTable.deletedAt)),
+					columns: {
+						xp: true,
+					},
+				}),
+				db
+					.select({
+						value: count(interviewSessionsTable.id),
+					})
+					.from(interviewSessionsTable)
+					.where(eq(interviewSessionsTable.userId, userId)),
+				db
+					.select({
+						value: count(userAchievementsTable.achievementId),
+					})
+					.from(userAchievementsTable)
+					.where(eq(userAchievementsTable.userId, userId)),
+			]);
 
-		if (!result) {
+		if (!user) {
 			throw new TRPCError({ code: "NOT_FOUND" });
 		}
 
-		return result;
+		return {
+			xp: user.xp,
+			interviewCount: interviewCountResult[0]?.value ?? 0,
+			achievementCount: achievementCountResult[0]?.value ?? 0,
+		};
 	}),
 	getMyHistory: protectedProcedure.query(async ({ ctx }) => {
 		const sessions = await db.query.interviewSessionsTable.findMany({

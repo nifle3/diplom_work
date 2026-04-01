@@ -1,4 +1,5 @@
 import { publicProcedure, router } from "../init/routers";
+import { achievementRouter } from "./achievement";
 import { activityRouter } from "./activity";
 import { categoryRouter } from "./category";
 import { expertRouter } from "./expert";
@@ -19,6 +20,7 @@ export const appRouter = router({
 	user: userRouter,
 	script: scriptRouter,
 	activity: activityRouter,
+	achievement: achievementRouter,
 	expert: expertRouter,
 	createScript: mutateScriptRouter,
 	report: reportRouter,
