@@ -7,6 +7,7 @@ import type { getScoreTone } from "../_lib/getScoreTone";
 type ScoreOverviewCardProps = {
 	answeredCount: number;
 	expertFeedback?: string | null;
+	experienceGained: number;
 	finalScore?: number | null;
 	finishedAt: Date | null;
 	scoreTone: ReturnType<typeof getScoreTone>;
@@ -16,6 +17,7 @@ type ScoreOverviewCardProps = {
 export function ScoreOverviewCard({
 	answeredCount,
 	expertFeedback,
+	experienceGained,
 	finalScore,
 	finishedAt,
 	scoreTone,
@@ -49,6 +51,14 @@ export function ScoreOverviewCard({
 								{expertFeedback?.trim() ||
 									"Финальный комментарий пока отсутствует, но ответы по каждому вопросу уже доступны ниже."}
 							</p>
+
+							<div className="inline-flex items-center gap-2 rounded-full border bg-background/70 px-3 py-1.5 text-sm backdrop-blur">
+								<Award className="size-4 text-amber-500" />
+								<span className="text-muted-foreground">Начислено опыта:</span>
+								<span className="font-semibold">
+									{experienceGained > 0 ? `+${experienceGained} XP` : "0 XP"}
+								</span>
+							</div>
 						</div>
 
 						<div className="grid gap-3 sm:grid-cols-3 lg:w-[340px] lg:grid-cols-1">

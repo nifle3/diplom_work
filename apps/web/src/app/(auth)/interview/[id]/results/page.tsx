@@ -51,6 +51,7 @@ export default async function ResultsPage({
 					<ScoreOverviewCard
 						answeredCount={answeredQuestions.length}
 						expertFeedback={result.expertFeedback}
+						experienceGained={result.experienceGained}
 						finalScore={result.finalScore}
 						finishedAt={result.finishedAt ?? null}
 						scoreTone={scoreTone}

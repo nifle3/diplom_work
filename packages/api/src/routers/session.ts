@@ -3,13 +3,15 @@ import {
 	chatMessagesTable,
 	interviewSessionStatusLogTable,
 	interviewSessionsTable,
+	usersTable,
 } from "@diplom_work/db/schema/scheme";
 import { statusToId } from "@diplom_work/domain/values/sessionStatus";
 import { evaluateAnswer, planInterviewStep, summarize } from "@diplom_work/llm";
 import { TRPCError } from "@trpc/server";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { llmProcedure, protectedProcedure, router } from "../init/routers";
+import { calculateInterviewExperience } from "./sessionExperience";
 
 const addNewMessageScheme = z.object({
 	sessionId: z.uuid(),
@@ -183,14 +185,21 @@ async function finalizeSession(
 
 	if (isTerminalStatus(latestStatusLog?.statusId)) {
 		return {
+			complete: false,
 			streakUpdated: false,
+			experienceGained: 0,
 		};
 	}
 	const finalEvaluation = await getFinalEvaluation(session);
+	const experienceGained = calculateInterviewExperience(
+		finalEvaluation?.score ?? null,
+	);
 
 	const user = await tx.query.usersTable.findFirst({
-		where: (usersTable, { eq }) => eq(usersTable.id, userId),
-		columns: {},
+		where: (users, { eq }) => eq(users.id, userId),
+		columns: {
+			id: true,
+		},
 	});
 
 	if (!user) {
@@ -211,8 +220,19 @@ async function finalizeSession(
 		})
 		.where(eq(interviewSessionsTable.id, sessionId));
 
+	if (experienceGained > 0) {
+		await tx
+			.update(usersTable)
+			.set({
+				xp: sql`${usersTable.xp} + ${experienceGained}`,
+			})
+			.where(eq(usersTable.id, userId));
+	}
+
 	return {
 		complete: true,
+		streakUpdated: true,
+		experienceGained,
 	};
 }
 
@@ -514,6 +534,9 @@ export const sessionRouter = router({
 				id: session.id,
 				finalScore: session.finalScore,
 				expertFeedback: session.expertFeedback,
+				experienceGained: isTerminalStatus(latestStatusLog?.statusId)
+					? calculateInterviewExperience(session.finalScore)
+					: 0,
 				startedAt: session.startedAt,
 				finishedAt,
 				status: latestStatusLog?.status ?? null,
