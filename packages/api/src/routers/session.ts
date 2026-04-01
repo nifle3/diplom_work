@@ -8,6 +8,7 @@ import { statusToId } from "@diplom_work/domain/values/sessionStatus";
 import { TRPCError } from "@trpc/server";
 import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
+import { logger } from "@diplom_work/logger/server";
 import { syncUserAchievements } from "../achievements/metrics";
 import type { Context } from "../init/context";
 import { llmProcedure, protectedProcedure, router } from "../init/routers";
@@ -235,6 +236,16 @@ async function finalizeSession(
 
 	await syncUserAchievements(tx, userId);
 
+	logger.info(
+		{
+			sessionId,
+			userId,
+			complete: true,
+			experienceGained,
+		},
+		"Finalized interview session",
+	);
+
 	return {
 		complete: true,
 		streakUpdated: true,
@@ -346,6 +357,16 @@ async function cancelInterviewSession(
 		})
 		.where(eq(interviewSessionsTable.id, sessionId));
 
+	logger.info(
+		{
+			sessionId,
+			userId,
+			canceled: true,
+			finalScore: finalEvaluation?.score ?? null,
+		},
+		"Canceled interview session",
+	);
+
 	return {
 		canceled: true,
 	};
@@ -418,6 +439,11 @@ export const sessionRouter = router({
 
 				return addedSession;
 			});
+
+			logger.info(
+				{ sessionId: result.id, scriptId: input, userId: ctx.session.user.id },
+				"Created interview session",
+			);
 
 			return result.id;
 		}),
@@ -781,8 +807,21 @@ export const sessionRouter = router({
 			});
 
 			if (result.type === "finished") {
+				logger.info(
+					{ sessionId: input.sessionId, userId: ctx.session.user.id },
+					"Processed interview answer and finished session",
+				);
 				return result;
 			}
+
+			logger.info(
+				{
+					sessionId: input.sessionId,
+					userId: ctx.session.user.id,
+					nextQuestionId: result.message.id,
+				},
+				"Processed interview answer and generated next question",
+			);
 
 			return {
 				type: "next-question" as const,
@@ -798,18 +837,30 @@ export const sessionRouter = router({
 		.input(z.uuid())
 		.mutation(async ({ ctx, input }) => {
 			const now = new Date();
-
-			return ctx.db.transaction((tx) =>
+			const result = await ctx.db.transaction((tx) =>
 				finalizeSession(tx, ctx.llm, ctx.session.user.id, input, now),
 			);
+
+			logger.info(
+				{ sessionId: input, userId: ctx.session.user.id, result },
+				"Finished interview session",
+			);
+
+			return result;
 		}),
 	cancelSession: protectedProcedure
 		.input(z.uuid())
 		.mutation(async ({ ctx, input }) => {
 			const now = new Date();
-
-			return ctx.db.transaction((tx) =>
+			const result = await ctx.db.transaction((tx) =>
 				cancelInterviewSession(tx, ctx.llm, ctx.session.user.id, input, now),
 			);
+
+			logger.info(
+				{ sessionId: input, userId: ctx.session.user.id, result },
+				"Canceled interview session",
+			);
+
+			return result;
 		}),
 });

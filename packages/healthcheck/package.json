@@ -11,7 +11,8 @@
 	},
 	"dependencies": {
 		"@diplom_work/file": "workspace:*",
-		"@diplom_work/db": "workspace:*"
+		"@diplom_work/db": "workspace:*",
+		"@diplom_work/logger": "workspace:*"
 	},
 	"devDependencies": {
 		"@diplom_work/config": "workspace:*",

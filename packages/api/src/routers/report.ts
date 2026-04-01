@@ -11,6 +11,7 @@ import {
 import { TRPCError } from "@trpc/server";
 import { and, eq, ilike, isNull } from "drizzle-orm";
 import { z } from "zod";
+import { logger } from "@diplom_work/logger/server";
 import {
 	adminProcedure,
 	expertProcedure,
@@ -236,6 +237,15 @@ export const reportRouter = router({
 				createdAt: now,
 			});
 
+			logger.info(
+				{
+					reportId,
+					scriptId: input.scriptId,
+					reporterId: ctx.session!.user.id,
+				},
+				"Created report",
+			);
+
 			return { id: reportId };
 		}),
 	myList: protectedProcedure.query(async ({ ctx }) => {
@@ -398,6 +408,11 @@ export const reportRouter = router({
 				status: input.status,
 				createdAt: new Date(),
 			});
+
+			logger.info(
+				{ reportId: input.reportId, status: input.status },
+				"Updated report status",
+			);
 
 			return { id: input.reportId, status: input.status };
 		}),

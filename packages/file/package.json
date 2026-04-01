@@ -13,7 +13,8 @@
 	"dependencies": {
 		"@aws-sdk/client-s3": "^3.1009.0",
 		"@aws-sdk/s3-request-presigner": "^3.1009.0",
-		"@diplom_work/domain": "workspace:"
+		"@diplom_work/domain": "workspace:",
+		"@diplom_work/logger": "workspace:*"
 	},
 	"devDependencies": {
 		"@diplom_work/config": "workspace:*",

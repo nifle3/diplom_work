@@ -25,7 +25,10 @@ export const auth = betterAuth({
 				});
 			} catch (err: unknown) {
 				if (err instanceof EmailDeliveryError) {
-					console.error(err.payload?.responseBody);
+					logger.error(
+						{ email: user.email, payload: err.payload },
+						"Password reset email delivery failed",
+					);
 				}
 			}
 		},

@@ -7,6 +7,7 @@ import {
 import { TRPCError } from "@trpc/server";
 import { and, eq, isNull } from "drizzle-orm";
 import { z } from "zod";
+import { logger } from "@diplom_work/logger/server";
 
 import { protectedProcedure, router } from "../init/routers";
 
@@ -102,6 +103,11 @@ export const mutateScriptRouter = router({
 						eq(scriptsTable.isDraft, true),
 					),
 				);
+
+			logger.info(
+				{ scriptId: input, expertId: ctx.session.user.id },
+				"Published script draft",
+			);
 		}),
 	deleteScript: protectedProcedure
 	.input(z.string())
@@ -124,6 +130,11 @@ export const mutateScriptRouter = router({
 					deletedAt: new Date(),
 				})
 				.where(and(eq(scriptsTable.id, input), isNull(scriptsTable.deletedAt)));
+
+			logger.info(
+				{ scriptId: input, expertId: ctx.session.user.id },
+				"Deleted script",
+			);
 		}),
 	mutateFirstStep: protectedProcedure
 	.input(firstStepScheme)
@@ -144,6 +155,11 @@ export const mutateScriptRouter = router({
 						isNull(scriptsTable.deletedAt),
 					),
 				);
+
+			logger.info(
+				{ scriptId: input.scriptId, expertId: ctx.session.user.id },
+				"Updated first step script fields",
+			);
 		}),
 	mutateSecondStep: protectedProcedure
 	.input(secondStepScheme)
@@ -207,8 +223,18 @@ export const mutateScriptRouter = router({
 							deletedAt: new Date(),
 						})
 						.where(eq(scriptCriteriaTable.id, val));
-				});
+					});
 			});
+
+			logger.info(
+				{
+					scriptId: input.scriptId,
+					expertId: ctx.session.user.id,
+					criteriaCount: input.criteria.length,
+					deletedCriteriaCount: input.deletedCriteria?.length ?? 0,
+				},
+				"Updated second step script fields",
+			);
 		}),
 	mutateThirdStep: protectedProcedure
 	.input(thirdStepScheme)
@@ -312,5 +338,15 @@ export const mutateScriptRouter = router({
 					})
 					.where(eq(scriptsTable.id, input.scriptId));
 			});
+
+			logger.info(
+				{
+					scriptId: input.scriptId,
+					expertId: ctx.session.user.id,
+					questionCount: input.questions.length,
+					deletedQuestionsCount: input.deletedQuestions?.length ?? 0,
+				},
+				"Updated third step script fields",
+			);
 		}),
 });

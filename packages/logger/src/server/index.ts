@@ -5,6 +5,9 @@ import pretty from "pino-pretty";
 
 export type LoggerContext = {
 	requestId: string;
+	userId?: string;
+	clientIp?: string | null;
+	userAgent?: string | null;
 };
 
 const STORE_SYMBOL = Symbol.for("diplom_work_logger_store");
@@ -37,10 +40,18 @@ export const logger = pino(
 
 		mixin() {
 			const reqId = getRequestId();
-			if (reqId) {
-				return { requestId: reqId };
+			if (!reqId) {
+				return {};
 			}
-			return {};
+
+			const context = loggerStore.getStore();
+
+			return {
+				requestId: reqId,
+				...(context?.userId ? { userId: context.userId } : {}),
+				...(context?.clientIp ? { clientIp: context.clientIp } : {}),
+				...(context?.userAgent ? { userAgent: context.userAgent } : {}),
+			};
 		},
 	},
 	stream,

@@ -40,12 +40,20 @@ export const db = getDb();
 export async function checkDbConnection() {
 	try {
 		await db.execute(sql`SELECT 1`);
-		console.log("✅ DB connection established");
+		logger.info({ provider: env.DATABASE_PROVIDER }, "DB connection established");
 	} catch (error) {
 		if (error instanceof Error) {
+			logger.error(
+				{ provider: env.DATABASE_PROVIDER, error },
+				"DB connection failed",
+			);
 			throw new Error(`DB Connection failed: ${error.message}`);
 		}
 
+		logger.error(
+			{ provider: env.DATABASE_PROVIDER, error },
+			"DB connection failed",
+		);
 		throw new Error("DB Connection failed: uknown error");
 	}
 }

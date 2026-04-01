@@ -2,6 +2,7 @@ import { categoriesTable } from "@diplom_work/db/schema/scheme";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { logger } from "@diplom_work/logger/server";
 import { adminProcedure, protectedProcedure, router } from "../init/routers";
 
 export const categoryRouter = router({
@@ -22,6 +23,8 @@ export const categoryRouter = router({
 		if (!result) {
 			throw new TRPCError({ code: "NOT_FOUND" });
 		}
+
+		logger.info({ categoryId: input }, "Deleted category");
 	}),
 	updateById: adminProcedure
 		.input(
@@ -42,11 +45,15 @@ export const categoryRouter = router({
 			if (!result) {
 				throw new TRPCError({ code: "NOT_FOUND" });
 			}
+
+			logger.info({ categoryId: input.id }, "Updated category");
 		}),
 	create: adminProcedure.input(z.string()).mutation(async ({ input, ctx }) => {
 		await ctx.db.insert(categoriesTable).values({
 			name: input,
 			createdAt: new Date(),
 		});
+
+		logger.info({ name: input }, "Created category");
 	}),
 });

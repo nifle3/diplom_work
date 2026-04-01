@@ -84,6 +84,9 @@ importers:
       '@diplom_work/healthcheck':
         specifier: workspace:*
         version: link:../../packages/healthcheck
+      '@diplom_work/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
       '@diplom_work/ratelimit':
         specifier: workspace:*
         version: link:../../packages/ratelimit
@@ -398,6 +401,9 @@ importers:
       '@diplom_work/domain':
         specifier: 'workspace:'
         version: link:../domain
+      '@diplom_work/logger':
+        specifier: workspace:*
+        version: link:../logger
     devDependencies:
       '@diplom_work/config':
         specifier: workspace:*
@@ -420,6 +426,9 @@ importers:
       '@diplom_work/file':
         specifier: workspace:*
         version: link:../file
+      '@diplom_work/logger':
+        specifier: workspace:*
+        version: link:../logger
     devDependencies:
       '@diplom_work/config':
         specifier: workspace:*

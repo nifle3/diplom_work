@@ -5,6 +5,7 @@ import {
 import { TRPCError } from "@trpc/server";
 import { count, desc, eq } from "drizzle-orm";
 import { z } from "zod";
+import { logger } from "@diplom_work/logger/server";
 import { assertAchievementFormulaIsValid } from "../achievements/formula";
 import { syncAllUserAchievements } from "../achievements/metrics";
 import { adminProcedure, router } from "../init/routers";
@@ -74,6 +75,11 @@ export const achievementRouter = router({
 
 			await syncAllUserAchievements(ctx.db);
 
+			logger.info(
+				{ achievementId: achievement.id, name: input.name },
+				"Created achievement",
+			);
+
 			return achievement;
 		}),
 	updateById: adminProcedure
@@ -103,10 +109,16 @@ export const achievementRouter = router({
 
 			await syncAllUserAchievements(ctx.db);
 
+			logger.info(
+				{ achievementId: result[0].id, name: input.name },
+				"Updated achievement",
+			);
+
 			return result[0];
 		}),
 	recalculateAll: adminProcedure.mutation(async ({ ctx }) => {
 		const result = await syncAllUserAchievements(ctx.db);
+		logger.info("Recalculated all achievements");
 		return result;
 	}),
 });
