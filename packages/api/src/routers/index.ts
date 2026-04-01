@@ -5,6 +5,7 @@ import { expertRouter } from "./expert";
 import { expertManagerRouter } from "./expertManager";
 import { fileRouter } from "./file";
 import { mutateScriptRouter } from "./mutateScript";
+import { reportRouter } from "./report";
 import { profileRouter } from "./profile";
 import { scriptRouter } from "./script";
 import { sessionRouter } from "./session";
@@ -19,6 +20,7 @@ export const appRouter = router({
 	activity: activityRouter,
 	expert: expertRouter,
 	createScript: mutateScriptRouter,
+	report: reportRouter,
 	profile: profileRouter,
 	session: sessionRouter,
 	category: categoryRouter,

@@ -1,4 +1,4 @@
-import { Award, LayoutGrid, Users } from "lucide-react";
+import { Award, Flag, LayoutGrid, Users } from "lucide-react";
 import Link from "next/link";
 
 const navItems = [
@@ -17,12 +17,17 @@ const navItems = [
 		href: "/admin/achievements",
 		icon: Award,
 	},
+	{
+		title: "Жалобы",
+		href: "/admin/reports",
+		icon: Flag,
+	},
 ];
 
 export function AdminSidebar() {
 	return (
-		<aside className="w-64 shrink-0 border-l bg-card">
-			<div className="flex h-full flex-col">
+		<aside className="sticky top-0 h-[calc(100vh-5rem)] w-64 shrink-0 border-r bg-card">
+			<div className="flex h-full flex-col overflow-y-auto">
 				<div className="border-b p-4">
 					<h2 className="font-semibold text-lg">Админ-панель</h2>
 				</div>
