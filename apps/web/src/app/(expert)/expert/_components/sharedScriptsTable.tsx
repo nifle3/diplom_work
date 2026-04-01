@@ -6,7 +6,7 @@ import {
 	getCoreRowModel,
 	useReactTable,
 } from "@tanstack/react-table";
-import { Pencil, Trash2, Upload } from "lucide-react";
+import { Pencil, Play, Trash2, Upload } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -91,6 +91,13 @@ const defaultColumns = (
 							</Button>
 						</Modal>
 					)}
+					<Link
+						href={{ pathname: "/expert/sandbox", query: { scriptId: row.original.id } }}
+						className="inline-flex size-8 items-center justify-center rounded-none hover:bg-muted"
+						title="Открыть sandbox курса"
+					>
+						<Play className="h-4 w-4" />
+					</Link>
 					<Link
 						href={{ pathname: `/createScript/${row.original.id}/firstStep` }}
 						className="inline-flex size-8 items-center justify-center rounded-none hover:bg-muted"
