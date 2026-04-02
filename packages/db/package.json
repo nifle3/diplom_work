@@ -10,6 +10,8 @@
 		}
 	},
 	"scripts": {
+		"test": "vitest run --config ../../packages/config/vitest.config.ts",
+		"test:coverage": "vitest run --coverage --config ../../packages/config/vitest.config.ts",
 		"db:generate-custom": "drizzle-kit generate --custom",
 		"db:push": "drizzle-kit push",
 		"db:generate": "drizzle-kit generate",
@@ -34,6 +36,7 @@
 		"@diplom_work/config": "workspace:*",
 		"@types/pg": "^8.16.0",
 		"drizzle-kit": "^0.31.8",
-		"typescript": "catalog:"
+		"typescript": "catalog:",
+		"vitest": "catalog:"
 	}
 }

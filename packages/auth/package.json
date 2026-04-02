@@ -10,6 +10,8 @@
 		}
 	},
 	"scripts": {
+		"test": "vitest run --config ../../packages/config/vitest.config.ts",
+		"test:coverage": "vitest run --coverage --config ../../packages/config/vitest.config.ts",
 		"check-types": "tsc --noEmit"
 	},
 	"dependencies": {
@@ -25,6 +27,7 @@
 	},
 	"devDependencies": {
 		"@diplom_work/config": "workspace:*",
-		"typescript": "catalog:"
+		"typescript": "catalog:",
+		"vitest": "catalog:"
 	}
 }
