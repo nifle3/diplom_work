@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import { statusToId } from "@diplom_work/domain/values/sessionStatus";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
 	evaluateAchievementFormula: vi.fn(),
@@ -297,21 +297,18 @@ describe("syncAllUserAchievements", () => {
 				if (selectCall === 1) {
 					return {
 						from: vi.fn().mockReturnValue({
-							where: vi.fn().mockResolvedValue([
-								{ id: "user-1" },
-								{ id: "user-2" },
-							]),
+							where: vi
+								.fn()
+								.mockResolvedValue([{ id: "user-1" }, { id: "user-2" }]),
 						}),
 					};
 				}
 
 				return {
 					from: vi.fn().mockReturnValue({
-						where: vi.fn().mockResolvedValue(
-							selectCall % 2 === 0
-								? [{ value: 0 }]
-								: [],
-						),
+						where: vi
+							.fn()
+							.mockResolvedValue(selectCall % 2 === 0 ? [{ value: 0 }] : []),
 					}),
 				};
 			}),

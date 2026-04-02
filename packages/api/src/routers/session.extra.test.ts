@@ -424,7 +424,11 @@ describe("sessionRouter extra coverage", () => {
 
 	it("finishes a session when the planner decides to stop", async () => {
 		mocks.summarize.mockResolvedValue("Summary");
-		mocks.evaluateAnswer.mockResolvedValue({ analysisNote: "Nice answer", score: 91, feedback: "Great" });
+		mocks.evaluateAnswer.mockResolvedValue({
+			analysisNote: "Nice answer",
+			score: 91,
+			feedback: "Great",
+		});
 		mocks.planInterviewStep.mockResolvedValue({
 			decision: "finish",
 			question: "",

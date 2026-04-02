@@ -314,7 +314,11 @@ describe("expertSandboxRouter", () => {
 
 	it("finishes a sandbox session when the planner decides to stop", async () => {
 		mocks.summarize.mockResolvedValue("Final summary");
-		mocks.evaluateAnswer.mockResolvedValue({ analysisNote: "Great", score: 93, feedback: "Well done" });
+		mocks.evaluateAnswer.mockResolvedValue({
+			analysisNote: "Great",
+			score: 93,
+			feedback: "Well done",
+		});
 		mocks.planInterviewStep.mockResolvedValue({
 			decision: "finish",
 			question: "",

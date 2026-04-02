@@ -34,7 +34,11 @@ vi.mock("@diplom_work/logger/server", () => ({
 
 import { reportRouter } from "./report";
 
-function createCaller(db: unknown, role: "admin" | "expert" = "expert", userId = "user-1") {
+function createCaller(
+	db: unknown,
+	role: "admin" | "expert" = "expert",
+	userId = "user-1",
+) {
 	return reportRouter.createCaller({
 		requestId: "req-1",
 		clientIp: "127.0.0.1",
@@ -419,19 +423,20 @@ describe("reportRouter", () => {
 		});
 
 		await expect(
-			createCaller({
-				query: {
-					reportsTable: {
-						findFirst,
+			createCaller(
+				{
+					query: {
+						reportsTable: {
+							findFirst,
+						},
 					},
+					insert,
 				},
-				insert,
-			},
-			"admin",
-		).changeStatus({
-			reportId: "report-1",
-			status: "resolved",
-		}),
+				"admin",
+			).changeStatus({
+				reportId: "report-1",
+				status: "resolved",
+			}),
 		).resolves.toEqual({
 			id: "report-1",
 			status: "resolved",

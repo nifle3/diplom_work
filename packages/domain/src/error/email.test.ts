@@ -1,10 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { DomainError } from "./base";
-import {
-	EmailConfigurationError,
-	EmailDeliveryError,
-} from "./email";
+import { EmailConfigurationError, EmailDeliveryError } from "./email";
 
 describe("EmailConfigurationError", () => {
 	it("sets the class name and preserves the payload", () => {
@@ -12,10 +9,7 @@ describe("EmailConfigurationError", () => {
 			provider: "resend" as const,
 			reason: "missing_api_key" as const,
 		};
-		const error = new EmailConfigurationError(
-			"Missing API key",
-			payload,
-		);
+		const error = new EmailConfigurationError("Missing API key", payload);
 
 		expect(error).toBeInstanceOf(Error);
 		expect(error).toBeInstanceOf(DomainError);

@@ -43,8 +43,8 @@ import {
 	errorMiddleware,
 	globalRateLimitMiddleware,
 	hasRoleMiddleware,
-	loggerMiddleware,
 	llmRateLimitMiddleware,
+	loggerMiddleware,
 	protectedMiddleware,
 } from "./middlewares";
 
@@ -54,20 +54,22 @@ function createCaller(
 	session: unknown = null,
 	extraCtx: Record<string, unknown> = {},
 ) {
-	return t.router({
-		test: t.procedure.use(middleware).query(resolver),
-	}).createCaller({
-		requestId: "request-1",
-		clientIp: "127.0.0.1",
-		userAgent: "vitest",
-		session,
-		setCookieHeaders: [],
-		auth: {} as never,
-		db: {} as never,
-		file: {} as never,
-		llm: {} as never,
-		...extraCtx,
-	} as never);
+	return t
+		.router({
+			test: t.procedure.use(middleware).query(resolver),
+		})
+		.createCaller({
+			requestId: "request-1",
+			clientIp: "127.0.0.1",
+			userAgent: "vitest",
+			session,
+			setCookieHeaders: [],
+			auth: {} as never,
+			db: {} as never,
+			file: {} as never,
+			llm: {} as never,
+			...extraCtx,
+		} as never);
 }
 
 describe("protectedMiddleware", () => {
@@ -107,18 +109,14 @@ describe("hasRoleMiddleware", () => {
 	});
 
 	it("rejects users with the wrong role", async () => {
-		const caller = createCaller(
-			hasRoleMiddleware("admin"),
-			() => "ok",
-			{
-				user: {
-					id: "user-1",
-				},
-				session: {
-					role: "expert",
-				},
+		const caller = createCaller(hasRoleMiddleware("admin"), () => "ok", {
+			user: {
+				id: "user-1",
 			},
-		);
+			session: {
+				role: "expert",
+			},
+		});
 
 		await expect(caller.test()).rejects.toMatchObject({
 			code: "FORBIDDEN",
@@ -145,18 +143,14 @@ describe("hasRoleMiddleware", () => {
 
 describe("loggerMiddleware", () => {
 	it("logs successful procedure calls", async () => {
-		const caller = createCaller(
-			loggerMiddleware,
-			() => "ok",
-			{
-				user: {
-					id: "user-1",
-				},
-				session: {
-					role: "expert",
-				},
+		const caller = createCaller(loggerMiddleware, () => "ok", {
+			user: {
+				id: "user-1",
 			},
-		);
+			session: {
+				role: "expert",
+			},
+		});
 
 		await expect(caller.test()).resolves.toBe("ok");
 		expect(mocks.loggerInfo).toHaveBeenCalledWith(
@@ -311,18 +305,14 @@ describe("errorMiddleware", () => {
 describe("rateLimitMiddleware", () => {
 	it("uses the session user id when available", async () => {
 		mocks.globalLimit.mockResolvedValue({ success: true });
-		const caller = createCaller(
-			globalRateLimitMiddleware,
-			() => "ok",
-			{
-				user: {
-					id: "user-1",
-				},
-				session: {
-					role: "expert",
-				},
+		const caller = createCaller(globalRateLimitMiddleware, () => "ok", {
+			user: {
+				id: "user-1",
 			},
-		);
+			session: {
+				role: "expert",
+			},
+		});
 
 		await expect(caller.test()).resolves.toBe("ok");
 		expect(mocks.globalLimit).toHaveBeenCalledWith("user:user-1:test");
@@ -357,18 +347,14 @@ describe("rateLimitMiddleware", () => {
 	it("throws when the limiter rejects a request", async () => {
 		mocks.llmLimit.mockResolvedValue({ success: false });
 
-		const caller = createCaller(
-			llmRateLimitMiddleware,
-			() => "ok",
-			{
-				user: {
-					id: "user-1",
-				},
-				session: {
-					role: "expert",
-				},
+		const caller = createCaller(llmRateLimitMiddleware, () => "ok", {
+			user: {
+				id: "user-1",
 			},
-		);
+			session: {
+				role: "expert",
+			},
+		});
 
 		await expect(caller.test()).rejects.toMatchObject({
 			code: "TOO_MANY_REQUESTS",

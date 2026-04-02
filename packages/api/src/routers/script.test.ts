@@ -182,11 +182,18 @@ describe("scriptRouter", () => {
 		});
 
 		const caller = createCaller({
-			select: vi.fn().mockImplementationOnce(() => categoriesSelect()).mockImplementationOnce(() => criteriaSelect()),
+			select: vi
+				.fn()
+				.mockImplementationOnce(() => categoriesSelect())
+				.mockImplementationOnce(() => criteriaSelect()),
 		});
 
-		await expect(caller.categories()).resolves.toEqual([{ id: 1, name: "Frontend" }]);
-		await expect(caller.criteriaTypes()).resolves.toEqual([{ id: 2, name: "Accuracy" }]);
+		await expect(caller.categories()).resolves.toEqual([
+			{ id: 1, name: "Frontend" },
+		]);
+		await expect(caller.criteriaTypes()).resolves.toEqual([
+			{ id: 2, name: "Accuracy" },
+		]);
 	});
 
 	it("lists scenarios with pagination and filters", async () => {
@@ -218,7 +225,10 @@ describe("scriptRouter", () => {
 				}),
 			}),
 		});
-		const select = vi.fn().mockImplementationOnce(() => totalSelect()).mockImplementationOnce(() => courseSelect());
+		const select = vi
+			.fn()
+			.mockImplementationOnce(() => totalSelect())
+			.mockImplementationOnce(() => courseSelect());
 
 		await expect(
 			createCaller({
@@ -258,9 +268,9 @@ describe("scriptRouter", () => {
 				innerJoin: vi.fn().mockReturnValue({
 					where: vi.fn().mockReturnValue({
 						groupBy: vi.fn().mockReturnValue({
-							orderBy: vi.fn().mockResolvedValue([
-								{ id: 10, name: "Frontend", count: 2 },
-							]),
+							orderBy: vi
+								.fn()
+								.mockResolvedValue([{ id: 10, name: "Frontend", count: 2 }]),
 						}),
 					}),
 				}),
@@ -321,8 +331,8 @@ describe("scriptRouter", () => {
 					expertId: "expert-1",
 					expertName: "Alex",
 				},
-				],
-			});
+			],
+		});
 
 		await expect(
 			createCaller({
