@@ -1,9 +1,5 @@
 {
 	"name": "@diplom_work/config",
 	"version": "0.0.0",
-	"private": true,
-	"devDependencies": {
-		"@vitest/coverage-v8": "catalog:",
-		"vitest": "catalog:"
-	}
+	"private": true
 }
