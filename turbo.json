@@ -21,7 +21,11 @@
 			"persistent": true
 		},
 		"test": {
-			"persistent": true
+			"cache": true
+		},
+		"test:coverage": {
+			"cache": true,
+			"outputs": ["coverage/**"]
 		},
 		"db:push": {
 			"cache": false

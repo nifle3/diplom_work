@@ -10,7 +10,8 @@
 		}
 	},
 	"scripts": {
-		"test": "vitest",
+		"test": "vitest run --config ../../packages/config/vitest.config.ts",
+		"test:coverage": "vitest run --coverage --config ../../packages/config/vitest.config.ts",
 		"check-types": "tsc --noEmit"
 	},
 	"dependencies": {
