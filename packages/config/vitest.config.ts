@@ -26,7 +26,6 @@ export default defineConfig({
 		include: ["src/**/*.test.{ts,tsx}"],
 		passWithNoTests: true,
 		coverage: {
-			all: true,
 			provider: "v8",
 			reporter: ["text", "html", "lcov", "json-summary"],
 			reportsDirectory: "coverage",
