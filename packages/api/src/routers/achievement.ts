@@ -2,10 +2,10 @@ import {
 	achievementsTable,
 	userAchievementsTable,
 } from "@diplom_work/db/schema/scheme";
+import { logger } from "@diplom_work/logger/server";
 import { TRPCError } from "@trpc/server";
 import { count, desc, eq } from "drizzle-orm";
 import { z } from "zod";
-import { logger } from "@diplom_work/logger/server";
 import { assertAchievementFormulaIsValid } from "../achievements/formula";
 import { syncAllUserAchievements } from "../achievements/metrics";
 import { adminProcedure, router } from "../init/routers";

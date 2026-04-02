@@ -40,7 +40,10 @@ export const db = getDb();
 export async function checkDbConnection() {
 	try {
 		await db.execute(sql`SELECT 1`);
-		logger.info({ provider: env.DATABASE_PROVIDER }, "DB connection established");
+		logger.info(
+			{ provider: env.DATABASE_PROVIDER },
+			"DB connection established",
+		);
 	} catch (error) {
 		if (error instanceof Error) {
 			logger.error(

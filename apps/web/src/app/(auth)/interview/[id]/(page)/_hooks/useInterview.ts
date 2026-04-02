@@ -207,7 +207,9 @@ export function useInterview(sessionId: string) {
 	};
 
 	const speakLastAiMessage = () => {
-		const lastAiMessage = [...messages].reverse().find((message) => message.isAi);
+		const lastAiMessage = [...messages]
+			.reverse()
+			.find((message) => message.isAi);
 
 		if (!lastAiMessage) {
 			toast.error("Пока нечего озвучивать");
@@ -268,8 +270,7 @@ export function useInterview(sessionId: string) {
 		const speechWindow = window as WindowWithSpeech;
 		setSttSupported(
 			Boolean(
-				speechWindow.SpeechRecognition ??
-					speechWindow.webkitSpeechRecognition,
+				speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition,
 			),
 		);
 		setTtsSupported(Boolean(window.speechSynthesis));

@@ -1,9 +1,9 @@
-import { describe, expect, it, vi } from "vitest";
 import {
 	chatMessagesTable,
 	interviewSessionStatusLogTable,
 	interviewSessionsTable,
 } from "@diplom_work/db/schema/scheme";
+import { describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
 	loggerInfo: vi.fn(),
@@ -130,7 +130,9 @@ describe("sessionRouter", () => {
 			transaction,
 		});
 
-		await expect(caller.createNewSession("script-1")).resolves.toBe("session-1");
+		await expect(caller.createNewSession("script-1")).resolves.toBe(
+			"session-1",
+		);
 		expect(insertSessionValues).toHaveBeenCalledWith(
 			expect.objectContaining({
 				currentQuestionIndex: 0,

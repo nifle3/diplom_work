@@ -8,17 +8,17 @@ import {
 	type ReportStatus,
 	reportStatuses,
 } from "@diplom_work/domain/values/reportStatus";
+import { logger } from "@diplom_work/logger/server";
 import { TRPCError } from "@trpc/server";
 import { and, eq, ilike, isNull } from "drizzle-orm";
 import { z } from "zod";
-import { logger } from "@diplom_work/logger/server";
+import type { Context } from "../init/context";
 import {
 	adminProcedure,
 	expertProcedure,
 	protectedProcedure,
 	router,
 } from "../init/routers";
-import type { Context } from "../init/context";
 
 const reportInputSchema = z.object({
 	scriptId: z.uuid(),
@@ -73,16 +73,17 @@ function getCurrentStatus(report: ReportWithRelations) {
 async function getRelevantScriptIds(
 	db: Pick<Context["db"], "select" | "query">,
 	{
-	categoryId,
-	scriptId,
-	search,
-	expertId,
-}: {
-	categoryId?: number;
-	scriptId?: string;
-	search?: string;
-	expertId?: string;
-}) {
+		categoryId,
+		scriptId,
+		search,
+		expertId,
+	}: {
+		categoryId?: number;
+		scriptId?: string;
+		search?: string;
+		expertId?: string;
+	},
+) {
 	const whereClause = and(
 		isNull(scriptsTable.deletedAt),
 		eq(scriptsTable.isDraft, false),

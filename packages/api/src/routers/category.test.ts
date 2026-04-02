@@ -57,9 +57,9 @@ function createCaller(db: unknown) {
 
 describe("categoryRouter", () => {
 	it("returns active categories", async () => {
-		const findMany = vi.fn().mockResolvedValue([
-			{ id: 1, name: "Frontend", deletedAt: null },
-		]);
+		const findMany = vi
+			.fn()
+			.mockResolvedValue([{ id: 1, name: "Frontend", deletedAt: null }]);
 
 		const result = await createCaller({
 			query: {

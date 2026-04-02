@@ -50,7 +50,11 @@ export const ChatInput = ({
 					disabled={!sttSupported || disabled}
 					className="rounded-full"
 				>
-					{isListening ? <Pause className="size-4" /> : <Mic className="size-4" />}
+					{isListening ? (
+						<Pause className="size-4" />
+					) : (
+						<Mic className="size-4" />
+					)}
 					{isListening ? "Стоп" : "Диктовка"}
 				</Button>
 				<Button
@@ -61,7 +65,11 @@ export const ChatInput = ({
 					disabled={!ttsSupported || disabled}
 					className="rounded-full"
 				>
-					{ttsEnabled ? <Volume2 className="size-4" /> : <VolumeX className="size-4" />}
+					{ttsEnabled ? (
+						<Volume2 className="size-4" />
+					) : (
+						<VolumeX className="size-4" />
+					)}
 					{ttsEnabled ? "Озвучка вкл" : "Озвучка выкл"}
 				</Button>
 				<Button

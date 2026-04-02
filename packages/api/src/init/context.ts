@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { defaultDependencies, type AppDependencies } from "./dependencies";
+import { type AppDependencies, defaultDependencies } from "./dependencies";
 
 type RequestLike = {
 	headers: Pick<Headers, "get" | "entries">;

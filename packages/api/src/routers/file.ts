@@ -10,21 +10,26 @@ const input = z.object({
 });
 
 export const fileRouter = router({
-	getUploadLink: protectedProcedure.input(input).mutation(async ({ input, ctx }) => {
-		const ext = input.filename.split(".").pop();
-		const key = `${input.folder}/${randomUUID()}.${ext}`;
-		const url = await ctx.file.getPersistentUploadLink(key, input.contentType);
-
-		logger.info(
-			{
-				folder: input.folder,
+	getUploadLink: protectedProcedure
+		.input(input)
+		.mutation(async ({ input, ctx }) => {
+			const ext = input.filename.split(".").pop();
+			const key = `${input.folder}/${randomUUID()}.${ext}`;
+			const url = await ctx.file.getPersistentUploadLink(
 				key,
-				contentType: input.contentType,
-				userId: ctx.session.user.id,
-			},
-			"Generated file upload link",
-		);
+				input.contentType,
+			);
 
-		return { url, key };
-	}),
+			logger.info(
+				{
+					folder: input.folder,
+					key,
+					contentType: input.contentType,
+					userId: ctx.session.user.id,
+				},
+				"Generated file upload link",
+			);
+
+			return { url, key };
+		}),
 });

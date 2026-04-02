@@ -20,19 +20,19 @@ export const expertManagerRouter = router({
 	setUserExpert: adminProcedure
 		.input(z.email())
 		.mutation(async ({ input, ctx }) => {
-		const result = await ctx.db
-			.update(usersTable)
-			.set({
-				roleId: expertId,
-				updatedAt: new Date(),
-			})
-			.where(and(eq(usersTable.email, input), eq(usersTable.roleId, 1)))
-			.returning();
+			const result = await ctx.db
+				.update(usersTable)
+				.set({
+					roleId: expertId,
+					updatedAt: new Date(),
+				})
+				.where(and(eq(usersTable.email, input), eq(usersTable.roleId, 1)))
+				.returning();
 
-		if (!result) {
-			throw new TRPCError({ code: "NOT_FOUND" });
-		}
-	}),
+			if (!result) {
+				throw new TRPCError({ code: "NOT_FOUND" });
+			}
+		}),
 	unsetUserExpert: adminProcedure
 		.input(z.uuid())
 		.mutation(async ({ input, ctx }) => {

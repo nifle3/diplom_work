@@ -4,10 +4,10 @@ import {
 	scriptsTable,
 	specificCriteriaTable,
 } from "@diplom_work/db/schema/scheme";
+import { logger } from "@diplom_work/logger/server";
 import { TRPCError } from "@trpc/server";
 import { and, eq, isNull } from "drizzle-orm";
 import { z } from "zod";
-import { logger } from "@diplom_work/logger/server";
 
 import { protectedProcedure, router } from "../init/routers";
 
@@ -63,8 +63,8 @@ export type ThirdStepScheme = z.infer<typeof thirdStepScheme>;
 
 export const mutateScriptRouter = router({
 	postDraft: protectedProcedure
-	.input(z.string())
-	.mutation(async ({ ctx, input }) => {
+		.input(z.string())
+		.mutation(async ({ ctx, input }) => {
 			const script = await ctx.db.query.scriptsTable.findFirst({
 				where: (scriptsTable, { eq, isNull, and }) =>
 					and(eq(scriptsTable.id, input), isNull(scriptsTable.deletedAt)),
@@ -110,8 +110,8 @@ export const mutateScriptRouter = router({
 			);
 		}),
 	deleteScript: protectedProcedure
-	.input(z.string())
-	.mutation(async ({ ctx, input }) => {
+		.input(z.string())
+		.mutation(async ({ ctx, input }) => {
 			const script = await ctx.db.query.scriptsTable.findFirst({
 				where: (scriptsTable, { eq, and, isNull }) =>
 					and(eq(scriptsTable.id, input), isNull(scriptsTable.deletedAt)),
@@ -137,8 +137,8 @@ export const mutateScriptRouter = router({
 			);
 		}),
 	mutateFirstStep: protectedProcedure
-	.input(firstStepScheme)
-	.mutation(async ({ ctx, input }) => {
+		.input(firstStepScheme)
+		.mutation(async ({ ctx, input }) => {
 			await ctx.db
 				.update(scriptsTable)
 				.set({
@@ -162,8 +162,8 @@ export const mutateScriptRouter = router({
 			);
 		}),
 	mutateSecondStep: protectedProcedure
-	.input(secondStepScheme)
-	.mutation(async ({ ctx, input }) => {
+		.input(secondStepScheme)
+		.mutation(async ({ ctx, input }) => {
 			const script = await ctx.db.query.scriptsTable.findFirst({
 				where: (scriptsTable, { eq, and, isNull }) =>
 					and(
@@ -223,7 +223,7 @@ export const mutateScriptRouter = router({
 							deletedAt: new Date(),
 						})
 						.where(eq(scriptCriteriaTable.id, val));
-					});
+				});
 			});
 
 			logger.info(
@@ -237,8 +237,8 @@ export const mutateScriptRouter = router({
 			);
 		}),
 	mutateThirdStep: protectedProcedure
-	.input(thirdStepScheme)
-	.mutation(async ({ ctx, input }) => {
+		.input(thirdStepScheme)
+		.mutation(async ({ ctx, input }) => {
 			const script = await ctx.db.query.scriptsTable.findFirst({
 				where: (scriptsTable, { eq, and, isNull }) =>
 					and(

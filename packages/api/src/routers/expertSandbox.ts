@@ -249,11 +249,7 @@ export const expertSandboxRouter = router({
 			throw new TRPCError({ code: "UNAUTHORIZED" });
 		}
 
-		const session = await loadSandboxSession(
-			ctx.db,
-			input,
-			userId,
-		);
+		const session = await loadSandboxSession(ctx.db, input, userId);
 
 		if (!session) {
 			throw new TRPCError({
@@ -272,11 +268,7 @@ export const expertSandboxRouter = router({
 				throw new TRPCError({ code: "UNAUTHORIZED" });
 			}
 
-			const session = await loadSandboxSession(
-				ctx.db,
-				input.sessionId,
-				userId,
-			);
+			const session = await loadSandboxSession(ctx.db, input.sessionId, userId);
 
 			if (!session) {
 				throw new TRPCError({
@@ -448,11 +440,7 @@ export const expertSandboxRouter = router({
 				throw new TRPCError({ code: "UNAUTHORIZED" });
 			}
 
-			const session = await loadSandboxSession(
-				ctx.db,
-				input.sessionId,
-				userId,
-			);
+			const session = await loadSandboxSession(ctx.db, input.sessionId, userId);
 
 			if (!session) {
 				throw new TRPCError({

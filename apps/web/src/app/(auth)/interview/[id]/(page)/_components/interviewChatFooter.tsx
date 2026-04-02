@@ -19,8 +19,7 @@ export function InterviewChatFooter() {
 		setTtsEnabled,
 		toggleListening,
 		speakLastAiMessage,
-	} =
-		useInterviewContext();
+	} = useInterviewContext();
 	const isBusy = isSending || isFinishing || isCanceling;
 
 	return (

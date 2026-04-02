@@ -5,10 +5,10 @@ import {
 	usersTable,
 } from "@diplom_work/db/schema/scheme";
 import { statusToId } from "@diplom_work/domain/values/sessionStatus";
+import { logger } from "@diplom_work/logger/server";
 import { TRPCError } from "@trpc/server";
 import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
-import { logger } from "@diplom_work/logger/server";
 import { syncUserAchievements } from "../achievements/metrics";
 import type { Context } from "../init/context";
 import { llmProcedure, protectedProcedure, router } from "../init/routers";
@@ -19,7 +19,9 @@ const addNewMessageScheme = z.object({
 	content: z.string().min(1).max(4000),
 });
 
-type TransactionClient = Parameters<Parameters<Context["db"]["transaction"]>[0]>[0];
+type TransactionClient = Parameters<
+	Parameters<Context["db"]["transaction"]>[0]
+>[0];
 
 type SessionStatusLog = {
 	statusId: number;

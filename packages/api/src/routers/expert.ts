@@ -1,8 +1,8 @@
 import { categoriesTable, scriptsTable } from "@diplom_work/db/schema/scheme";
+import { logger } from "@diplom_work/logger/server";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, isNull } from "drizzle-orm";
 import { z } from "zod";
-import { logger } from "@diplom_work/logger/server";
 
 import { protectedProcedure, router } from "../init/routers";
 

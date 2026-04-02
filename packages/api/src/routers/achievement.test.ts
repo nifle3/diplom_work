@@ -200,6 +200,8 @@ describe("achievementRouter", () => {
 		).resolves.toEqual({ recalculated: true });
 
 		expect(mocks.syncAllUserAchievements).toHaveBeenCalledTimes(1);
-		expect(mocks.loggerInfo).toHaveBeenCalledWith("Recalculated all achievements");
+		expect(mocks.loggerInfo).toHaveBeenCalledWith(
+			"Recalculated all achievements",
+		);
 	});
 });

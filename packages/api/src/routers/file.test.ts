@@ -43,7 +43,9 @@ import { fileRouter } from "./file";
 describe("fileRouter.getUploadLink", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		mocks.getPersistentUploadLink.mockResolvedValue("https://storage.test/upload");
+		mocks.getPersistentUploadLink.mockResolvedValue(
+			"https://storage.test/upload",
+		);
 	});
 
 	it("returns a signed upload link for avatar files", async () => {
