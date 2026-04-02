@@ -34,6 +34,8 @@ vi.mock("@diplom_work/logger/server", () => ({
 
 import { expertRouter } from "./expert";
 
+const scriptId = "123e4567-e89b-12d3-a456-426614174000";
+
 function createCaller(db: unknown, userId = "expert-1") {
 	return expertRouter.createCaller({
 		requestId: "req-1",
@@ -58,7 +60,7 @@ function createCaller(db: unknown, userId = "expert-1") {
 describe("expertRouter", () => {
 	it("returns a full script for its creator", async () => {
 		const findFirst = vi.fn().mockResolvedValue({
-			id: "script-1",
+			id: scriptId,
 			expertId: "expert-1",
 			title: "Backend interview",
 			category: {
@@ -77,9 +79,9 @@ describe("expertRouter", () => {
 			},
 		});
 
-		await expect(caller.getFullScript("script-1")).resolves.toEqual(
+		await expect(caller.getFullScript(scriptId)).resolves.toEqual(
 			expect.objectContaining({
-				id: "script-1",
+				id: scriptId,
 				expertId: "expert-1",
 			}),
 		);

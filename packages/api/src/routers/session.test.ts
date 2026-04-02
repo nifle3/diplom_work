@@ -47,6 +47,9 @@ vi.mock("./sessionExperience", () => ({
 
 import { sessionRouter } from "./session";
 
+const scriptId = "123e4567-e89b-12d3-a456-426614174000";
+const sessionId = "123e4567-e89b-12d3-a456-426614174001";
+
 function createCaller(db: unknown) {
 	return sessionRouter.createCaller({
 		requestId: "req-1",
@@ -85,7 +88,7 @@ describe("sessionRouter", () => {
 
 		const insertSessionReturning = vi.fn().mockResolvedValue([
 			{
-				id: "session-1",
+				id: sessionId,
 			},
 		]);
 		const insertSessionValues = vi.fn().mockReturnValue({
@@ -130,25 +133,23 @@ describe("sessionRouter", () => {
 			transaction,
 		});
 
-		await expect(caller.createNewSession("script-1")).resolves.toBe(
-			"session-1",
-		);
+		await expect(caller.createNewSession(scriptId)).resolves.toBe(sessionId);
 		expect(insertSessionValues).toHaveBeenCalledWith(
 			expect.objectContaining({
 				currentQuestionIndex: 0,
 				userId: "user-1",
-				scriptId: "script-1",
+				scriptId,
 				startedAt: expect.any(Date),
 			}),
 		);
 		expect(insertStatusValues).toHaveBeenCalledWith(
 			expect.objectContaining({
-				sessionId: "session-1",
+				sessionId,
 				createdAt: expect.any(Date),
 			}),
 		);
 		expect(insertMessageValues).toHaveBeenCalledWith({
-			sessionId: "session-1",
+			sessionId,
 			isAi: true,
 			messageText: "Tell me about yourself",
 		});
@@ -157,7 +158,7 @@ describe("sessionRouter", () => {
 	it("returns the script for an interview session", async () => {
 		const findFirst = vi.fn().mockResolvedValue({
 			script: {
-				id: "script-1",
+				id: scriptId,
 				title: "Frontend interview",
 			},
 		});
@@ -169,9 +170,9 @@ describe("sessionRouter", () => {
 						findFirst,
 					},
 				},
-			}).getScriptByInterviewId("session-1"),
+			}).getScriptByInterviewId(sessionId),
 		).resolves.toEqual({
-			id: "script-1",
+			id: scriptId,
 			title: "Frontend interview",
 		});
 	});
