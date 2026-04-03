@@ -2,8 +2,9 @@ import {
 	chatMessagesTable,
 	interviewSessionStatusLogTable,
 	interviewSessionsTable,
+	usersTable,
 } from "@diplom_work/db/schema/scheme";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
 	loggerInfo: vi.fn(),
@@ -76,6 +77,10 @@ function createCaller(db: unknown) {
 }
 
 describe("sessionRouter", () => {
+	beforeEach(() => {
+		vi.restoreAllMocks();
+	});
+
 	it("creates a new interview session", async () => {
 		const scriptsFindFirst = vi.fn().mockResolvedValue({
 			context: "System context",
@@ -85,12 +90,9 @@ describe("sessionRouter", () => {
 				},
 			],
 		});
+		const randomUUID = vi.spyOn(crypto, "randomUUID").mockReturnValue(sessionId);
 
-		const insertSessionReturning = vi.fn().mockResolvedValue([
-			{
-				id: sessionId,
-			},
-		]);
+		const insertSessionReturning = vi.fn().mockResolvedValue([{ id: sessionId }]);
 		const insertSessionValues = vi.fn().mockReturnValue({
 			returning: insertSessionReturning,
 		});
@@ -117,10 +119,33 @@ describe("sessionRouter", () => {
 
 			throw new Error("Unexpected insert table");
 		});
+		const update = vi.fn().mockImplementation((table: unknown) => {
+			if (table === usersTable) {
+				return {
+					set: vi.fn().mockReturnValue({
+						where: vi.fn().mockReturnValue({
+							returning: vi.fn().mockResolvedValue([
+								{
+									activeInterviewSessionId: sessionId,
+								},
+							]),
+						}),
+					}),
+				};
+			}
+
+			throw new Error("Unexpected update table");
+		});
 
 		const transaction = vi.fn().mockImplementation(async (callback) => {
 			return callback({
 				insert,
+				update,
+				query: {
+					usersTable: {
+						findFirst: vi.fn(),
+					},
+				},
 			});
 		});
 
@@ -134,6 +159,8 @@ describe("sessionRouter", () => {
 		});
 
 		await expect(caller.createNewSession(scriptId)).resolves.toBe(sessionId);
+		expect(randomUUID).toHaveBeenCalledTimes(1);
+		expect(update).toHaveBeenCalledWith(usersTable);
 		expect(insertSessionValues).toHaveBeenCalledWith(
 			expect.objectContaining({
 				currentQuestionIndex: 0,
@@ -153,6 +180,62 @@ describe("sessionRouter", () => {
 			isAi: true,
 			messageText: "Tell me about yourself",
 		});
+	});
+
+	it("returns the active interview session when one is already in progress", async () => {
+		const scriptsFindFirst = vi.fn().mockResolvedValue({
+			context: "System context",
+			questions: [
+				{
+					text: "Tell me about yourself",
+				},
+			],
+		});
+		vi.spyOn(crypto, "randomUUID").mockReturnValue(
+			"123e4567-e89b-12d3-a456-426614174099",
+		);
+
+		const update = vi.fn().mockReturnValue({
+			set: vi.fn().mockReturnValue({
+				where: vi.fn().mockReturnValue({
+					returning: vi.fn().mockResolvedValue([]),
+				}),
+			}),
+		});
+		const findFirst = vi.fn().mockResolvedValue({
+			activeInterviewSessionId: sessionId,
+		});
+		const insert = vi.fn();
+		const transaction = vi.fn().mockImplementation(async (callback) =>
+			callback({
+				insert,
+				update,
+				query: {
+					usersTable: {
+						findFirst,
+					},
+				},
+			}),
+		);
+
+		await expect(
+			createCaller({
+				query: {
+					scriptsTable: {
+						findFirst: scriptsFindFirst,
+					},
+				},
+				transaction,
+			}).createNewSession(scriptId),
+		).resolves.toBe(sessionId);
+		expect(insert).not.toHaveBeenCalled();
+		expect(findFirst).toHaveBeenCalledWith(
+			expect.objectContaining({
+				columns: {
+					activeInterviewSessionId: true,
+				},
+			}),
+		);
 	});
 
 	it("returns the script for an interview session", async () => {

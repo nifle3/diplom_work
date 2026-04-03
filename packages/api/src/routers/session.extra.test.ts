@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
 	loggerInfo: vi.fn(),
@@ -77,6 +77,10 @@ function createCaller(db: unknown, llm = mocks) {
 }
 
 describe("sessionRouter extra coverage", () => {
+	beforeEach(() => {
+		vi.restoreAllMocks();
+	});
+
 	it("creates a new interview session", async () => {
 		const scriptsFindFirst = vi.fn().mockResolvedValue({
 			context: "System context",
@@ -86,13 +90,26 @@ describe("sessionRouter extra coverage", () => {
 				},
 			],
 		});
-		const insertSessionReturning = vi.fn().mockResolvedValue([
-			{
-				id: sessionId,
-			},
-		]);
+		vi.spyOn(crypto, "randomUUID").mockReturnValue(sessionId);
+		const insertSessionReturning = vi.fn().mockResolvedValue([{ id: sessionId }]);
 		const transaction = vi.fn().mockImplementation(async (callback) =>
 			callback({
+				update: vi.fn().mockReturnValue({
+					set: vi.fn().mockReturnValue({
+						where: vi.fn().mockReturnValue({
+							returning: vi.fn().mockResolvedValue([
+								{
+									activeInterviewSessionId: sessionId,
+								},
+							]),
+						}),
+					}),
+				}),
+				query: {
+					usersTable: {
+						findFirst: vi.fn(),
+					},
+				},
 				insert: vi.fn().mockImplementation((table: unknown) => {
 					if (table) {
 						return {

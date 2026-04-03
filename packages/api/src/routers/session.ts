@@ -7,7 +7,7 @@ import {
 import { statusToId } from "@diplom_work/domain/values/sessionStatus";
 import { logger } from "@diplom_work/logger/server";
 import { TRPCError } from "@trpc/server";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
 import { syncUserAchievements } from "../achievements/metrics";
 import type { Context } from "../init/context";
@@ -236,6 +236,18 @@ async function finalizeSession(
 			.where(eq(usersTable.id, userId));
 	}
 
+	await tx
+		.update(usersTable)
+		.set({
+			activeInterviewSessionId: null,
+		})
+		.where(
+			and(
+				eq(usersTable.id, userId),
+				eq(usersTable.activeInterviewSessionId, sessionId),
+			),
+		);
+
 	await syncUserAchievements(tx, userId);
 
 	logger.info(
@@ -359,6 +371,18 @@ async function cancelInterviewSession(
 		})
 		.where(eq(interviewSessionsTable.id, sessionId));
 
+	await tx
+		.update(usersTable)
+		.set({
+			activeInterviewSessionId: null,
+		})
+		.where(
+			and(
+				eq(usersTable.id, userId),
+				eq(usersTable.activeInterviewSessionId, sessionId),
+			),
+		);
+
 	logger.info(
 		{
 			sessionId,
@@ -413,9 +437,42 @@ export const sessionRouter = router({
 			}
 
 			const result = await ctx.db.transaction(async (tx) => {
+				const sessionId = crypto.randomUUID();
+				const claimedActiveSession = await tx
+					.update(usersTable)
+					.set({
+						activeInterviewSessionId: sessionId,
+					})
+					.where(
+						and(
+							eq(usersTable.id, ctx.session.user.id),
+							isNull(usersTable.activeInterviewSessionId),
+						),
+					)
+					.returning({
+						activeInterviewSessionId: usersTable.activeInterviewSessionId,
+					});
+
+				if (claimedActiveSession.length === 0) {
+					const activeUser = await tx.query.usersTable.findFirst({
+						where: (usersTable, { eq }) =>
+							eq(usersTable.id, ctx.session.user.id),
+						columns: {
+							activeInterviewSessionId: true,
+						},
+					});
+
+					if (!activeUser?.activeInterviewSessionId) {
+						throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+					}
+
+					return activeUser.activeInterviewSessionId;
+				}
+
 				const { 0: addedSession } = await tx
 					.insert(interviewSessionsTable)
 					.values({
+						id: sessionId,
 						currentQuestionIndex: 0,
 						userId: ctx.session.user.id,
 						startedAt: new Date(),
@@ -428,26 +485,26 @@ export const sessionRouter = router({
 				}
 
 				await tx.insert(interviewSessionStatusLogTable).values({
-					sessionId: addedSession.id,
+					sessionId,
 					statusId: statusToId.active,
 					createdAt: new Date(),
 				});
 
 				await tx.insert(chatMessagesTable).values({
-					sessionId: addedSession.id,
+					sessionId,
 					isAi: true,
 					messageText: firstTopic,
 				});
 
-				return addedSession;
+				return sessionId;
 			});
 
 			logger.info(
-				{ sessionId: result.id, scriptId: input, userId: ctx.session.user.id },
+				{ sessionId: result, scriptId: input, userId: ctx.session.user.id },
 				"Created interview session",
 			);
 
-			return result.id;
+			return result;
 		}),
 	getScriptByInterviewId: protectedProcedure
 		.input(z.uuid())

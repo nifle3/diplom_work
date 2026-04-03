@@ -29,6 +29,7 @@ export const usersTable = pgTable("users", {
 		.default(1),
 	xp: integer("xp").default(0).notNull(),
 	deletedAt: timestamp("deleted_at", { mode: "date" }),
+	activeInterviewSessionId: uuid("active_interview_session_id"),
 });
 
 export const accountsTable = pgTable("accounts", {
