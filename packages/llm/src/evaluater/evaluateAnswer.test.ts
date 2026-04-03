@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { evaluateAnswer } from "./evaluateAnswer";
 import { generateText } from "ai";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { evaluateAnswer } from "./evaluateAnswer";
 
 vi.mock("../model", () => ({
 	model: {},
@@ -61,9 +61,7 @@ describe("evaluateAnswer", () => {
 		const input = {
 			mode: "session" as const,
 			context: "Frontend interview",
-			conversation: [
-				{ question: "How are you?", answer: "Fine, thanks." },
-			],
+			conversation: [{ question: "How are you?", answer: "Fine, thanks." }],
 			globalCriteria: [],
 			specificCriteria: [],
 		};

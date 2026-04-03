@@ -19,33 +19,31 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { formatDate } from "@/lib/date";
 import { type ReportStatus, reportStatuses } from "@/lib/reportStatus";
 import { trpc } from "@/lib/trpc";
 
-export type ReportRow = {
+id: string;
+reason: string;
+createdAt: Date | string;
+status: ReportStatus;
+statusUpdatedAt: Date | string;
+{
 	id: string;
-	reason: string;
-	createdAt: Date | string;
-	status: ReportStatus;
-	statusUpdatedAt: Date | string;
-	reporter: {
-		id: string;
-		name: string;
-		email: string;
-	};
-	scenario: {
-		id: string;
-		title: string;
-		category: {
-			id: number;
-			name: string;
-		} | null;
-		expert: {
-			id: string;
-			name: string;
-		};
-	} | null;
-};
+	name: string;
+	email: string;
+}
+{
+	id: string;
+	title: string;
+	id: number;
+	name: string;
+	| null
+	id: string;
+	name: string;
+}
+| null
+}
 
 type ReportTableProps = {
 	data: ReportRow[];
@@ -87,14 +85,6 @@ const statusMeta: Record<
 			"border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900 dark:bg-rose-950 dark:text-rose-300",
 	},
 };
-
-function formatDate(value: Date | string) {
-	return new Intl.DateTimeFormat("ru-RU", {
-		day: "2-digit",
-		month: "short",
-		year: "numeric",
-	}).format(new Date(value));
-}
 
 export function ReportTable({
 	data,

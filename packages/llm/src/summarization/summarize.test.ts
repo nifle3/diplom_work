@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { summarize } from "./summarize";
 import { generateText } from "ai";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { summarize } from "./summarize";
 
 vi.mock("../model", () => ({
 	model: {},
@@ -38,7 +38,10 @@ describe("summarize", () => {
 		expect(generateText).toHaveBeenCalledWith(
 			expect.objectContaining({
 				messages: expect.arrayContaining([
-					expect.objectContaining({ role: "user", content: input.humanResponse }),
+					expect.objectContaining({
+						role: "user",
+						content: input.humanResponse,
+					}),
 				]),
 			}),
 		);

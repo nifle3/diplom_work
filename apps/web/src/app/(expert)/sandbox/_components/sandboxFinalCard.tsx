@@ -1,6 +1,7 @@
 import { Award, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getScoreTone } from "@/lib/score";
 import { cn } from "@/lib/utils";
 import type { SandboxSession } from "../_types";
 
@@ -27,21 +28,11 @@ export function SandboxFinalCard({ finalEvaluation }: SandboxFinalCardProps) {
 					<Badge
 						className={cn(
 							"rounded-full",
-							finalEvaluation.score >= 80 &&
-								"border-emerald-200 bg-emerald-50 text-emerald-700",
-							finalEvaluation.score >= 60 &&
-								finalEvaluation.score < 80 &&
-								"border-amber-200 bg-amber-50 text-amber-700",
-							finalEvaluation.score < 60 &&
-								"border-rose-200 bg-rose-50 text-rose-700",
+							getScoreTone(finalEvaluation.score).badgeClassName,
 						)}
 						variant="outline"
 					>
-						{finalEvaluation.score >= 80
-							? "Сильный результат"
-							: finalEvaluation.score >= 60
-								? "Есть база"
-								: "Есть зоны роста"}
+						{getScoreTone(finalEvaluation.score).label}
 					</Badge>
 				</div>
 			</CardHeader>

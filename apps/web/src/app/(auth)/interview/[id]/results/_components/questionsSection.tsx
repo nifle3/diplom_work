@@ -6,6 +6,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { formatDate } from "@/lib/date";
 
 type Question = {
 	id: string;
@@ -18,11 +19,6 @@ type Question = {
 type QuestionsSectionProps = {
 	questions: Question[];
 };
-
-const answeredAtFormatter = new Intl.DateTimeFormat("ru-RU", {
-	hour: "2-digit",
-	minute: "2-digit",
-});
 
 export function QuestionsSection({ questions }: QuestionsSectionProps) {
 	return (
@@ -62,7 +58,10 @@ export function QuestionsSection({ questions }: QuestionsSectionProps) {
 
 										{question.answeredAt ? (
 											<Badge variant="outline" className="shrink-0">
-												{answeredAtFormatter.format(question.answeredAt)}
+												{formatDate(question.answeredAt, {
+													hour: "2-digit",
+													minute: "2-digit",
+												})}
 											</Badge>
 										) : null}
 									</div>

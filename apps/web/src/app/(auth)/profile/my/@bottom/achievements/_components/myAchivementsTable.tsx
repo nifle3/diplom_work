@@ -7,6 +7,7 @@ import {
 	useReactTable,
 } from "@tanstack/react-table";
 import { Award, Calendar, Star, Target, Trophy, Zap } from "lucide-react";
+import { formatDate } from "@/lib/date";
 
 interface AchievementRow {
 	id: string;
@@ -83,11 +84,7 @@ const columns: ColumnDef<AchievementRow>[] = [
 			return (
 				<div className="flex items-center gap-1.5 text-muted-foreground">
 					<Calendar className="h-4 w-4" />
-					{new Date(date).toLocaleDateString("ru-RU", {
-						day: "numeric",
-						month: "short",
-						year: "numeric",
-					})}
+					{formatDate(date)}
 				</div>
 			);
 		},

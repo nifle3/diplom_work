@@ -13,10 +13,16 @@ describe("createLoggerBridge", () => {
 		const bridge = createLoggerBridge({ logger: mockInternalLogger });
 
 		bridge("info", "Test message", { extra: "data" });
-		expect(mockInternalLogger.info).toHaveBeenCalledWith("[info] Test message", { extra: "data" });
+		expect(mockInternalLogger.info).toHaveBeenCalledWith(
+			"[info] Test message",
+			{ extra: "data" },
+		);
 
 		bridge("error", "Error occurred", new Error("fail"));
-		expect(mockInternalLogger.error).toHaveBeenCalledWith("[error] Error occurred", expect.any(Error));
+		expect(mockInternalLogger.error).toHaveBeenCalledWith(
+			"[error] Error occurred",
+			expect.any(Error),
+		);
 
 		bridge("warn", "Warning");
 		expect(mockInternalLogger.warn).toHaveBeenCalledWith("[warn] Warning");

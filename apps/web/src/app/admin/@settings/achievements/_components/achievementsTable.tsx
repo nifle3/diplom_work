@@ -18,6 +18,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
+import { formatDate } from "@/lib/date";
 import { trpc } from "@/lib/trpc";
 import { AchievementForm } from "./achievementForm";
 
@@ -70,12 +71,7 @@ const columns = (
 	{
 		accessorKey: "updatedAt",
 		header: "Обновлено",
-		cell: ({ row }) =>
-			new Date(row.original.updatedAt).toLocaleDateString("ru-RU", {
-				day: "numeric",
-				month: "short",
-				year: "numeric",
-			}),
+		cell: ({ row }) => formatDate(row.original.updatedAt),
 	},
 	{
 		id: "actions",

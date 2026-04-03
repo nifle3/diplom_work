@@ -29,9 +29,15 @@ describe("createSendResetPassword", () => {
 	});
 
 	it("should log an error when EmailDeliveryError is thrown", async () => {
-		const errorPayload = { provider: "resend" as const, reason: "unknown" as const };
-		const deliveryError = new EmailDeliveryError("Delivery failed", errorPayload);
-		
+		const errorPayload = {
+			provider: "resend" as const,
+			reason: "unknown" as const,
+		};
+		const deliveryError = new EmailDeliveryError(
+			"Delivery failed",
+			errorPayload,
+		);
+
 		const mockEmail = {
 			sendPasswordReset: vi.fn().mockRejectedValue(deliveryError),
 		};

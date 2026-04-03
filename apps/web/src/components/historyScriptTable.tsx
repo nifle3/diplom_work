@@ -21,6 +21,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { GeneralTable } from "@/components/generalTable";
 import { Button } from "@/components/ui/button";
+import { formatDate } from "@/lib/date";
+import { getScoreColor } from "@/lib/score";
 
 type HistoryRow = {
 	id: string;
@@ -122,13 +124,11 @@ const columns: ColumnDef<HistoryRow>[] = [
 			if (score === null)
 				return <span className="text-muted-foreground">—</span>;
 
-			let scoreColor = "text-muted-foreground";
-			if (score >= 80) scoreColor = "text-green-600 dark:text-green-400";
-			else if (score >= 60) scoreColor = "text-yellow-600 dark:text-yellow-400";
-			else if (score >= 40) scoreColor = "text-orange-600 dark:text-orange-400";
-			else scoreColor = "text-red-600 dark:text-red-400";
-
-			return <span className={`font-semibold ${scoreColor}`}>{score}%</span>;
+			return (
+				<span className={`font-semibold ${getScoreColor(score)}`}>
+					{score}%
+				</span>
+			);
 		},
 	},
 	{
@@ -156,11 +156,7 @@ const columns: ColumnDef<HistoryRow>[] = [
 			return (
 				<div className="flex items-center gap-1.5 text-muted-foreground">
 					<Calendar className="h-4 w-4" />
-					{new Date(date).toLocaleDateString("ru-RU", {
-						day: "numeric",
-						month: "short",
-						year: "numeric",
-					})}
+					{formatDate(date)}
 				</div>
 			);
 		},

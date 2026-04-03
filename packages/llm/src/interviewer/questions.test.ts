@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { generateText } from "ai";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getFirstQuestion } from "./getFirstQuestion";
 import { getNextQuestion } from "./getNextQuestion";
-import { generateText } from "ai";
 
 vi.mock("../model", () => ({
 	model: {},

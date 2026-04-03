@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { planInterviewStep } from "./planInterviewStep";
 import { generateText } from "ai";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { planInterviewStep } from "./planInterviewStep";
 
 vi.mock("../model", () => ({
 	model: {},

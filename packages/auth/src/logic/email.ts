@@ -5,7 +5,12 @@ import { EmailDeliveryError } from "@diplom_work/domain/error";
  * Separated for easier testing by injecting email and logger dependencies.
  */
 export const createSendResetPassword = (deps: {
-	email: { sendPasswordReset: (opts: { to: string; resetUrl: string }) => Promise<void> };
+	email: {
+		sendPasswordReset: (opts: {
+			to: string;
+			resetUrl: string;
+		}) => Promise<void>;
+	};
 	logger: { error: (obj: object, msg: string) => void };
 }) => {
 	return async ({ user, url }: { user: { email: string }; url: string }) => {

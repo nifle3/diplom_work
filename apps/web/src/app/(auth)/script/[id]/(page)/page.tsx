@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { getAssetUrl } from "@/lib/assetUrl";
+import { datePresets, formatDate } from "@/lib/date";
 import { serverTrpc } from "@/lib/trpcServer";
 import NewSessionButton from "./_components/newSessionButton";
 import { ReportScriptButton } from "./_components/reportScriptButton";
@@ -23,13 +24,7 @@ export default async function Page({
 		description.length > 100
 			? `${description.slice(0, 100).trimEnd()}…`
 			: description;
-	const createdAt = data.draftOverAt
-		? data.draftOverAt.toLocaleDateString("ru-RU", {
-				day: "2-digit",
-				month: "long",
-				year: "numeric",
-			})
-		: "Не указана";
+	const createdAt = formatDate(data.draftOverAt, datePresets.long);
 
 	return (
 		<Card className="overflow-hidden border-border/60 bg-background/95 shadow-slate-950/5 shadow-xl">

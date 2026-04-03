@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { GeneralTable } from "@/components/generalTable";
 import { Modal } from "@/components/modal";
 import { Button } from "@/components/ui/button";
+import { formatDate } from "@/lib/date";
 import { trpc } from "@/lib/trpc";
 
 export interface ScriptRow {
@@ -63,13 +64,7 @@ const defaultColumns = (
 	{
 		accessorKey: "createdAt",
 		header: "Дата создания",
-		cell: ({ row }) => {
-			const date = row.original.createdAt;
-			if (!date) return "—";
-			return new Intl.DateTimeFormat("ru-RU", {
-				dateStyle: "medium",
-			}).format(date);
-		},
+		cell: ({ row }) => formatDate(row.original.createdAt),
 	},
 	{
 		id: "actions",

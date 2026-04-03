@@ -9,7 +9,11 @@ export const createLoggerBridge = (deps: {
 		debug: (...args: any[]) => void;
 	};
 }) => {
-	return (level: "error" | "warn" | "info" | "debug", message: string, ...args: any[]) => {
+	return (
+		level: "error" | "warn" | "info" | "debug",
+		message: string,
+		...args: any[]
+	) => {
 		switch (level) {
 			case "error":
 				deps.logger.error(`[${level}] ${message}`, ...args);

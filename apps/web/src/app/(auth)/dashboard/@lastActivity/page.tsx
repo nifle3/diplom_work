@@ -1,21 +1,8 @@
 import { ArrowRight, CalendarDays, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
+import { datePresets, formatDate } from "@/lib/date";
 import { serverTrpc } from "@/lib/trpcServer";
-
-function formatActivityDate(date: Date | string | null) {
-	if (!date) {
-		return "Дата недоступна";
-	}
-
-	return new Intl.DateTimeFormat("ru-RU", {
-		day: "numeric",
-		month: "long",
-		year: "numeric",
-		hour: "2-digit",
-		minute: "2-digit",
-	}).format(new Date(date));
-}
 
 export default async function Page() {
 	const trpcCaller = await serverTrpc();
@@ -64,7 +51,7 @@ export default async function Page() {
 									<div className="flex flex-col gap-1">
 										<span className="flex items-center gap-1.5">
 											<CalendarDays className="h-3 w-3" />
-											{formatActivityDate(activity.date)}
+											{formatDate(activity.date, datePresets.dateTime)}
 										</span>
 										<span className="font-medium text-sky-700 dark:text-sky-300">
 											Открыть результаты

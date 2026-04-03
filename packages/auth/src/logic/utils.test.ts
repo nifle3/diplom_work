@@ -6,7 +6,9 @@ describe("generateId", () => {
 		const id = generateId();
 		expect(typeof id).toBe("string");
 		// Simple UUID v4 regex check
-		expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+		expect(id).toMatch(
+			/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+		);
 	});
 
 	it("should generate unique IDs", () => {
