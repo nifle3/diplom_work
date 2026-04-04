@@ -50,3 +50,5 @@ tmp
 temp
 db.db
 .direnv
+
+.claude/skills

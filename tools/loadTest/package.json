@@ -3,13 +3,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"load": "node ./loadtest.mjs",
-		"check-types": "tsc -p ./tsconfig.json --noEmit"
-	},
-	"dependencies": {
-		"@diplom_work/config": "workspace:*",
-		"@diplom_work/api": "workspace:*",
-		"@trpc/client": "catalog:",
-		"superjson": "catalog:"
+		"load": "node ./seed.mjs",
+		"k6": "k6 run ./script.js"
 	}
 }

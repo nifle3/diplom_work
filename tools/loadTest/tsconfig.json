@@ -1,8 +1,0 @@
-{
-	"extends": "@diplom_work/config/tsconfig.base.json",
-	"compilerOptions": {
-		"allowImportingTsExtensions": true,
-		"noEmit": true
-	},
-	"include": ["src/**/*.ts"]
-}

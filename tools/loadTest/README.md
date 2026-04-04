@@ -1,67 +1,82 @@
-# Load Tests
+# Load Tests (k6)
 
-Нагрузочный раннер для `tRPC`-ручек проекта.
+Нагрузочное тестирование tRPC-ручек проекта через [k6](https://k6.io/).
 
-Он использует тот же стек, что и приложение: `@trpc/client` + `superjson`, поэтому запросы идут максимально близко к реальному `web`-клиенту.
-Основная логика лежит в `tools/loadTest/src/*.ts`, а `loadtest.mjs` только поднимает TypeScript-entrpoint через `node --experimental-strip-types`.
+Скрипт делает HTTP-запросы напрямую к tRPC-эндпоинтам (`/api/trpc/<procedure>`), повторяя формат superjson-трансформера.
 
 ## Запуск
 
+Простой запуск (suite `core`, mode `baseline`):
+
 ```bash
-nix develop -c pnpm --dir tools/loadTest run load -- --suite core --mode baseline --cookie "$LOADTEST_COOKIE"
+nix develop -c pnpm --dir tools/loadTest run load
 ```
 
-Или так:
+С параметрами:
 
 ```bash
-nix develop -c node tools/loadTest/loadtest.mjs --scenario healthCheck --mode stress
+LOADTEST_SUITE=core LOADTEST_MODE=stress LOADTEST_COOKIE="$COOKIE" \
+  nix develop -c pnpm --dir tools/loadTest run load
+```
+
+Напрямую через k6 (без seed-скрипта):
+
+```bash
+LOADTEST_SCRIPT_ID="..." LOADTEST_COOKIE="$COOKIE" \
+  nix develop -c k6 run tools/loadTest/script.js
+```
+
+С переопределением VU и длительности:
+
+```bash
+LOADTEST_MODE=stress LOADTEST_USERS=2000 LOADTEST_DURATION=60s LOADTEST_COOKIE="$COOKIE" \
+  nix develop -c pnpm --dir tools/loadTest run load
 ```
 
 ## Пресеты нагрузки
 
-- `baseline`: 8 виртуальных пользователей
-- `working`: 30 виртуальных пользователей
-- `elevated`: 75 виртуальных пользователей
-- `stress`: 1500 виртуальных пользователей
+| Mode       | VU   | Duration |
+|------------|------|----------|
+| `baseline` | 8    | 20s      |
+| `working`  | 30   | 30s      |
+| `elevated` | 75   | 40s      |
+| `stress`   | 1500 | 45s      |
 
-Проверка типов:
+## Сьюты (suites)
 
-```bash
-nix develop -c pnpm --dir tools/loadTest run check-types
-```
-
-Если нужен верхний предел из вашего диапазона, можно переопределить пользователей:
-
-```bash
-nix develop -c pnpm --dir tools/loadTest run load -- --suite core --mode stress --users 2000 --cookie "$LOADTEST_COOKIE"
-```
-
-## Сценарии
-
-- `public`
-- `catalog`
-- `user`
-- `storage`
-- `session`
-- `core`
-- `all`
-
-Если нужен один конкретный endpoint, используйте `--scenario`.
+- `public` — healthCheck
+- `catalog` — script.categories, script.getLatest, script.list, script.getInfo
+- `user` — user.getStats, user.getStreak, profile.*, activity.*
+- `storage` — file.getUploadLink
+- `session` — session.getScriptByInterviewId, session.getAllHistory
+- `core` — все кроме session
+- `all` — все сценарии
 
 ## Переменные окружения
 
-- `LOADTEST_BASE_URL` - базовый URL, по умолчанию `http://localhost:3001`
-- `LOADTEST_COOKIE` - cookie header для защищённых ручек
-- `LOADTEST_HEADERS_JSON` - дополнительные заголовки в JSON
-- `LOADTEST_TIMEOUT_MS` - таймаут на один запрос
-- `LOADTEST_SCRIPT_ID` - id сценария для `script.getInfo`
-- `LOADTEST_SESSION_ID` - id интервью для `session.*`
+| Variable                | Default                  | Description                              |
+|-------------------------|--------------------------|------------------------------------------|
+| `LOADTEST_BASE_URL`     | `http://localhost:3001`  | Базовый URL                              |
+| `LOADTEST_COOKIE`       | —                        | Cookie для авторизованных ручек          |
+| `LOADTEST_HEADERS_JSON` | —                        | Дополнительные заголовки (JSON-объект)    |
+| `LOADTEST_TIMEOUT_MS`   | `30000`                  | Таймаут на запрос                        |
+| `LOADTEST_SUITE`        | `core`                   | Набор сценариев                          |
+| `LOADTEST_MODE`         | `baseline`               | Пресет нагрузки                          |
+| `LOADTEST_USERS`        | —                        | Переопределение кол-ва VU                |
+| `LOADTEST_DURATION`     | —                        | Переопределение длительности (e.g. `60s`)|
+| `LOADTEST_SCRIPT_ID`    | —                        | ID скрипта для script.getInfo            |
+| `LOADTEST_SESSION_ID`   | —                        | ID сессии для session.*                  |
 
-## Что измеряется
+## Seed-скрипт
 
-- количество успешных и упавших запросов
-- `rps`
-- `p50`, `p95`, `p99`
-- список ошибок
+`seed.mjs` автоматически получает `scriptId` и `sessionId` через tRPC API перед запуском k6 (если нужны для выбранного suite и не заданы явно).
 
-Если хочешь, следующим сообщением я могу ещё добавить отдельный `report.md`-экспорт результатов в папку `tools/loadTest/reports`, чтобы его было удобно вставлять в диплом.
+## Метрики
+
+k6 выводит стандартные метрики + кастомные:
+
+- `trpc_latency` — время ответа (p50, p95, p99)
+- `trpc_ok` / `trpc_fail` — счётчики успешных/неудачных запросов
+- `trpc_error_rate` — процент ошибок
+
+Thresholds: p95 < 5s, error rate < 10%.
