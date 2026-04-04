@@ -23,27 +23,30 @@ import { formatDate } from "@/lib/date";
 import { type ReportStatus, reportStatuses } from "@/lib/reportStatus";
 import { trpc } from "@/lib/trpc";
 
-id: string;
-reason: string;
-createdAt: Date | string;
-status: ReportStatus;
-statusUpdatedAt: Date | string;
-{
+type ReportRow = {
 	id: string;
-	name: string;
-	email: string;
-}
-{
-	id: string;
-	title: string;
-	id: number;
-	name: string;
-	| null
-	id: string;
-	name: string;
-}
-| null
-}
+	reason: string;
+	createdAt: Date | string;
+	status: ReportStatus;
+	statusUpdatedAt: Date | string;
+	reporter: {
+		id: string;
+		name: string;
+		email: string;
+	};
+	scenario: {
+		id: string;
+		title: string;
+		category: {
+			id: number;
+			name: string;
+		} | null;
+		expert: {
+			id: string;
+			name: string;
+		};
+	} | null;
+};
 
 type ReportTableProps = {
 	data: ReportRow[];

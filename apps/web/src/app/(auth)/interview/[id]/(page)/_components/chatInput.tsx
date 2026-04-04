@@ -8,14 +8,14 @@ interface ChatInputProps {
 	onChange: (val: string) => void;
 	onSend: () => void;
 	disabled: boolean;
-	sttSupported: boolean;
-	ttsSupported: boolean;
-	isListening: boolean;
-	isSpeaking: boolean;
-	ttsEnabled: boolean;
-	onToggleListening: () => void;
-	onToggleTts: () => void;
-	onSpeakLastAiMessage: () => void;
+	sttSupported?: boolean;
+	ttsSupported?: boolean;
+	isListening?: boolean;
+	isSpeaking?: boolean;
+	ttsEnabled?: boolean;
+	onToggleListening?: () => void;
+	onToggleTts?: () => void;
+	onSpeakLastAiMessage?: () => void;
 }
 
 export const ChatInput = ({
@@ -23,14 +23,14 @@ export const ChatInput = ({
 	onChange,
 	onSend,
 	disabled,
-	sttSupported,
-	ttsSupported,
-	isListening,
-	isSpeaking,
-	ttsEnabled,
-	onToggleListening,
-	onToggleTts,
-	onSpeakLastAiMessage,
+	sttSupported = false,
+	ttsSupported = false,
+	isListening = false,
+	isSpeaking = false,
+	ttsEnabled = false,
+	onToggleListening = () => {},
+	onToggleTts = () => {},
+	onSpeakLastAiMessage = () => {},
 }: ChatInputProps) => {
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
 		if (e.key === "Enter" && !e.shiftKey) {
