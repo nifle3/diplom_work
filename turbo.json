@@ -57,6 +57,9 @@
 		},
 		"db:generate-custom": {
 			"cache": false
+		},
+		"load": {
+			"cache": false
 		}
 	}
 }

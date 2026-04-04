@@ -7,6 +7,7 @@
 		"check-types": "tsc -p ./tsconfig.json --noEmit"
 	},
 	"dependencies": {
+		"@diplom_work/config": "workspace:*",
 		"@diplom_work/api": "workspace:*",
 		"@trpc/client": "catalog:",
 		"superjson": "catalog:"
