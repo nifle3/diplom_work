@@ -59,7 +59,8 @@
 			"cache": false
 		},
 		"load": {
-			"cache": false
+			"cache": false,
+			"passThroughEnv": ["LOADTEST_*"]
 		}
 	}
 }

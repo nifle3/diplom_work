@@ -13,6 +13,7 @@ export function buildClient({
 	headersJson,
 	timeoutMs,
 }: Pick<LoadTestArgs, "baseUrl" | "cookie" | "headersJson" | "timeoutMs">) {
+	const normalizedBaseUrl = normalizeBaseUrl(baseUrl);
 	let extraHeaders: Record<string, string> = {};
 
 	if (headersJson.trim()) {
@@ -42,21 +43,34 @@ export function buildClient({
 	return createTRPCProxyClient<AppRouter>({
 		links: [
 			httpBatchLink({
-				url: `${normalizeBaseUrl(baseUrl)}/api/trpc`,
+				url: `${normalizedBaseUrl}/api/trpc`,
 				transformer: superjson,
 				headers() {
 					return headers;
 				},
-				fetch: (url, options) => {
+				fetch: async (url, options) => {
 					const requestTimeout = AbortSignal.timeout(timeoutMs);
 					const signal = options?.signal
 						? AbortSignal.any([options.signal, requestTimeout])
 						: requestTimeout;
 
-					return fetch(url, {
-						...options,
-						signal,
-					});
+					try {
+						return await fetch(url, {
+							...options,
+							signal,
+						});
+					} catch (error) {
+						const reason =
+							error instanceof Error
+								? error.cause instanceof Error
+									? `${error.message}: ${error.cause.message}`
+									: error.message
+								: "Unknown network error";
+						throw new Error(
+							`Failed to fetch ${url.toString()} from ${normalizedBaseUrl}: ${reason}`,
+							{ cause: error },
+						);
+					}
 				},
 			}),
 		],

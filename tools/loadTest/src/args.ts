@@ -1,9 +1,31 @@
 import process from "node:process";
 import type { LoadTestArgs } from "./types.ts";
 
+function normalizeBaseUrl(rawBaseUrl: string) {
+	let parsedUrl: URL;
+
+	try {
+		parsedUrl = new URL(rawBaseUrl);
+	} catch {
+		throw new Error(
+			`LOADTEST_BASE_URL must be a valid absolute URL, got "${rawBaseUrl}". Example: http://localhost:3001`,
+		);
+	}
+
+	if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:") {
+		throw new Error(
+			`LOADTEST_BASE_URL must use http or https, got "${rawBaseUrl}". Example: http://localhost:3001`,
+		);
+	}
+
+	return rawBaseUrl;
+}
+
 export function parseArgs(argv: string[]) {
 	const result: LoadTestArgs = {
-		baseUrl: process.env.LOADTEST_BASE_URL ?? "http://localhost:3001",
+		baseUrl: normalizeBaseUrl(
+			process.env.LOADTEST_BASE_URL ?? "http://localhost:3001",
+		),
 		cookie: process.env.LOADTEST_COOKIE ?? "",
 		headersJson: process.env.LOADTEST_HEADERS_JSON ?? "",
 		timeoutMs: Number(process.env.LOADTEST_TIMEOUT_MS ?? "30000"),
@@ -52,7 +74,7 @@ export function parseArgs(argv: string[]) {
 
 		switch (key) {
 			case "base-url":
-				result.baseUrl = readValue();
+				result.baseUrl = normalizeBaseUrl(readValue());
 				break;
 			case "cookie":
 				result.cookie = readValue();
