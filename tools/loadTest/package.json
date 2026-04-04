@@ -3,7 +3,8 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"load": "node ./loadtest.mjs"
+		"load": "node ./loadtest.mjs",
+		"check-types": "tsc -p ./tsconfig.json --noEmit"
 	},
 	"dependencies": {
 		"@diplom_work/api": "workspace:*",

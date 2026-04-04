@@ -3,6 +3,7 @@
 Нагрузочный раннер для `tRPC`-ручек проекта.
 
 Он использует тот же стек, что и приложение: `@trpc/client` + `superjson`, поэтому запросы идут максимально близко к реальному `web`-клиенту.
+Основная логика лежит в `tools/loadTest/src/*.ts`, а `loadtest.mjs` только поднимает TypeScript-entrpoint через `node --experimental-strip-types`.
 
 ## Запуск
 
@@ -22,6 +23,12 @@ nix develop -c node tools/loadTest/loadtest.mjs --scenario healthCheck --mode st
 - `working`: 30 виртуальных пользователей
 - `elevated`: 75 виртуальных пользователей
 - `stress`: 1500 виртуальных пользователей
+
+Проверка типов:
+
+```bash
+nix develop -c pnpm --dir tools/loadTest run check-types
+```
 
 Если нужен верхний предел из вашего диапазона, можно переопределить пользователей:
 
