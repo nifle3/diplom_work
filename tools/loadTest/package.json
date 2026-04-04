@@ -1,0 +1,13 @@
+{
+	"name": "@diplom_work/load-test",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"load": "node ./loadtest.mjs"
+	},
+	"dependencies": {
+		"@diplom_work/api": "workspace:*",
+		"@trpc/client": "catalog:",
+		"superjson": "catalog:"
+	}
+}

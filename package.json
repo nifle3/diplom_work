@@ -23,6 +23,7 @@
 		"db:watch": "turbo run db:watch --filter=@diplom_work/db",
 		"db:stop": "turbo run db:stop --filter=@diplom_work/db",
 		"db:down": "turbo run db:down --filter=@diplom_work/db",
+		"load:test": "pnpm --dir tools/loadTest run load",
 		"lint": "biome check --write ."
 	},
 	"dependencies": {
