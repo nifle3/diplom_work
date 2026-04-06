@@ -31,6 +31,36 @@ type SessionStatusLog = {
 	};
 };
 
+async function getActiveInterviewSessionId(
+	db: Pick<Context["db"], "query">,
+	userId: string,
+) {
+	const sessions = await db.query.interviewSessionsTable.findMany({
+		where: (interviewSessionsTable, { eq }) =>
+			eq(interviewSessionsTable.userId, userId),
+		columns: {
+			id: true,
+		},
+		with: {
+			statusLogs: {
+				columns: {
+					statusId: true,
+					createdAt: true,
+				},
+				orderBy: (statusLogs, { desc }) => [desc(statusLogs.createdAt)],
+				limit: 1,
+			},
+		},
+		orderBy: (interviewSessionsTable, { desc }) => [
+			desc(interviewSessionsTable.startedAt),
+		],
+	});
+
+	return sessions.find(
+		(session) => session.statusLogs[0]?.statusId === statusToId.active,
+	)?.id;
+}
+
 function isTerminalStatus(statusId: number | undefined) {
 	return statusId === statusToId.complete || statusId === statusToId.canceled;
 }
@@ -236,18 +266,6 @@ async function finalizeSession(
 			.where(eq(usersTable.id, userId));
 	}
 
-	await tx
-		.update(usersTable)
-		.set({
-			activeInterviewSessionId: null,
-		})
-		.where(
-			and(
-				eq(usersTable.id, userId),
-				eq(usersTable.activeInterviewSessionId, sessionId),
-			),
-		);
-
 	await syncUserAchievements(tx, userId);
 
 	logger.info(
@@ -371,18 +389,6 @@ async function cancelInterviewSession(
 		})
 		.where(eq(interviewSessionsTable.id, sessionId));
 
-	await tx
-		.update(usersTable)
-		.set({
-			activeInterviewSessionId: null,
-		})
-		.where(
-			and(
-				eq(usersTable.id, userId),
-				eq(usersTable.activeInterviewSessionId, sessionId),
-			),
-		);
-
 	logger.info(
 		{
 			sessionId,
@@ -436,68 +442,46 @@ export const sessionRouter = router({
 				});
 			}
 
-			const result = await ctx.db.transaction(async (tx) => {
-				const sessionId = crypto.randomUUID();
-				const claimedActiveSession = await tx
-					.update(usersTable)
-					.set({
-						activeInterviewSessionId: sessionId,
-					})
-					.where(
-						and(
-							eq(usersTable.id, ctx.session.user.id),
-							isNull(usersTable.activeInterviewSessionId),
-						),
-					)
-					.returning({
-						activeInterviewSessionId: usersTable.activeInterviewSessionId,
-					});
+				const result = await ctx.db.transaction(async (tx) => {
+					const sessionId = crypto.randomUUID();
+					const activeSessionId = await getActiveInterviewSessionId(
+						tx,
+						ctx.session.user.id,
+					);
 
-				if (claimedActiveSession.length === 0) {
-					const activeUser = await tx.query.usersTable.findFirst({
-						where: (usersTable, { eq }) =>
-							eq(usersTable.id, ctx.session.user.id),
-						columns: {
-							activeInterviewSessionId: true,
-						},
-					});
+					if (activeSessionId) {
+						return activeSessionId;
+					}
 
-					if (!activeUser?.activeInterviewSessionId) {
+					const { 0: addedSession } = await tx
+						.insert(interviewSessionsTable)
+						.values({
+							id: sessionId,
+							currentQuestionIndex: 0,
+							userId: ctx.session.user.id,
+							startedAt: new Date(),
+							scriptId: input,
+						})
+						.returning();
+
+					if (!addedSession) {
 						throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
 					}
 
-					return activeUser.activeInterviewSessionId;
-				}
+					await tx.insert(interviewSessionStatusLogTable).values({
+						sessionId,
+						statusId: statusToId.active,
+						createdAt: new Date(),
+					});
 
-				const { 0: addedSession } = await tx
-					.insert(interviewSessionsTable)
-					.values({
-						id: sessionId,
-						currentQuestionIndex: 0,
-						userId: ctx.session.user.id,
-						startedAt: new Date(),
-						scriptId: input,
-					})
-					.returning();
+					await tx.insert(chatMessagesTable).values({
+						sessionId,
+						isAi: true,
+						messageText: firstTopic,
+					});
 
-				if (!addedSession) {
-					throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
-				}
-
-				await tx.insert(interviewSessionStatusLogTable).values({
-					sessionId,
-					statusId: statusToId.active,
-					createdAt: new Date(),
+					return sessionId;
 				});
-
-				await tx.insert(chatMessagesTable).values({
-					sessionId,
-					isAi: true,
-					messageText: firstTopic,
-				});
-
-				return sessionId;
-			});
 
 			logger.info(
 				{ sessionId: result, scriptId: input, userId: ctx.session.user.id },

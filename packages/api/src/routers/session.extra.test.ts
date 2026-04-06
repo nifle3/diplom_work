@@ -94,20 +94,9 @@ describe("sessionRouter extra coverage", () => {
 		const insertSessionReturning = vi.fn().mockResolvedValue([{ id: sessionId }]);
 		const transaction = vi.fn().mockImplementation(async (callback) =>
 			callback({
-				update: vi.fn().mockReturnValue({
-					set: vi.fn().mockReturnValue({
-						where: vi.fn().mockReturnValue({
-							returning: vi.fn().mockResolvedValue([
-								{
-									activeInterviewSessionId: sessionId,
-								},
-							]),
-						}),
-					}),
-				}),
 				query: {
-					usersTable: {
-						findFirst: vi.fn(),
+					interviewSessionsTable: {
+						findMany: vi.fn().mockResolvedValue([]),
 					},
 				},
 				insert: vi.fn().mockImplementation((table: unknown) => {

@@ -39,6 +39,13 @@ const changeReportStatusSchema = z.object({
 	status: z.enum(reportStatuses),
 });
 
+const reportStatusToId: Record<ReportStatus, number> = {
+	new: 1,
+	in_review: 2,
+	resolved: 3,
+	rejected: 4,
+};
+
 type ReportWithRelations = {
 	id: string;
 	reason: string;
@@ -61,13 +68,15 @@ type ReportWithRelations = {
 		};
 	} | null;
 	statusLogs: Array<{
-		status: ReportStatus;
+		status: {
+			name: ReportStatus;
+		};
 		createdAt: Date;
 	}>;
 };
 
 function getCurrentStatus(report: ReportWithRelations) {
-	return report.statusLogs[0]?.status ?? "new";
+	return report.statusLogs[0]?.status.name ?? "new";
 }
 
 async function getRelevantScriptIds(
@@ -141,8 +150,14 @@ async function loadReports(db: Context["db"], scriptIds: string[]) {
 			},
 			statusLogs: {
 				columns: {
-					status: true,
 					createdAt: true,
+				},
+				with: {
+					status: {
+						columns: {
+							name: true,
+						},
+					},
 				},
 				orderBy: (statusLogs, { desc }) => [desc(statusLogs.createdAt)],
 				limit: 1,
@@ -175,8 +190,14 @@ export const reportRouter = router({
 				with: {
 					statusLogs: {
 						columns: {
-							status: true,
 							createdAt: true,
+						},
+						with: {
+							status: {
+								columns: {
+									name: true,
+								},
+							},
 						},
 						orderBy: (statusLogs, { desc }) => [desc(statusLogs.createdAt)],
 						limit: 1,
@@ -184,7 +205,7 @@ export const reportRouter = router({
 				},
 			});
 
-			const existingStatus = existingReport?.statusLogs[0]?.status;
+			const existingStatus = existingReport?.statusLogs[0]?.status.name;
 			if (
 				existingReport &&
 				(existingStatus === "new" || existingStatus === "in_review")
@@ -234,7 +255,7 @@ export const reportRouter = router({
 
 			await ctx.db.insert(reportStatusLogTable).values({
 				reportId,
-				status: "new",
+				statusId: reportStatusToId.new,
 				createdAt: now,
 			});
 
@@ -284,8 +305,14 @@ export const reportRouter = router({
 				},
 				statusLogs: {
 					columns: {
-						status: true,
 						createdAt: true,
+					},
+					with: {
+						status: {
+							columns: {
+								name: true,
+							},
+						},
 					},
 					orderBy: (statusLogs, { desc }) => [desc(statusLogs.createdAt)],
 					limit: 1,
@@ -359,8 +386,14 @@ export const reportRouter = router({
 				},
 				statusLogs: {
 					columns: {
-						status: true,
 						createdAt: true,
+					},
+					with: {
+						status: {
+							columns: {
+								name: true,
+							},
+						},
 					},
 					orderBy: (statusLogs, { desc }) => [desc(statusLogs.createdAt)],
 				},
@@ -406,7 +439,7 @@ export const reportRouter = router({
 
 			await ctx.db.insert(reportStatusLogTable).values({
 				reportId: input.reportId,
-				status: input.status,
+				statusId: reportStatusToId[input.status],
 				createdAt: new Date(),
 			});
 

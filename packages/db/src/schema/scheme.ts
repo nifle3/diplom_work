@@ -29,7 +29,6 @@ export const usersTable = pgTable("users", {
 		.default(1),
 	xp: integer("xp").default(0).notNull(),
 	deletedAt: timestamp("deleted_at", { mode: "date" }),
-	activeInterviewSessionId: uuid("active_interview_session_id"),
 });
 
 export const accountsTable = pgTable("accounts", {
@@ -223,8 +222,15 @@ export const reportStatusLogTable = pgTable("report_status_log", {
 	reportId: uuid("report_id")
 		.notNull()
 		.references(() => reportsTable.id),
-	status: varchar("status", { length: 20 }).notNull(),
+	statusId: integer("status_id")
+		.notNull()
+		.references(() => reportStatusesTable.id),
 	createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const reportStatusesTable = pgTable("report_statuses", {
+	id: integer("id").primaryKey(),
+	name: varchar("name", { length: 20 }).notNull().unique(),
 });
 
 export const userRelations = relations(usersTable, ({ one, many }) => ({
@@ -323,6 +329,16 @@ export const chatMessagesRelations = relations(
 		session: one(interviewSessionsTable, {
 			fields: [chatMessagesTable.sessionId],
 			references: [interviewSessionsTable.id],
+		}),
+	}),
+);
+
+export const reportStatusRelations = relations(
+	reportStatusLogTable,
+	({ one }) => ({
+		status: one(reportStatusesTable, {
+			fields: [reportStatusLogTable.statusId],
+			references: [reportStatusesTable.id],
 		}),
 	}),
 );

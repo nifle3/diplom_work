@@ -43,11 +43,10 @@ sequenceDiagram
     else вопросов нет
         API-->>UI: BAD_REQUEST
     else сессия уже была закреплена
-        API->>DB: Прочитать activeInterviewSessionId у пользователя
+        API->>DB: Найти уже активную сессию через interview_session_status_log
         API-->>UI: existing sessionId
     else новая сессия
         API->>DB: transaction()
-        API->>DB: update users.activeInterviewSessionId = sessionId
         API->>DB: insert interview_sessions
         API->>DB: insert status log active
         API->>DB: insert first AI message
@@ -92,7 +91,6 @@ sequenceDiagram
             API->>DB: insert complete status
             API->>DB: update finalScore and expertFeedback
             API->>DB: add XP if score > 0
-            API->>DB: clear activeInterviewSessionId
             API->>DB: sync achievements
             API->>Log: Processed interview answer and finished session
             API-->>UI: finished + result
@@ -128,7 +126,6 @@ sequenceDiagram
         API->>LLM: evaluateAnswer(mode = session) или calculate final evaluation
         API->>DB: insert complete/canceled status
         API->>DB: update finalScore / expertFeedback
-        API->>DB: clear activeInterviewSessionId
         opt finishSession
             API->>DB: add XP
             API->>DB: sync achievements
@@ -161,4 +158,3 @@ sequenceDiagram
     API->>DB: Прочитать историю сообщений или script
     API-->>UI: История или script
 ```
-

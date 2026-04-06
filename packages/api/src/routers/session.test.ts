@@ -2,8 +2,8 @@ import {
 	chatMessagesTable,
 	interviewSessionStatusLogTable,
 	interviewSessionsTable,
-	usersTable,
 } from "@diplom_work/db/schema/scheme";
+import { statusToId } from "@diplom_work/domain/values/sessionStatus";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -119,31 +119,14 @@ describe("sessionRouter", () => {
 
 			throw new Error("Unexpected insert table");
 		});
-		const update = vi.fn().mockImplementation((table: unknown) => {
-			if (table === usersTable) {
-				return {
-					set: vi.fn().mockReturnValue({
-						where: vi.fn().mockReturnValue({
-							returning: vi.fn().mockResolvedValue([
-								{
-									activeInterviewSessionId: sessionId,
-								},
-							]),
-						}),
-					}),
-				};
-			}
-
-			throw new Error("Unexpected update table");
-		});
+		const findMany = vi.fn().mockResolvedValue([]);
 
 		const transaction = vi.fn().mockImplementation(async (callback) => {
 			return callback({
 				insert,
-				update,
 				query: {
-					usersTable: {
-						findFirst: vi.fn(),
+					interviewSessionsTable: {
+						findMany,
 					},
 				},
 			});
@@ -160,7 +143,7 @@ describe("sessionRouter", () => {
 
 		await expect(caller.createNewSession(scriptId)).resolves.toBe(sessionId);
 		expect(randomUUID).toHaveBeenCalledTimes(1);
-		expect(update).toHaveBeenCalledWith(usersTable);
+		expect(findMany).toHaveBeenCalledTimes(1);
 		expect(insertSessionValues).toHaveBeenCalledWith(
 			expect.objectContaining({
 				currentQuestionIndex: 0,
@@ -172,6 +155,7 @@ describe("sessionRouter", () => {
 		expect(insertStatusValues).toHaveBeenCalledWith(
 			expect.objectContaining({
 				sessionId,
+				statusId: statusToId.active,
 				createdAt: expect.any(Date),
 			}),
 		);
@@ -195,24 +179,24 @@ describe("sessionRouter", () => {
 			"123e4567-e89b-12d3-a456-426614174099",
 		);
 
-		const update = vi.fn().mockReturnValue({
-			set: vi.fn().mockReturnValue({
-				where: vi.fn().mockReturnValue({
-					returning: vi.fn().mockResolvedValue([]),
-				}),
-			}),
-		});
-		const findFirst = vi.fn().mockResolvedValue({
-			activeInterviewSessionId: sessionId,
-		});
+		const findMany = vi.fn().mockResolvedValue([
+			{
+				id: sessionId,
+				statusLogs: [
+					{
+						statusId: statusToId.active,
+						createdAt: new Date(),
+					},
+				],
+			},
+		]);
 		const insert = vi.fn();
 		const transaction = vi.fn().mockImplementation(async (callback) =>
 			callback({
 				insert,
-				update,
 				query: {
-					usersTable: {
-						findFirst,
+					interviewSessionsTable: {
+						findMany,
 					},
 				},
 			}),
@@ -229,13 +213,7 @@ describe("sessionRouter", () => {
 			}).createNewSession(scriptId),
 		).resolves.toBe(sessionId);
 		expect(insert).not.toHaveBeenCalled();
-		expect(findFirst).toHaveBeenCalledWith(
-			expect.objectContaining({
-				columns: {
-					activeInterviewSessionId: true,
-				},
-			}),
-		);
+		expect(findMany).toHaveBeenCalledTimes(1);
 	});
 
 	it("returns the script for an interview session", async () => {

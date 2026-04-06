@@ -34,6 +34,9 @@ vi.mock("@diplom_work/logger/server", () => ({
 
 import { reportRouter } from "./report";
 
+const reportId = "123e4567-e89b-12d3-a456-426614174010";
+const scriptUuid = "123e4567-e89b-12d3-a456-426614174011";
+
 function createCaller(
 	db: unknown,
 	role: "admin" | "expert" = "expert",
@@ -64,10 +67,12 @@ describe("reportRouter", () => {
 		const findFirst = vi
 			.fn()
 			.mockResolvedValueOnce({
-				id: "report-1",
+				id: reportId,
 				statusLogs: [
 					{
-						status: "new",
+						status: {
+							name: "new",
+						},
 						createdAt: new Date("2025-01-01T00:00:00.000Z"),
 					},
 				],
@@ -90,7 +95,7 @@ describe("reportRouter", () => {
 				scriptId: "123e4567-e89b-12d3-a456-426614174000",
 				reason: "The scenario is not safe enough",
 			}),
-		).resolves.toEqual({ id: "report-1" });
+		).resolves.toEqual({ id: reportId });
 	});
 
 	it("rejects reports for missing scripts", async () => {
@@ -121,10 +126,10 @@ describe("reportRouter", () => {
 			email: "alex@example.com",
 		};
 		const script = {
-			id: "script-1",
+			id: scriptUuid,
 			expertId: "expert-1",
 		};
-		const insertReturning = vi.fn().mockResolvedValue([{ id: "report-1" }]);
+		const insertReturning = vi.fn().mockResolvedValue([{ id: reportId }]);
 		const insertValues = vi
 			.fn()
 			.mockReturnValueOnce({ returning: insertReturning })
@@ -152,11 +157,11 @@ describe("reportRouter", () => {
 				scriptId: script.id,
 				reason: "The scenario is not safe enough for learners",
 			}),
-		).resolves.toEqual({ id: "report-1" });
+		).resolves.toEqual({ id: reportId });
 		expect(insert).toHaveBeenCalledTimes(2);
 		expect(mocks.loggerInfo).toHaveBeenCalledWith(
 			expect.objectContaining({
-				reportId: "report-1",
+				reportId,
 				scriptId: script.id,
 				reporterId: "user-1",
 			}),
@@ -188,7 +193,7 @@ describe("reportRouter", () => {
 	it("lists the current user's reports", async () => {
 		const findMany = vi.fn().mockResolvedValue([
 			{
-				id: "report-1",
+				id: reportId,
 				reason: "Reason",
 				createdAt: new Date("2025-01-01T00:00:00.000Z"),
 				reporter: {
@@ -197,7 +202,7 @@ describe("reportRouter", () => {
 					email: "alex@example.com",
 				},
 				scenario: {
-					id: "script-1",
+					id: scriptUuid,
 					title: "Frontend",
 					category: {
 						id: 10,
@@ -210,7 +215,9 @@ describe("reportRouter", () => {
 				},
 				statusLogs: [
 					{
-						status: "in_review",
+						status: {
+							name: "in_review",
+						},
 						createdAt: new Date("2025-01-02T00:00:00.000Z"),
 					},
 				],
@@ -227,7 +234,7 @@ describe("reportRouter", () => {
 			}).myList(),
 		).resolves.toEqual([
 			{
-				id: "report-1",
+				id: reportId,
 				reason: "Reason",
 				createdAt: new Date("2025-01-01T00:00:00.000Z"),
 				status: "in_review",
@@ -237,7 +244,7 @@ describe("reportRouter", () => {
 					email: "alex@example.com",
 				},
 				scenario: {
-					id: "script-1",
+					id: scriptUuid,
 					title: "Frontend",
 					category: {
 						id: 10,
@@ -254,10 +261,10 @@ describe("reportRouter", () => {
 	});
 
 	it("filters admin reports by status", async () => {
-		const scriptIds = vi.fn().mockResolvedValue([{ id: "script-1" }]);
+		const scriptIds = vi.fn().mockResolvedValue([{ id: scriptUuid }]);
 		const reports = vi.fn().mockResolvedValue([
 			{
-				id: "report-1",
+				id: reportId,
 				reason: "Reason",
 				createdAt: new Date("2025-01-01T00:00:00.000Z"),
 				reporter: {
@@ -294,7 +301,7 @@ describe("reportRouter", () => {
 			}),
 		).resolves.toEqual([
 			{
-				id: "report-1",
+				id: reportId,
 				reason: "Reason",
 				createdAt: new Date("2025-01-01T00:00:00.000Z"),
 				status: "new",
@@ -338,7 +345,7 @@ describe("reportRouter", () => {
 
 	it("returns report details for the owner and rejects strangers", async () => {
 		const report = {
-			id: "report-1",
+			id: reportId,
 			reason: "Reason",
 			createdAt: new Date("2025-01-01T00:00:00.000Z"),
 			reporter: {
@@ -347,7 +354,7 @@ describe("reportRouter", () => {
 				email: "alex@example.com",
 			},
 			scenario: {
-				id: "script-1",
+				id: scriptUuid,
 				title: "Frontend",
 				category: {
 					id: 10,
@@ -358,12 +365,14 @@ describe("reportRouter", () => {
 					name: "Expert",
 				},
 			},
-			statusLogs: [
-				{
-					status: "new",
-					createdAt: new Date("2025-01-02T00:00:00.000Z"),
-				},
-			],
+				statusLogs: [
+					{
+						status: {
+							name: "new",
+						},
+						createdAt: new Date("2025-01-02T00:00:00.000Z"),
+					},
+				],
 		};
 		const findFirst = vi.fn().mockResolvedValue(report);
 
@@ -378,16 +387,16 @@ describe("reportRouter", () => {
 				},
 				"expert",
 				"user-1",
-			).getById("report-1"),
+			).getById(reportId),
 		).resolves.toEqual(
 			expect.objectContaining({
-				id: "report-1",
+				id: reportId,
 				status: "new",
 			}),
 		);
 
-		await expect(
-			createCaller(
+			await expect(
+				createCaller(
 				{
 					query: {
 						reportsTable: {
@@ -397,7 +406,7 @@ describe("reportRouter", () => {
 				},
 				"expert",
 				"user-2",
-			).getById("report-1"),
+			).getById(reportId),
 		).rejects.toMatchObject({ code: "FORBIDDEN" });
 
 		await expect(
@@ -411,12 +420,12 @@ describe("reportRouter", () => {
 				},
 				"expert",
 				"user-1",
-			).getById("report-1"),
+			).getById(reportId),
 		).rejects.toMatchObject({ code: "NOT_FOUND" });
 	});
 
 	it("changes report status", async () => {
-		const findFirst = vi.fn().mockResolvedValue({ id: "report-1" });
+		const findFirst = vi.fn().mockResolvedValue({ id: reportId });
 		const insertValues = vi.fn().mockResolvedValue(undefined);
 		const insert = vi.fn().mockReturnValue({
 			values: insertValues,
@@ -434,17 +443,17 @@ describe("reportRouter", () => {
 				},
 				"admin",
 			).changeStatus({
-				reportId: "report-1",
+				reportId,
 				status: "resolved",
 			}),
 		).resolves.toEqual({
-			id: "report-1",
+			id: reportId,
 			status: "resolved",
 		});
 		expect(insertValues).toHaveBeenCalledWith(
 			expect.objectContaining({
-				reportId: "report-1",
-				status: "resolved",
+				reportId,
+				statusId: 3,
 				createdAt: expect.any(Date),
 			}),
 		);
@@ -460,7 +469,7 @@ describe("reportRouter", () => {
 				},
 				"admin",
 			).changeStatus({
-				reportId: "report-1",
+				reportId,
 				status: "resolved",
 			}),
 		).rejects.toMatchObject({ code: "NOT_FOUND" });
