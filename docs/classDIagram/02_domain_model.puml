@@ -1,0 +1,77 @@
+@startuml
+left to right direction
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+hide circle
+
+title Domain Model
+
+package "Errors" {
+  class DomainError<T> <<abstract>> {
+    +payload?: T
+    +message: string
+  }
+
+  class StorageError <<error>> {
+  }
+
+  class FileTooLargeError <<error>> {
+  }
+
+  class EmailConfigurationError <<error>> {
+  }
+
+  class EmailDeliveryError <<error>> {
+  }
+}
+
+package "Values" {
+  enum Status {
+    active
+    complete
+    canceled
+  }
+
+  class statusToId <<const map>> {
+    +active: 1
+    +complete: 2
+    +canceled: 3
+  }
+
+  class reportStatuses <<const tuple>> {
+    new
+    in_review
+    resolved
+    rejected
+  }
+
+  class ReportStatus <<type alias>> {
+  }
+}
+
+DomainError <|-- StorageError
+DomainError <|-- FileTooLargeError
+DomainError <|-- EmailConfigurationError
+DomainError <|-- EmailDeliveryError
+
+Status ..> statusToId : mapped by
+reportStatuses ..> ReportStatus : source tuple
+
+note right of DomainError
+  Base class for typed application errors.
+  Carries optional payload data.
+end note
+
+note right of Status
+  Used by interview_session_status_log.
+end note
+
+note right of reportStatuses
+  Used by report_status_log.
+end note
+
+note right of ReportStatus
+  Type alias derived from reportStatuses tuple.
+end note
+
+@enduml

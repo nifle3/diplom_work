@@ -1,0 +1,127 @@
+@startuml
+left to right direction
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+hide circle
+
+title File Subsystem
+
+package "Infrastructure" {
+  class env <<config>> {
+    +S3_REGION
+    +S3_ENDPOINT
+    +S3_BUCKET
+    +S3_TENAT_KEY
+    +S3_KEY_ID
+    +S3_SECRET_KEY
+  }
+
+  class client <<S3Client>> {
+  }
+}
+
+package "Utilities" {
+  class crypto <<node:crypto>> {
+  }
+
+  class path <<node:path>> {
+  }
+
+  class generateFileKey <<function>> {
+    +originalName
+    +folder
+    +key
+  }
+
+  class wrapS3Error <<function>> {
+    +fn
+    +wrappedFn
+  }
+}
+
+package "Operations" {
+  class uploadFile <<function>> {
+    +fileBuffer
+    +originalName
+    +contentType
+    +folder
+    +key
+  }
+
+  class deleteFile <<function>> {
+    +key
+  }
+
+  class getPersistentLink <<function>> {
+    +key
+    +url
+  }
+
+  class getUploadPersistentLink <<function>> {
+    +key
+    +contentType
+    +url
+  }
+
+  class s3Healthcheck <<function>> {
+  }
+
+  class file <<module>> {
+    +deleteFile
+    +getPersistentLink
+    +getPersistentUploadLink
+    +uploadFile
+    +s3Healthcheck
+  }
+}
+
+package "Domain errors" {
+  class StorageError <<error>> {
+  }
+
+  class FileTooLargeError <<error>> {
+  }
+
+  class logger <<service>> {
+  }
+}
+
+client ..> env
+generateFileKey ..> crypto
+generateFileKey ..> path
+
+uploadFile ..> client
+uploadFile ..> env
+uploadFile ..> generateFileKey
+deleteFile ..> client
+deleteFile ..> env
+getPersistentLink ..> client
+getPersistentLink ..> env
+getUploadPersistentLink ..> client
+getUploadPersistentLink ..> env
+s3Healthcheck ..> client
+s3Healthcheck ..> logger
+
+file ..> wrapS3Error
+file ..> uploadFile
+file ..> deleteFile
+file ..> getPersistentLink
+file ..> getUploadPersistentLink
+file ..> s3Healthcheck
+
+wrapS3Error ..> StorageError
+wrapS3Error ..> FileTooLargeError
+
+note right of file
+  Public entry point that re-exports wrapped S3 operations.
+end note
+
+note right of wrapS3Error
+  Converts low-level AWS errors into domain-level storage errors.
+end note
+
+note right of s3Healthcheck
+  Uses ListBucketsCommand to verify connectivity with S3.
+end note
+
+@enduml

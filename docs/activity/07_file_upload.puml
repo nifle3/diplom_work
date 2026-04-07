@@ -1,0 +1,46 @@
+@startuml 07_file_upload
+title Загрузка файла (аватар / изображение скрипта)
+
+|Клиент (браузер)|
+start
+
+:Пользователь выбирает файл;
+
+:Определить filename\nи contentType;
+
+|Сервер (tRPC)|
+
+:Вызвать file.getUploadLink(\n  filename, contentType, folder\n);
+
+:Извлечь расширение файла\nиз filename;
+
+:Сгенерировать S3-ключ:\n  {folder}/{UUID}.{ext};
+
+:Вызвать file.getPersistentUploadLink(\n  key, contentType\n)→ подписанный PUT URL;
+
+:Записать лог (userId, metadata);
+
+:Вернуть {url, key};
+
+|Клиент (браузер)|
+
+:Выполнить HTTP PUT запрос\nна подписанный URL\n(с Content-Type заголовком);
+
+if (Загрузка успешна?) then (да)
+  :Сохранить key в форме\nдля последующей записи в БД;
+  :Отобразить превью файла;
+else (нет)
+  :Показать ошибку загрузки;
+  stop
+endif
+
+:При сохранении формы:\nпередать key в мутацию\n(mutateFirstStep / updateProfile);
+
+|Сервер (tRPC)|
+
+:Сохранить key в запись\nскрипта / пользователя в БД;
+
+:При последующих запросах:\nвызвать file.getPersistentLink(key)\nдля получения URL отображения;
+
+stop
+@enduml

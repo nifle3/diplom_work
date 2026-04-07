@@ -1,0 +1,80 @@
+@startuml 08_expert_sandbox
+title Тестирование скрипта в песочнице эксперта
+
+start
+
+partition "Создание сессии песочницы" {
+  :Эксперт передаёт scriptId;
+
+  :Проверить что эксперт\nявляется владельцем скрипта;
+
+  if (Эксперт владеет скриптом?) then (нет)
+    :Выбросить ошибку FORBIDDEN;
+    stop
+  endif
+
+  :Проверить что скрипт имеет\nконтекст и вопросы;
+
+  :INSERT записи сессии;
+  :INSERT первого вопроса (AI);
+
+  :Вернуть sessionId;
+}
+
+partition "Отправка ответа в песочнице" {
+  :Эксперт отправляет ответ\n(sessionId, content);
+
+  :Загрузить сессию и проверить\nвладельца;
+
+  partition "LLM обработка (идентична пользовательской)" {
+    :Суммаризация;
+    :Оценка ответа → score,\n  feedback, analysisNote;
+    :Планирование шага →\n  follow_up | next_topic | finish;
+  }
+
+  :INSERT сообщения эксперта\n(с analysisNote);
+
+  if (decision == "finish"?) then (да)
+    :Вызвать полную оценку сессии;
+    :Вернуть {type: "finished",\n  finalEvaluation};
+    stop
+  else (нет)
+    :INSERT следующего\nвопроса AI;
+    :UPDATE currentQuestionIndex;
+    :Вернуть {type: "next-question",\n  message, analysisNote};
+  endif
+}
+
+partition "Перемотка сессии (rewind)" {
+  :Эксперт выбирает сообщение\nдля возврата (messageId);
+
+  :Найти сообщение в сессии;
+
+  if (Сообщение = ответ эксперта?) then (нет)
+    :Выбросить ошибку\n(нельзя перемотать на AI-сообщение);
+    stop
+  endif
+
+  :Определить сообщения\nкоторые нужно удалить\n(всё после выбранного);
+
+  partition "Пересборка резюме" {
+    repeat
+      :Взять следующую Q&A пару\nиз оставшихся сообщений;
+      :Вызвать summarize() последовательно;
+      :Накопить новое резюме;
+    repeat while (Ещё Q&A пары?) is (да)
+    ->нет;
+  }
+
+  :Рассчитать корректный\ncurrentQuestionIndex;
+
+  :Открыть транзакцию БД;
+  :DELETE удалённых сообщений;
+  :UPDATE сессии (index, summary);
+  :Зафиксировать транзакцию;
+
+  :Вернуть {messageText, messages,\n  currentQuestionIndex};
+}
+
+stop
+@enduml

@@ -1,0 +1,87 @@
+@startuml
+left to right direction
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+hide circle
+
+title Application Service Composition
+
+package "API bootstrap" {
+  class AppDependencies <<type>> {
+    +auth
+    +db
+    +file
+    +llm
+  }
+
+  class defaultDependencies <<object>> {
+    +auth
+    +db
+    +file
+    +llm
+  }
+
+  class createContext <<function>> {
+    +req
+    +dependencies
+    +session
+    +requestId
+    +clientIp
+    +userAgent
+    +setCookieHeaders
+  }
+
+  class Context <<type>> {
+    +session
+    +requestId
+    +clientIp
+    +userAgent
+    +setCookieHeaders
+  }
+}
+
+package "Auth" {
+  class auth <<service>> {
+  }
+}
+
+package "Database" {
+  class db <<instance>> {
+  }
+}
+
+package "File" {
+  class file <<module>> {
+  }
+}
+
+package "LLM" {
+  class llm <<module>> {
+  }
+}
+
+defaultDependencies ..> auth
+defaultDependencies ..> db
+defaultDependencies ..> file
+defaultDependencies ..> llm
+defaultDependencies ..|> AppDependencies
+
+createContext ..> AppDependencies
+createContext ..> defaultDependencies : fallback
+createContext ..> auth : getSession()
+createContext ..> Context
+
+note right of AppDependencies
+  Runtime DI contract used by the tRPC context factory.
+end note
+
+note right of defaultDependencies
+  Wires the concrete auth, db, file and llm implementations.
+end note
+
+note right of createContext
+  Reads request headers, resolves the current session and
+  enriches the request with requestId, IP address and user agent.
+end note
+
+@enduml

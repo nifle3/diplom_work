@@ -1,0 +1,48 @@
+@startuml 10_llm_evaluate_answer
+title LLM: Оценка ответа (два режима)
+
+start
+
+:Получить входные данные:\n  mode, context, criteria;
+
+if (mode == "answer"?) then (да)
+
+  partition "Режим: оценка одного ответа" {
+    :Входные данные:\n  - question (текущий вопрос)\n  - answer (ответ пользователя)\n  - globalCriteria []\n  - specificCriteria []\n  - summary (предыдущий контекст);
+
+    :Сформировать глобальные критерии\n  в виде нумерованного списка\n  с типами (тегами);
+
+    :Сформировать специфичные критерии\n  в виде нумерованного списка;
+
+    :Построить LLM-промпт:\n  контекст + критерии +\n  вопрос + ответ + резюме;
+
+    :Запросить структурированный\nJSON-вывод по схеме Zod:\n  - score (0–100)\n  - feedback (2–4 предложения)\n  - analysisNote (1–2 предложения)\n  - strengths (до 3)\n  - improvements (до 3);
+  }
+
+else (нет — mode == "session")
+
+  partition "Режим: оценка всей сессии" {
+    :Входные данные:\n  - conversation [{question, answer}]\n  - globalCriteria []\n  - specificCriteria []\n  - summary (опционально);
+
+    :Сформировать блок диалога:\n  пронумерованные Q&A пары;
+
+    :Построить LLM-промпт:\n  контекст + критерии +\n  полный диалог;
+
+    :Запросить структурированный\nJSON-вывод по схеме Zod:\n  - score (0–100)\n  - feedback (3–6 предложений)\n  - analysisNote (общий вывод)\n  - strengths (до 3)\n  - improvements (до 3);
+  }
+
+endif
+
+:Вызвать model.generateText()\n  с Output.object({schema});
+
+:Валидировать вывод через Zod;
+
+if (Вывод корректен?) then (нет)
+  :Выбросить ошибку парсинга;
+  stop
+endif
+
+:Вернуть структурированную оценку;
+
+stop
+@enduml

@@ -1,0 +1,57 @@
+@startuml 03_report_lifecycle
+title Жизненный цикл жалобы
+
+hide empty description
+
+[*] --> New : create()
+
+state New
+
+note right of New
+  Первая запись в report_status_log
+  current status = new
+end note
+
+state InReview
+
+note right of InReview
+  Жалоба в работе у администратора
+end note
+
+state Resolved
+
+note right of Resolved
+  Жалоба закрыта как решённая
+end note
+
+state Rejected
+
+note right of Rejected
+  Жалоба отклонена
+end note
+
+New --> InReview : admin changeStatus()
+New --> Resolved : admin changeStatus()
+New --> Rejected : admin changeStatus()
+
+InReview --> New : admin changeStatus()
+InReview --> Resolved : admin changeStatus()
+InReview --> Rejected : admin changeStatus()
+
+Resolved --> New : admin changeStatus()
+Resolved --> InReview : admin changeStatus()
+Resolved --> Rejected : admin changeStatus()
+
+Rejected --> New : admin changeStatus()
+Rejected --> InReview : admin changeStatus()
+Rejected --> Resolved : admin changeStatus()
+
+note bottom
+  changeStatus() не ограничивает переход
+  и просто добавляет новую запись в log.
+  Текущее состояние = последний статус.
+  create() не создаёт дубль, если последняя
+  жалоба уже в new или in_review.
+end note
+
+@enduml

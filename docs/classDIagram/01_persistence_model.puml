@@ -1,0 +1,195 @@
+@startuml
+left to right direction
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+hide circle
+
+title Persistence Model
+
+package "Auth" {
+  class rolesTable <<table>> {
+    +id: integer
+    +name: varchar(50)
+  }
+
+  class usersTable <<table>> {
+    +id: uuid
+    +name: text
+    +email: text
+    +emailVerified: boolean
+    +roleId: integer
+    +xp: integer
+    +deletedAt: timestamp?
+  }
+
+  class accountsTable <<table>> {
+    +id: uuid
+    +accountId: uuid
+    +providerId: text
+    +userId: uuid
+    +password: text?
+  }
+
+  class sessionsTable <<table>> {
+    +id: uuid
+    +token: text
+    +expiresAt: timestamp
+    +userId: uuid
+  }
+
+  class verificationsTable <<table>> {
+    +id: uuid
+    +identifier: text
+    +value: text
+    +expiresAt: timestamp
+  }
+}
+
+package "Catalog & Scenario" {
+  class categoriesTable <<table>> {
+    +id: integer
+    +name: varchar(100)
+    +deletedAt: timestamp?
+  }
+
+  class scriptsTable <<table>> {
+    +id: uuid
+    +categoryId: integer?
+    +expertId: uuid
+    +title: varchar(150)
+    +isDraft: boolean
+    +draftOverAt: timestamp?
+    +deletedAt: timestamp?
+  }
+
+  class criteriaTypesTable <<table>> {
+    +id: integer
+    +name: varchar(50)
+  }
+
+  class scriptCriteriaTable <<table>> {
+    +id: uuid
+    +scriptId: uuid
+    +typeId: integer
+    +content: text
+    +deletedAt: timestamp?
+  }
+
+  class questionTemplatesTable <<table>> {
+    +id: uuid
+    +scriptId: uuid
+    +order: integer
+    +text: text
+    +deletedAt: timestamp?
+  }
+
+  class specificCriteriaTable <<table>> {
+    +id: uuid
+    +questionId: uuid
+    +content: text
+  }
+}
+
+package "Interview" {
+  class interviewSessionsTable <<table>> {
+    +id: uuid
+    +userId: uuid
+    +scriptId: uuid
+    +finalScore: integer?
+    +expertFeedback: text?
+    +currentQuestionIndex: integer
+    +startedAt: timestamp
+    +summarize: text?
+  }
+
+  class interviewSessionStatusesTable <<table>> {
+    +id: integer
+    +name: varchar(20)
+  }
+
+  class interviewSessionStatusLogTable <<table>> {
+    +id: uuid
+    +sessionId: uuid
+    +statusId: integer
+    +createdAt: timestamp
+  }
+
+  class chatMessagesTable <<table>> {
+    +id: uuid
+    +sessionId: uuid
+    +isAi: boolean
+    +messageText: text
+    +analysisNote: text?
+    +createdAt: timestamp
+  }
+}
+
+package "Reputation & Moderation" {
+  class achievementsTable <<table>> {
+    +id: uuid
+    +name: varchar(100)
+    +description: text
+    +formula: text
+  }
+
+  class userAchievementsTable <<table>> {
+    +userId: uuid
+    +achievementId: uuid
+    +awardedAt: timestamp
+  }
+
+  class reportsTable <<table>> {
+    +id: uuid
+    +reporterId: uuid
+    +scriptId: uuid
+    +reason: text
+  }
+
+  class reportStatusesTable <<table>> {
+    +id: integer
+    +name: varchar(20)
+  }
+
+  class reportStatusLogTable <<table>> {
+    +id: uuid
+    +reportId: uuid
+    +statusId: integer
+    +createdAt: timestamp
+  }
+}
+
+rolesTable "1" <-- "0..*" usersTable : role
+usersTable "1" <-- "0..*" accountsTable : user
+usersTable "1" <-- "0..*" sessionsTable : user
+
+categoriesTable "1" <-- "0..*" scriptsTable : category
+usersTable "1" <-- "0..*" scriptsTable : expert
+scriptsTable "1" <-- "0..*" scriptCriteriaTable : globalCriteria
+criteriaTypesTable "1" <-- "0..*" scriptCriteriaTable : type
+scriptsTable "1" <-- "0..*" questionTemplatesTable : questions
+questionTemplatesTable "1" <-- "0..*" specificCriteriaTable : specificCriteria
+
+usersTable "1" <-- "0..*" interviewSessionsTable : user
+scriptsTable "1" <-- "0..*" interviewSessionsTable : script
+interviewSessionsTable "1" <-- "0..*" chatMessagesTable : messages
+interviewSessionsTable "1" <-- "0..*" interviewSessionStatusLogTable : statusLogs
+interviewSessionStatusesTable "1" <-- "0..*" interviewSessionStatusLogTable : status
+
+usersTable "1" <-- "0..*" userAchievementsTable : user
+achievementsTable "1" <-- "0..*" userAchievementsTable : achievement
+usersTable "1" <-- "0..*" reportsTable : reporter
+scriptsTable "1" <-- "0..*" reportsTable : scenario
+reportsTable "1" <-- "0..*" reportStatusLogTable : statusLogs
+reportStatusesTable "1" <-- "0..*" reportStatusLogTable : status
+
+note right of interviewSessionStatusesTable
+  Values from domain enum:
+  active, complete, canceled
+end note
+
+note right of reportStatusesTable
+  Values from domain union:
+  new, in_review, resolved, rejected
+end note
+
+@enduml

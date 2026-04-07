@@ -1,0 +1,74 @@
+@startuml
+left to right direction
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+hide circle
+
+title Auth Integration
+
+package "Auth package" {
+  class betterAuth <<library>>
+  class auth <<instance>>
+  class authSchema <<schema>>
+  class drizzleAdapter <<adapter>>
+  class nextCookies <<plugin>>
+  class customSession <<plugin>>
+  class createSendResetPassword <<factory>>
+  class createLoggerBridge <<factory>>
+  class createSessionHook <<factory>>
+  class generateId <<factory>>
+}
+
+package "Database schema" {
+  class usersTable <<table>>
+  class sessionsTable <<table>>
+  class verificationsTable <<table>>
+  class accountsTable <<table>>
+}
+
+package "Support services" {
+  class db <<instance>>
+  class email <<service>>
+  class env <<config>>
+  class logger <<service>>
+}
+
+authSchema ..> usersTable
+authSchema ..> sessionsTable
+authSchema ..> verificationsTable
+authSchema ..> accountsTable
+
+auth ..> betterAuth
+auth ..> drizzleAdapter
+auth ..> nextCookies
+auth ..> customSession
+auth ..> createSendResetPassword
+auth ..> createLoggerBridge
+auth ..> createSessionHook
+auth ..> generateId
+
+drizzleAdapter ..> db
+createSendResetPassword ..> email
+createSendResetPassword ..> logger
+createLoggerBridge ..> logger
+createSessionHook ..> db
+auth ..> env : trustedOrigins / secrets
+
+note right of auth
+  Better Auth configuration with database adapter, password reset delivery,
+  custom session enrichment and structured logging.
+end note
+
+note right of authSchema
+  Drizzle schema consumed by the Better Auth adapter.
+end note
+
+note right of createSendResetPassword
+  Sends password-reset email and logs delivery failures.
+end note
+
+note right of createSessionHook
+  Enriches the session with the user's role from the users table.
+end note
+
+@enduml

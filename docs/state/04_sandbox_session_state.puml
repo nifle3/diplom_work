@@ -1,0 +1,64 @@
+@startuml 04_sandbox_session_state
+title Операционное состояние sandbox-сессии эксперта
+
+hide empty description
+
+[*] --> Ready : createSession()
+
+state Ready
+
+note right of Ready
+  Сессия создана
+  currentQuestionIndex = 0
+  в истории уже есть первый AI-вопрос
+end note
+
+Ready --> AwaitingAnswer : first question shown
+
+state AwaitingAnswer
+
+note right of AwaitingAnswer
+  Эксперт видит вопрос
+  и может отправить ответ
+end note
+
+AwaitingAnswer --> Evaluating : sendAnswer()
+
+state Evaluating
+
+note right of Evaluating
+  LLM считает summary,
+  score, analysisNote и step
+end note
+
+Evaluating --> AwaitingAnswer : decision = next_topic / follow_up
+Evaluating --> Finished : decision = finish
+
+state Finished
+
+note right of Finished
+  Возвращается итоговая оценка
+  без смены questionIndex
+end note
+
+AwaitingAnswer --> Rewinding : rewindSession()
+
+state Rewinding
+
+note right of Rewinding
+  Удаляются ответы и вопросы
+  после выбранного сообщения
+  summary пересобирается заново
+end note
+
+Rewinding --> AwaitingAnswer : restore messages
+
+Finished --> [*]
+
+note bottom
+  Это не отдельный enum в БД,
+  а модель рабочей динамики sandbox-сессии.
+  Она выводится из сообщений и currentQuestionIndex.
+end note
+
+@enduml
