@@ -52,3 +52,4 @@ db.db
 .direnv
 
 .claude/skills
+docs/**/*.png
