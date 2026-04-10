@@ -1,0 +1,25 @@
+@startuml 04_interview_session_result
+title Результат И История Интервью-Сессии
+
+autonumber
+
+actor User
+participant UI as "Interview UI"
+participant API as "sessionRouter.getResultBySessionId / getAllHistory / getScriptByInterviewId"
+participant DB as Postgres
+
+User -> UI: Открывает результаты или историю
+UI -> API: getResultBySessionId(sessionId)
+API -> DB: Прочитать сессию, сообщения, status log и script
+
+alt сессия не найдена
+    API --> UI: NOT_FOUND
+else сессия найдена
+    API --> UI: result + questions + experienceGained
+end
+
+UI -> API: getAllHistory(sessionId) / getScriptByInterviewId(sessionId)
+API -> DB: Прочитать историю сообщений или script
+API --> UI: История или script
+
+@enduml

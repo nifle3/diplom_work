@@ -1,0 +1,16 @@
+@startuml 09_content_script_history
+title История По Сценарию
+
+autonumber
+
+actor User
+participant UI as "Web UI"
+participant API as "scriptRouter.getUserHistory / getUserHistoryByScript"
+participant DB as Postgres
+
+User -> UI: Открывает историю прохождений
+UI -> API: getUserHistory() / getUserHistoryByScript(scriptId)
+API -> DB: Выбрать сессии пользователя
+API --> UI: Список с finishedAt и current status
+
+@enduml

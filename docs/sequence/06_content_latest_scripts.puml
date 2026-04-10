@@ -1,0 +1,23 @@
+@startuml 06_content_latest_scripts
+title Последние Сценарии
+
+autonumber
+
+actor User
+participant UI as "Web UI"
+participant API as "scriptRouter.getLatest"
+participant DB as Postgres
+participant FS as "File storage"
+
+User -> UI: Открывает главную или ленту
+UI -> API: getLatest(limit)
+API -> DB: Выбрать свежие published сценарии
+
+loop Для каждого сценария с image
+    API -> FS: Получить persistent link
+    FS --> API: Ссылка на картинку
+end
+
+API --> UI: Список сценариев
+
+@enduml

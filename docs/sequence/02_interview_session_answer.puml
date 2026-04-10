@@ -1,0 +1,50 @@
+@startuml 02_interview_session_answer
+title Ответ И Следующий Вопрос
+
+autonumber
+
+actor User
+participant UI as "Interview UI"
+participant API as "sessionRouter.addNewMessage"
+participant DB as Postgres
+participant LLM as LLM
+participant Log as Logger
+
+User -> UI: Отправляет ответ
+UI -> API: addNewMessage(sessionId, content)
+API -> DB: Прочитать активную сессию, последний AI-вопрос и текущий topic
+
+alt сессия не найдена
+    API --> UI: NOT_FOUND
+else сессия уже не active
+    API --> UI: NOT_FOUND
+else нет последнего AI-вопроса
+    API --> UI: INTERNAL_SERVER_ERROR
+else нет текущего topic
+    API --> UI: BAD_REQUEST
+else поток валиден
+    API -> LLM: summarize(answer, question, prev summary)
+    API -> LLM: evaluateAnswer(mode = answer)
+    API -> DB: transaction()
+    API -> DB: update summarize
+    API -> DB: insert user message + analysis note
+    API -> LLM: planInterviewStep(...)
+
+    alt decision = finish
+        API -> DB: finalizeSession()
+        API -> LLM: evaluateAnswer(mode = session)
+        API -> DB: insert complete status
+        API -> DB: update finalScore and expertFeedback
+        API -> DB: add XP if score > 0
+        API -> DB: sync achievements
+        API -> Log: Processed interview answer and finished session
+        API --> UI: finished + result
+    else decision = next_topic or keep topic
+        API -> DB: update currentQuestionIndex
+        API -> DB: insert next AI question
+        API -> Log: Processed interview answer and generated next question
+        API --> UI: next-question
+    end
+end
+
+@enduml

@@ -1,0 +1,31 @@
+@startuml 08_content_profile_history
+title Профиль, Статистика И История
+
+autonumber
+
+actor User
+participant UI as "Web UI"
+participant API as "profileRouter / userRouter / activityRouter / scriptRouter"
+participant DB as Postgres
+
+User -> UI: Открывает профиль, историю или статистику
+
+par Профиль
+    UI -> API: getMyProfile()
+    API -> DB: Найти пользователя по id
+    API --> UI: Профиль
+and Статистика
+    UI -> API: getMyProfileStats() / getStats() / getStreak()
+    API -> DB: Посчитать XP, интервью, достижения и streak
+    API --> UI: Статистика и streak
+and История
+    UI -> API: getMyHistory() / getLatestUserActivity()
+    API -> DB: Выбрать последние или завершённые сессии
+    API --> UI: История и активность
+and Достижения
+    UI -> API: getMyAchivements()
+    API -> DB: Прочитать awarded achievements
+    API --> UI: Достижения
+end
+
+@enduml

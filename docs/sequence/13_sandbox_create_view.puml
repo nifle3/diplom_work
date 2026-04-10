@@ -1,0 +1,36 @@
+@startuml 13_sandbox_create_view
+title Создание И Просмотр Sandbox-Сессии
+
+autonumber
+
+actor Expert
+participant UI as "Sandbox UI"
+participant API as "expertSandboxRouter.createSession / getSession"
+participant DB as Postgres
+
+Expert -> UI: Нажимает "Start sandbox"
+UI -> API: createSession(scriptId)
+API -> DB: Найти сценарий эксперта и первый вопрос
+
+alt сценарий не найден
+    API --> UI: NOT_FOUND
+else контекст пустой
+    API --> UI: BAD_REQUEST
+else вопросов нет
+    API --> UI: BAD_REQUEST
+else всё валидно
+    API -> DB: insert interview_sessions
+    API -> DB: insert first AI message
+    API --> UI: sessionId
+end
+
+UI -> API: getSession(sessionId)
+API -> DB: Прочитать sandbox-сессию, сценарий и сообщения
+
+alt сессия не найдена
+    API --> UI: NOT_FOUND
+else сессия найдена
+    API --> UI: sandbox state
+end
+
+@enduml

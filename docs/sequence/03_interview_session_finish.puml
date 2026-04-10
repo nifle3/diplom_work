@@ -1,0 +1,35 @@
+@startuml 03_interview_session_finish
+title Ручное Завершение И Отмена Интервью
+
+autonumber
+
+actor User
+participant UI as "Interview UI"
+participant API as "sessionRouter.finishSession / cancelSession"
+participant DB as Postgres
+participant LLM as LLM
+participant Log as Logger
+
+User -> UI: Нажимает "Finish" или "Cancel"
+UI -> API: finishSession(sessionId) / cancelSession(sessionId)
+API -> DB: Найти сессию, сообщения, последний статус и сценарий
+
+alt сессия не найдена
+    API --> UI: NOT_FOUND
+else сессия уже terminal
+    API --> UI: result = complete:false / canceled:false
+else нужна финализация
+    API -> LLM: evaluateAnswer(mode = session) или calculate final evaluation
+    API -> DB: insert complete/canceled status
+    API -> DB: update finalScore / expertFeedback
+
+    opt finishSession
+        API -> DB: add XP
+        API -> DB: sync achievements
+    end
+
+    API -> Log: Finished interview session / Canceled interview session
+    API --> UI: result
+end
+
+@enduml

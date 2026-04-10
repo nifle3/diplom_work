@@ -1,0 +1,29 @@
+@startuml 15_sandbox_rewind
+title Sandbox: Откат К Ответу
+
+autonumber
+
+actor Expert
+participant UI as "Sandbox UI"
+participant API as "expertSandboxRouter.rewindSession"
+participant DB as Postgres
+participant LLM as LLM
+
+Expert -> UI: Выбирает ответ, к которому нужно откатиться
+UI -> API: rewindSession(sessionId, messageId)
+API -> DB: Прочитать сообщения сессии
+
+alt сессия не найдена
+    API --> UI: NOT_FOUND
+else сообщение не найдено
+    API --> UI: NOT_FOUND
+else выбран AI message
+    API --> UI: BAD_REQUEST
+else выбран собственный ответ
+    API -> LLM: summarize() для оставшейся цепочки
+    API -> DB: delete messages after selected message
+    API -> DB: update currentQuestionIndex and summarize
+    API --> UI: restored messages + currentQuestionIndex
+end
+
+@enduml

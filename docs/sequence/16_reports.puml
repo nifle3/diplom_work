@@ -1,0 +1,35 @@
+@startuml 16_reports
+title Создание И Просмотр Жалоб
+
+autonumber
+
+actor User
+participant UI as "Moderation UI"
+participant API as "reportRouter"
+participant DB as Postgres
+participant Log as Logger
+
+User -> UI: Отправляет жалобу на сценарий
+UI -> API: create(scriptId, reason)
+API -> DB: Проверить существующую активную жалобу
+
+alt уже есть active report
+    API --> UI: existing report id
+else сценарий не найден
+    API --> UI: NOT_FOUND
+else можно создать
+    API -> DB: insert report
+    API -> DB: insert initial status log = new
+    API -> Log: Created report
+    API --> UI: report id
+end
+
+UI -> API: myList()
+API -> DB: Прочитать жалобы текущего пользователя
+API --> UI: Список жалоб
+
+UI -> API: adminList() / expertList()
+API -> DB: Прочитать релевантные сценарии и жалобы
+API --> UI: Отфильтрованный список
+
+@enduml

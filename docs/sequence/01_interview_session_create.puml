@@ -1,0 +1,34 @@
+@startuml 01_interview_session_create
+title Создание Новой Интервью-Сессии
+
+autonumber
+
+actor User
+participant UI as "Interview UI"
+participant API as "sessionRouter.createNewSession"
+participant DB as Postgres
+participant Log as Logger
+
+User -> UI: Нажимает "Start interview"
+UI -> API: createNewSession(scriptId)
+API -> DB: Найти published сценарий + первый вопрос
+
+alt сценарий не найден
+    API --> UI: NOT_FOUND
+else контекст пустой
+    API --> UI: INTERNAL_SERVER_ERROR
+else вопросов нет
+    API --> UI: BAD_REQUEST
+else сессия уже была закреплена
+    API -> DB: Найти уже активную сессию через interview_session_status_log
+    API --> UI: existing sessionId
+else новая сессия
+    API -> DB: transaction()
+    API -> DB: insert interview_sessions
+    API -> DB: insert status log active
+    API -> DB: insert first AI message
+    API -> Log: Created interview session
+    API --> UI: sessionId
+end
+
+@enduml
