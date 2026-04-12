@@ -27,9 +27,6 @@ catalogs:
     next:
       specifier: ^16.1.6
       version: 16.1.6
-    superjson:
-      specifier: ^2.2.6
-      version: 2.2.6
     typescript:
       specifier: ^5
       version: 5.9.3
@@ -302,6 +299,9 @@ importers:
 
   packages/db:
     dependencies:
+      '@diplom_work/domain':
+        specifier: workspace:*
+        version: link:../domain
       '@diplom_work/env':
         specifier: workspace:*
         version: link:../env
@@ -536,20 +536,7 @@ importers:
         specifier: 'catalog:'
         version: 4.1.0(@opentelemetry/api@1.9.0)(@types/node@22.19.11)(msw@2.12.10(@types/node@22.19.11)(typescript@5.9.3))(vite@8.0.0(@types/node@22.19.11)(esbuild@0.25.12)(jiti@2.6.1))
 
-  tools/loadTest:
-    dependencies:
-      '@diplom_work/api':
-        specifier: workspace:*
-        version: link:../../packages/api
-      '@diplom_work/config':
-        specifier: workspace:*
-        version: link:../../packages/config
-      '@trpc/client':
-        specifier: 'catalog:'
-        version: 11.10.0(@trpc/server@11.10.0(typescript@5.9.3))(typescript@5.9.3)
-      superjson:
-        specifier: 'catalog:'
-        version: 2.2.6
+  tools/loadTest: {}
 
 packages:
 

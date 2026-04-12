@@ -1,4 +1,4 @@
-import { TRPCError } from "@trpc/server";
+import { TRPCError, type TRPC_ERROR_CODE_KEY } from "@trpc/server";
 import { t } from "../init/trpc";
 
 type DomainErrorLike = Error & {
@@ -7,6 +7,55 @@ type DomainErrorLike = Error & {
 
 function isDomainError(error: unknown): error is DomainErrorLike {
 	return error instanceof Error && "payload" in error;
+}
+
+function resolveEmailDeliveryCode(payload: unknown): TRPC_ERROR_CODE_KEY {
+	if (
+		typeof payload === "object" &&
+		payload !== null &&
+		"reason" in payload &&
+		(payload as { reason: unknown }).reason === "rate_limited"
+	) {
+		return "TOO_MANY_REQUESTS";
+	}
+	return "INTERNAL_SERVER_ERROR";
+}
+
+/**
+ * Maps a domain error name to the tRPC error code that best represents it.
+ * Add new entries here when new domain error classes are introduced.
+ */
+function resolveCode(error: DomainErrorLike): TRPC_ERROR_CODE_KEY {
+	switch (error.name) {
+		// Email
+		case "EmailDeliveryError":
+			return resolveEmailDeliveryCode(error.payload);
+		case "EmailConfigurationError":
+			return "INTERNAL_SERVER_ERROR";
+
+		// File / Storage
+		case "FileTooLarge":
+			return "PAYLOAD_TOO_LARGE";
+		case "StorageError":
+			return "INTERNAL_SERVER_ERROR";
+
+		// Database
+		case "DbNotFoundError":
+			return "NOT_FOUND";
+		case "DbUniqueConstraintError":
+			return "CONFLICT";
+		case "DbForeignKeyConstraintError":
+			return "BAD_REQUEST";
+		case "DbCheckConstraintError":
+			return "BAD_REQUEST";
+		case "DbConnectionError":
+			return "INTERNAL_SERVER_ERROR";
+		case "DbQueryError":
+			return "INTERNAL_SERVER_ERROR";
+
+		default:
+			return "BAD_REQUEST";
+	}
 }
 
 export const errorMiddleware = t.middleware(async ({ next }) => {
@@ -18,48 +67,8 @@ export const errorMiddleware = t.middleware(async ({ next }) => {
 		}
 
 		if (isDomainError(error)) {
-			if (error.name === "EmailDeliveryError") {
-				const code =
-					typeof error.payload === "object" &&
-					error.payload !== null &&
-					"reason" in error.payload &&
-					error.payload.reason === "rate_limited"
-						? "TOO_MANY_REQUESTS"
-						: "INTERNAL_SERVER_ERROR";
-
-				throw new TRPCError({
-					code,
-					message: error.message,
-					cause: error.cause,
-				});
-			}
-
-			if (error.name === "EmailConfigurationError") {
-				throw new TRPCError({
-					code: "INTERNAL_SERVER_ERROR",
-					message: error.message,
-					cause: error.cause,
-				});
-			}
-
-			if (error.name === "FileTooLarge") {
-				throw new TRPCError({
-					code: "PAYLOAD_TOO_LARGE",
-					message: error.message,
-					cause: error.cause,
-				});
-			}
-
-			if (error.name === "StorageError") {
-				throw new TRPCError({
-					code: "INTERNAL_SERVER_ERROR",
-					message: error.message,
-					cause: error.cause,
-				});
-			}
-
 			throw new TRPCError({
-				code: "BAD_REQUEST",
+				code: resolveCode(error),
 				message: error.message,
 				cause: error.cause,
 			});

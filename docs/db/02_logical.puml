@@ -1,0 +1,235 @@
+@startuml Logical DB Diagram
+
+skinparam linetype ortho
+skinparam entity {
+  BackgroundColor #f9f9f9
+  BorderColor #555
+  FontSize 12
+}
+
+entity "roles" {
+  * id : integer <<PK>>
+  --
+  * name : varchar(50)
+}
+
+entity "users" {
+  * id : uuid <<PK>>
+  --
+  * name : text
+  * email : text <<unique>>
+  * email_verified : boolean
+  image : text
+  * role_id : integer <<FK>>
+  * xp : integer
+  * created_at : timestamp
+  * updated_at : timestamp
+  deleted_at : timestamp
+}
+
+entity "categories" {
+  * id : integer <<PK, identity>>
+  --
+  * name : varchar(100)
+  * created_at : timestamp
+  updated_at : timestamp
+  deleted_at : timestamp
+}
+
+entity "scripts" {
+  * id : uuid <<PK>>
+  --
+  category_id : integer <<FK>>
+  * expert_id : uuid <<FK>>
+  * title : varchar(150)
+  image : text
+  context : text
+  description : text
+  * is_draft : boolean
+  draft_over_at : timestamp
+  * created_at : timestamp
+  * updated_at : timestamp
+  deleted_at : timestamp
+}
+
+entity "criteria_types" {
+  * id : integer <<PK>>
+  --
+  * name : varchar(50)
+}
+
+entity "scenario_criteria" {
+  * id : uuid <<PK>>
+  --
+  * script_id : uuid <<FK>>
+  * type_id : integer <<FK>>
+  * content : text
+  deleted_at : timestamp
+}
+
+entity "question_templates" {
+  * id : uuid <<PK>>
+  --
+  * script_id : uuid <<FK>>
+  * order : integer
+  * text : text
+  deleted_at : timestamp
+}
+
+entity "specific_criteria" {
+  * id : uuid <<PK>>
+  --
+  * question_id : uuid <<FK>>
+  * content : text
+}
+
+entity "interview_sessions" {
+  * id : uuid <<PK>>
+  --
+  * user_id : uuid <<FK>>
+  * script_id : uuid <<FK>>
+  final_score : integer
+  expert_feedback : text
+  * current_question_index : integer
+  summarize : text
+  * started_at : timestamp
+}
+
+entity "interview_session_statuses" {
+  * id : integer <<PK>>
+  --
+  * name : varchar(20)
+}
+
+entity "interview_session_status_log" {
+  * id : uuid <<PK>>
+  --
+  * session_id : uuid <<FK>>
+  * status_id : integer <<FK>>
+  * created_at : timestamp
+}
+
+entity "chat_messages" {
+  * id : uuid <<PK>>
+  --
+  * session_id : uuid <<FK>>
+  * is_ai : boolean
+  * message_text : text
+  analysis_note : text
+  * created_at : timestamp
+}
+
+entity "achievements" {
+  * id : uuid <<PK>>
+  --
+  * name : varchar(100)
+  * description : text
+  icon_url : text
+  * formula : text
+  * created_at : timestamp
+  * updated_at : timestamp
+}
+
+entity "user_achievements" {
+  * user_id : uuid <<FK>>
+  * achievement_id : uuid <<FK>>
+  --
+  * awarded_at : timestamp
+}
+
+entity "report_statuses" {
+  * id : integer <<PK>>
+  --
+  * name : varchar(20) <<unique>>
+}
+
+entity "reports" {
+  * id : uuid <<PK>>
+  --
+  * reporter_id : uuid <<FK>>
+  * script_id : uuid <<FK>>
+  * reason : text
+  * created_at : timestamp
+}
+
+entity "report_status_log" {
+  * id : uuid <<PK>>
+  --
+  * report_id : uuid <<FK>>
+  * status_id : integer <<FK>>
+  * created_at : timestamp
+}
+
+' Auth
+entity "accounts" {
+  * id : uuid <<PK>>
+  --
+  * account_id : uuid
+  * provider_id : text
+  * user_id : uuid <<FK>>
+  access_token : text
+  refresh_token : text
+  id_token : text
+  access_token_expires_at : timestamp
+  refresh_token_expires_at : timestamp
+  scope : text
+  password : text
+  * created_at : timestamp
+  * updated_at : timestamp
+}
+
+entity "sessions" {
+  * id : uuid <<PK>>
+  --
+  * user_id : uuid <<FK>>
+  * token : text <<unique>>
+  * expires_at : timestamp
+  ip_address : text
+  user_agent : text
+  * created_at : timestamp
+  * updated_at : timestamp
+}
+
+entity "verifications" {
+  * id : uuid <<PK>>
+  --
+  * identifier : text
+  * value : text
+  * expires_at : timestamp
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+' Relations
+roles ||--o{ users : "role_id"
+users ||--o{ accounts : "user_id"
+users ||--o{ sessions : "user_id"
+
+users ||--o{ scripts : "expert_id"
+categories ||--o{ scripts : "category_id"
+
+scripts ||--o{ scenario_criteria : "script_id"
+criteria_types ||--o{ scenario_criteria : "type_id"
+
+scripts ||--o{ question_templates : "script_id"
+question_templates ||--o{ specific_criteria : "question_id"
+
+users ||--o{ interview_sessions : "user_id"
+scripts ||--o{ interview_sessions : "script_id"
+
+interview_sessions ||--o{ interview_session_status_log : "session_id"
+interview_session_statuses ||--o{ interview_session_status_log : "status_id"
+
+interview_sessions ||--o{ chat_messages : "session_id"
+
+users }o--o{ achievements : "user_achievements"
+users ||--o{ user_achievements : "user_id"
+achievements ||--o{ user_achievements : "achievement_id"
+
+users ||--o{ reports : "reporter_id"
+scripts ||--o{ reports : "script_id"
+
+reports ||--o{ report_status_log : "report_id"
+report_statuses ||--o{ report_status_log : "status_id"
+
+@enduml

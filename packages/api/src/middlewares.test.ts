@@ -272,6 +272,112 @@ describe("errorMiddleware", () => {
 		});
 	});
 
+	it("maps DbNotFoundError to NOT_FOUND", async () => {
+		const caller = createCaller(errorMiddleware, () => {
+			const error = new Error("Record not found") as Error & {
+				name: string;
+				payload: unknown;
+			};
+			error.name = "DbNotFoundError";
+			error.payload = { table: "users", id: "42" };
+			throw error;
+		});
+
+		await expect(caller.test()).rejects.toMatchObject({
+			code: "NOT_FOUND",
+			message: "Record not found",
+		});
+	});
+
+	it("maps DbUniqueConstraintError to CONFLICT", async () => {
+		const caller = createCaller(errorMiddleware, () => {
+			const error = new Error("Duplicate email") as Error & {
+				name: string;
+				payload: unknown;
+			};
+			error.name = "DbUniqueConstraintError";
+			error.payload = {
+				constraint: "users_email_unique",
+				table: "users",
+				column: "email",
+			};
+			throw error;
+		});
+
+		await expect(caller.test()).rejects.toMatchObject({
+			code: "CONFLICT",
+			message: "Duplicate email",
+		});
+	});
+
+	it("maps DbForeignKeyConstraintError to BAD_REQUEST", async () => {
+		const caller = createCaller(errorMiddleware, () => {
+			const error = new Error("Referenced row missing") as Error & {
+				name: string;
+				payload: unknown;
+			};
+			error.name = "DbForeignKeyConstraintError";
+			error.payload = { constraint: "sessions_user_id_fk", table: "sessions" };
+			throw error;
+		});
+
+		await expect(caller.test()).rejects.toMatchObject({
+			code: "BAD_REQUEST",
+			message: "Referenced row missing",
+		});
+	});
+
+	it("maps DbCheckConstraintError to BAD_REQUEST", async () => {
+		const caller = createCaller(errorMiddleware, () => {
+			const error = new Error("Check constraint failed") as Error & {
+				name: string;
+				payload: unknown;
+			};
+			error.name = "DbCheckConstraintError";
+			error.payload = { constraint: "users_age_check", table: "users" };
+			throw error;
+		});
+
+		await expect(caller.test()).rejects.toMatchObject({
+			code: "BAD_REQUEST",
+			message: "Check constraint failed",
+		});
+	});
+
+	it("maps DbConnectionError to INTERNAL_SERVER_ERROR", async () => {
+		const caller = createCaller(errorMiddleware, () => {
+			const error = new Error("Connection refused") as Error & {
+				name: string;
+				payload: unknown;
+			};
+			error.name = "DbConnectionError";
+			error.payload = { reason: "connection_refused" };
+			throw error;
+		});
+
+		await expect(caller.test()).rejects.toMatchObject({
+			code: "INTERNAL_SERVER_ERROR",
+			message: "Connection refused",
+		});
+	});
+
+	it("maps DbQueryError to INTERNAL_SERVER_ERROR", async () => {
+		const caller = createCaller(errorMiddleware, () => {
+			const error = new Error("Query execution failed") as Error & {
+				name: string;
+				payload: unknown;
+			};
+			error.name = "DbQueryError";
+			error.payload = { code: "42P01" };
+			throw error;
+		});
+
+		await expect(caller.test()).rejects.toMatchObject({
+			code: "INTERNAL_SERVER_ERROR",
+			message: "Query execution failed",
+		});
+	});
+
 	it("maps file and storage errors appropriately", async () => {
 		const fileCaller = createCaller(errorMiddleware, () => {
 			const error = new Error("Too large") as Error & {

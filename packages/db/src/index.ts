@@ -1,3 +1,5 @@
+export { mapDbError } from "./mapError";
+
 import { env } from "@diplom_work/env/server";
 import { logger } from "@diplom_work/logger/server";
 import { Pool as neonPool } from "@neondatabase/serverless";
