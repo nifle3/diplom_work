@@ -502,4 +502,67 @@ describe("scriptRouter", () => {
 			},
 		]);
 	});
+
+	it("returns author stats for completed interviews", async () => {
+		const findFirst = vi.fn().mockResolvedValue({
+			id: scriptUuid,
+		});
+		const findMany = vi.fn().mockResolvedValue([
+			{
+				finalScore: 90,
+				statusLogs: [
+					{
+						statusId: statusToId.complete,
+						createdAt: new Date("2025-01-03T02:00:00.000Z"),
+					},
+				],
+			},
+			{
+				finalScore: 80,
+				statusLogs: [
+					{
+						statusId: statusToId.complete,
+						createdAt: new Date("2025-01-04T02:00:00.000Z"),
+					},
+				],
+			},
+			{
+				finalScore: 70,
+				statusLogs: [
+					{
+						statusId: statusToId.canceled,
+						createdAt: new Date("2025-01-05T02:00:00.000Z"),
+					},
+				],
+			},
+		]);
+
+		await expect(
+			createCaller({
+				query: {
+					scriptsTable: {
+						findFirst,
+					},
+					interviewSessionsTable: {
+						findMany,
+					},
+				},
+			}).getAuthorStatsByScript(scriptUuid),
+		).resolves.toEqual({
+			completedInterviews: 2,
+			averageScore: 85,
+		});
+	});
+
+	it("returns not found when the script does not belong to the author", async () => {
+		await expect(
+			createCaller({
+				query: {
+					scriptsTable: {
+						findFirst: vi.fn().mockResolvedValue(null),
+					},
+				},
+			}).getAuthorStatsByScript(scriptUuid),
+		).rejects.toMatchObject({ code: "NOT_FOUND" });
+	});
 });

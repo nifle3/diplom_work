@@ -22,6 +22,10 @@ function isTerminalStatus(statusId: number | undefined) {
 	return statusId === statusToId.complete || statusId === statusToId.canceled;
 }
 
+function isCompletedStatus(statusId: number | undefined) {
+	return statusId === statusToId.complete;
+}
+
 export const getLatestScenariosSchema = z.object({
 	limit: z.number().int().min(1).max(20).default(5),
 });
@@ -329,5 +333,58 @@ export const scriptRouter = router({
 					status: latestStatusLog?.status ?? null,
 				};
 			});
+		}),
+	getAuthorStatsByScript: protectedProcedure
+		.input(z.uuid())
+		.query(async ({ input, ctx }) => {
+			const script = await ctx.db.query.scriptsTable.findFirst({
+				where: (scriptsTable, { eq, and, isNull }) =>
+					and(
+						eq(scriptsTable.id, input),
+						eq(scriptsTable.expertId, ctx.session.user.id),
+						eq(scriptsTable.isDraft, false),
+						isNull(scriptsTable.deletedAt),
+					),
+				columns: {
+					id: true,
+				},
+			});
+
+			if (!script) {
+				throw new TRPCError({ code: "NOT_FOUND" });
+			}
+
+			const sessions = await ctx.db.query.interviewSessionsTable.findMany({
+				where: (interviewSessionsTable, { eq }) =>
+					eq(interviewSessionsTable.scriptId, input),
+				columns: {
+					finalScore: true,
+				},
+				with: {
+					statusLogs: {
+						columns: {
+							statusId: true,
+						},
+						orderBy: (statusLogs, { desc }) => [desc(statusLogs.createdAt)],
+						limit: 1,
+					},
+				},
+			});
+
+			const completedSessions = sessions.filter((session) =>
+				isCompletedStatus(session.statusLogs[0]?.statusId),
+			);
+			const completedScores = completedSessions
+				.map((session) => session.finalScore)
+				.filter((score): score is number => score !== null);
+
+			return {
+				completedInterviews: completedSessions.length,
+				averageScore:
+					completedScores.length > 0
+						? completedScores.reduce((sum, score) => sum + score, 0) /
+							completedScores.length
+						: null,
+			};
 		}),
 });

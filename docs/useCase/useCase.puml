@@ -1,0 +1,125 @@
+@startuml InterviewMasterAI_UseCase
+
+left to right direction
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor #FFFACD
+  BorderColor #888888
+  ArrowColor #555555
+  ActorBorderColor #333333
+  ActorBackgroundColor #DDEEFF
+}
+
+' ── Левая сторона ─────────────────────────────────────────────────────
+actor "Неавторизованный\nпользователь" as Guest
+actor "Соискатель" as Applicant
+
+rectangle "Interview Master AI" {
+
+  ' ── Неавторизованный пользователь ────────────────────────────────────
+  usecase "Войти" as UC_Login
+  usecase "Регистрация" as UC_Register
+
+  ' ── Соискатель ────────────────────────────────────────────────────────
+  usecase "Выбрать сценарий" as UC_ChooseScript
+  usecase "Фильтрация сценариев" as UC_FilterScripts
+
+  usecase "Пройти интервью" as UC_TakeInterview
+  usecase "Отправить ответ" as UC_SendAnswer
+  usecase "Досрочно закончить" as UC_EarlyFinish
+  usecase "Получить отчёт\nпо прохождению" as UC_GetReport
+
+  usecase "Пожаловаться\nна сценарий" as UC_CreateReport
+  usecase "Просмотреть\nсвои жалобы" as UC_MyReports
+
+  usecase "Просмотр стрика" as UC_Streak
+  usecase "Просмотр достижений" as UC_Achievements
+  usecase "Просмотр собственных\nдостижений" as UC_OwnAchievements
+
+  usecase "Изучить историю" as UC_History
+
+  ' ── Специалист ────────────────────────────────────────────────────────
+  usecase "Создать сценарий" as UC_CreateScript
+  usecase "Настроить критерии" as UC_SetCriteria
+  usecase "Настроить примеры\nвопросов" as UC_SetQuestions
+  usecase "Настроить категорию" as UC_SetCategory
+
+  usecase "Редактировать сценарий" as UC_EditScript
+
+  usecase "Тестировать сценарий" as UC_TestScript
+  usecase "Перейти к другой точке\nв интервью" as UC_JumpToPoint
+
+  usecase "Посмотреть аналитику\nпо сценарию" as UC_Analytics
+  usecase "Посмотреть средний балл" as UC_AvgScore
+  usecase "Посмотреть количество\nпрохождений" as UC_PassCount
+
+  usecase "Просмотреть жалобы\nна свои сценарии" as UC_ExpertReports
+
+  ' ── Администратор ─────────────────────────────────────────────────────
+  usecase "Модерировать контент" as UC_Moderate
+  usecase "Изменить статус жалобы" as UC_ChangeReportStatus
+  usecase "Просмотреть все жалобы" as UC_AdminReports
+
+  usecase "Настройка системы\nдостижений" as UC_AchievementsAdmin
+  usecase "Управление экспертами" as UC_ManageExperts
+
+  usecase "Управление категориями\nсценариев" as UC_ManageCategories
+  usecase "Добавить категорию" as UC_AddCategory
+  usecase "Редактировать категорию" as UC_EditCategory
+}
+
+' ── Правая сторона ────────────────────────────────────────────────────
+actor "Специалист" as Expert
+actor "Администратор" as Admin
+
+' ── Связи: Неавторизованный пользователь ──────────────────────────────
+Guest --> UC_Login
+Guest --> UC_Register
+
+' ── Связи: Соискатель ─────────────────────────────────────────────────
+Applicant --> UC_ChooseScript
+UC_ChooseScript <.. UC_FilterScripts : <<extend>>
+
+Applicant --> UC_TakeInterview
+UC_TakeInterview ..> UC_SendAnswer    : <<include>>
+UC_TakeInterview <.. UC_EarlyFinish   : <<extend>>
+UC_TakeInterview ..> UC_GetReport     : <<include>>
+
+Applicant --> UC_CreateReport
+Applicant --> UC_MyReports
+
+Applicant --> UC_Streak
+Applicant --> UC_Achievements
+UC_Achievements <.. UC_OwnAchievements : <<extend>>
+
+Applicant --> UC_History
+
+' ── Связи: Специалист ─────────────────────────────────────────────────
+Expert --> UC_CreateScript
+UC_CreateScript ..> UC_SetCriteria   : <<include>>
+UC_CreateScript ..> UC_SetQuestions  : <<include>>
+UC_CreateScript ..> UC_SetCategory   : <<include>>
+
+Expert --> UC_EditScript
+
+Expert --> UC_TestScript
+UC_TestScript <.. UC_JumpToPoint : <<extend>>
+
+Expert --> UC_Analytics
+UC_Analytics ..> UC_AvgScore    : <<include>>
+UC_Analytics ..> UC_PassCount   : <<include>>
+
+Expert --> UC_ExpertReports
+
+' ── Связи: Администратор ──────────────────────────────────────────────
+Admin --> UC_Moderate
+UC_Moderate ..> UC_AdminReports       : <<include>>
+UC_Moderate ..> UC_ChangeReportStatus : <<include>>
+
+Admin --> UC_AchievementsAdmin
+Admin --> UC_ManageExperts
+Admin --> UC_ManageCategories
+UC_ManageCategories ..> UC_AddCategory    : <<include>>
+UC_ManageCategories ..> UC_EditCategory   : <<include>>
+
+@enduml
