@@ -92,24 +92,4 @@ summarize ..> generateText
 summarize ..> Output
 summarize ..> zod
 
-note right of model
-  Shared wrapped model instance used by all LLM operations.
-end note
-
-note right of shieldUserTextMiddleware
-  Injects a protective system prompt and wraps user text to reduce prompt injection risk.
-end note
-
-note right of planInterviewStep
-  Chooses between follow-up, next-topic and finish decisions.
-end note
-
-note right of evaluateAnswer
-  Produces score, feedback, analysis note, strengths and improvements.
-end note
-
-note right of summarize
-  Builds a compact running summary of the interview conversation.
-end note
-
 @enduml

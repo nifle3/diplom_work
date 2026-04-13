@@ -56,22 +56,4 @@ DomainError <|-- EmailDeliveryError
 
 Status ..> statusToId : mapped by
 reportStatuses ..> ReportStatus : source tuple
-
-note right of DomainError
-  Base class for typed application errors.
-  Carries optional payload data.
-end note
-
-note right of Status
-  Used by interview_session_status_log.
-end note
-
-note right of reportStatuses
-  Used by report_status_log.
-end note
-
-note right of ReportStatus
-  Type alias derived from reportStatuses tuple.
-end note
-
 @enduml

@@ -71,17 +71,4 @@ createContext ..> defaultDependencies : fallback
 createContext ..> auth : getSession()
 createContext ..> Context
 
-note right of AppDependencies
-  Runtime DI contract used by the tRPC context factory.
-end note
-
-note right of defaultDependencies
-  Wires the concrete auth, db, file and llm implementations.
-end note
-
-note right of createContext
-  Reads request headers, resolves the current session and
-  enriches the request with requestId, IP address and user agent.
-end note
-
 @enduml

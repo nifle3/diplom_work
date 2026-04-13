@@ -112,16 +112,4 @@ file ..> s3Healthcheck
 wrapS3Error ..> StorageError
 wrapS3Error ..> FileTooLargeError
 
-note right of file
-  Public entry point that re-exports wrapped S3 operations.
-end note
-
-note right of wrapS3Error
-  Converts low-level AWS errors into domain-level storage errors.
-end note
-
-note right of s3Healthcheck
-  Uses ListBucketsCommand to verify connectivity with S3.
-end note
-
 @enduml

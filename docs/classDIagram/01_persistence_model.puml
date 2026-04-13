@@ -182,14 +182,4 @@ scriptsTable "1" <-- "0..*" reportsTable : scenario
 reportsTable "1" <-- "0..*" reportStatusLogTable : statusLogs
 reportStatusesTable "1" <-- "0..*" reportStatusLogTable : status
 
-note right of interviewSessionStatusesTable
-  Values from domain enum:
-  active, complete, canceled
-end note
-
-note right of reportStatusesTable
-  Values from domain union:
-  new, in_review, resolved, rejected
-end note
-
 @enduml

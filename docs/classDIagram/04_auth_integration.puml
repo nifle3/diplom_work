@@ -54,21 +54,4 @@ createLoggerBridge ..> logger
 createSessionHook ..> db
 auth ..> env : trustedOrigins / secrets
 
-note right of auth
-  Better Auth configuration with database adapter, password reset delivery,
-  custom session enrichment and structured logging.
-end note
-
-note right of authSchema
-  Drizzle schema consumed by the Better Auth adapter.
-end note
-
-note right of createSendResetPassword
-  Sends password-reset email and logs delivery failures.
-end note
-
-note right of createSessionHook
-  Enriches the session with the user's role from the users table.
-end note
-
 @enduml
