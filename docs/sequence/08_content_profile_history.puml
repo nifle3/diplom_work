@@ -10,19 +10,25 @@ participant DB as Postgres
 
 User -> UI: Открывает профиль, историю или статистику
 
-par Профиль
+group Профиль
     UI -> API: getMyProfile()
     API -> DB: Найти пользователя по id
     API --> UI: Профиль
-and Статистика
+end
+
+group Статистика
     UI -> API: getMyProfileStats() / getStats() / getStreak()
     API -> DB: Посчитать XP, интервью, достижения и streak
     API --> UI: Статистика и streak
-and История
+end
+
+group История
     UI -> API: getMyHistory() / getLatestUserActivity()
     API -> DB: Выбрать последние или завершённые сессии
     API --> UI: История и активность
-and Достижения
+end
+
+group Достижения
     UI -> API: getMyAchivements()
     API -> DB: Прочитать awarded achievements
     API --> UI: Достижения
