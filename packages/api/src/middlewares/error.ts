@@ -9,6 +9,18 @@ function isDomainError(error: unknown): error is DomainErrorLike {
 	return error instanceof Error && "payload" in error;
 }
 
+function getDomainError(error: unknown): DomainErrorLike | null {
+	if (isDomainError(error)) {
+		return error;
+	}
+
+	if (error instanceof TRPCError && error.cause) {
+		return isDomainError(error.cause) ? error.cause : null;
+	}
+
+	return null;
+}
+
 function resolveEmailDeliveryCode(payload: unknown): TRPC_ERROR_CODE_KEY {
 	if (
 		typeof payload === "object" &&
@@ -59,21 +71,20 @@ function resolveCode(error: DomainErrorLike): TRPC_ERROR_CODE_KEY {
 }
 
 export const errorMiddleware = t.middleware(async ({ next }) => {
-	try {
-		return await next();
-	} catch (error) {
-		if (error instanceof TRPCError) {
-			throw error;
-		}
+	const result = await next();
 
-		if (isDomainError(error)) {
-			throw new TRPCError({
-				code: resolveCode(error),
-				message: error.message,
-				cause: error.cause,
-			});
-		}
-
-		throw error;
+	if (result.ok) {
+		return result;
 	}
+
+	const domainError = getDomainError(result.error);
+	if (domainError) {
+		throw new TRPCError({
+			code: resolveCode(domainError),
+			message: domainError.message,
+			cause: domainError.cause,
+		});
+	}
+
+	throw result.error;
 });

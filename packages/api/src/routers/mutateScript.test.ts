@@ -35,6 +35,11 @@ vi.mock("@diplom_work/logger/server", () => ({
 import { mutateScriptRouter } from "./mutateScript";
 
 const scriptId = "123e4567-e89b-12d3-a456-426614174000";
+const criterionId = "123e4567-e89b-12d3-a456-426614174001";
+const questionId = "123e4567-e89b-12d3-a456-426614174002";
+const newQuestionId = "123e4567-e89b-12d3-a456-426614174003";
+const deletedQuestionId = "123e4567-e89b-12d3-a456-426614174004";
+const deletedCriterionId = "123e4567-e89b-12d3-a456-426614174005";
 
 function createCaller(db: unknown) {
 	return mutateScriptRouter.createCaller({
@@ -271,7 +276,7 @@ describe("mutateScriptRouter", () => {
 				context: "Updated context",
 				criteria: [
 					{
-						id: "crit-1",
+						id: criterionId,
 						typeId: 1,
 						content: "Keep calm",
 					},
@@ -281,7 +286,7 @@ describe("mutateScriptRouter", () => {
 						content: "Be specific",
 					},
 				],
-				deletedCriteria: ["crit-2"],
+				deletedCriteria: [deletedCriterionId],
 			}),
 		).resolves.toBeUndefined();
 		expect(transaction).toHaveBeenCalledTimes(1);
@@ -334,7 +339,7 @@ describe("mutateScriptRouter", () => {
 			id: scriptId,
 			expertId: "expert-1",
 		});
-		const existingQuestionId = "question-1";
+		const existingQuestionId = "123e4567-e89b-12d3-a456-426614174006";
 		const transaction = vi.fn().mockImplementation(async (callback) =>
 			callback({
 				update: vi.fn().mockReturnValue({
@@ -346,7 +351,7 @@ describe("mutateScriptRouter", () => {
 					values: vi.fn().mockReturnValue({
 						returning: vi.fn().mockResolvedValue([
 							{
-								id: "question-2",
+								id: newQuestionId,
 							},
 						]),
 					}),
@@ -381,11 +386,11 @@ describe("mutateScriptRouter", () => {
 				scriptId,
 				questions: [
 					{
-						id: existingQuestionId,
+						id: questionId,
 						text: "Question one",
 						specificCriteria: [
 							{
-								id: "criterion-1",
+								id: criterionId,
 								content: "Keep eye contact",
 							},
 							{
@@ -405,7 +410,7 @@ describe("mutateScriptRouter", () => {
 						],
 					},
 				],
-				deletedQuestions: ["question-3"],
+				deletedQuestions: [deletedQuestionId],
 			}),
 		).resolves.toBeUndefined();
 		expect(transaction).toHaveBeenCalledTimes(1);

@@ -276,9 +276,10 @@ export const scriptRouter = router({
 			const latestStatusLog = session.statusLogs[0] as
 				| SessionStatusLog
 				| undefined;
+			const { statusLogs, ...rest } = session;
 
 			return {
-				...session,
+				...rest,
 				finishedAt: isTerminalStatus(latestStatusLog?.statusId)
 					? (latestStatusLog?.createdAt ?? null)
 					: null,

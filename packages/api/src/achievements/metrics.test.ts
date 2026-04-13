@@ -169,22 +169,42 @@ describe("syncUserAchievements", () => {
 		const insert = vi.fn().mockReturnValue({
 			values: insertValues,
 		});
-		const existingAwardSelect = vi.fn().mockReturnValue({
-			from: vi.fn().mockReturnValue({
-				where: vi.fn().mockResolvedValue([{ achievementId: "existing-ach" }]),
-			}),
+		let selectCall = 0;
+		const select = vi.fn().mockImplementation(() => {
+			selectCall++;
+
+			if (selectCall === 1 || selectCall === 3) {
+				return {
+					from: vi.fn().mockReturnValue({
+						where: vi.fn().mockResolvedValue([{ value: 1 }]),
+					}),
+				};
+			}
+
+			if (selectCall === 2) {
+				return {
+					from: vi.fn().mockReturnValue({
+						where: vi.fn().mockResolvedValue([]),
+					}),
+				};
+			}
+
+			if (selectCall === 4) {
+				return {
+					from: vi.fn().mockReturnValue({
+						where: vi
+							.fn()
+							.mockResolvedValue([{ achievementId: "new-ach" }]),
+					}),
+				};
+			}
+
+			return {
+				from: vi.fn().mockReturnValue({
+					where: vi.fn().mockResolvedValue([]),
+				}),
+			};
 		});
-		const countSelect = vi.fn().mockReturnValue({
-			from: vi.fn().mockReturnValue({
-				where: vi.fn().mockResolvedValue([{ value: 1 }]),
-			}),
-		});
-		const select = vi
-			.fn()
-			.mockImplementationOnce(() => countSelect())
-			.mockImplementationOnce(() => existingAwardSelect())
-			.mockImplementationOnce(() => countSelect())
-			.mockImplementationOnce(() => existingAwardSelect());
 
 		const session = {
 			startedAt: new Date("2025-01-10T07:00:00.000Z"),
@@ -294,21 +314,45 @@ describe("syncAllUserAchievements", () => {
 			},
 			select: vi.fn().mockImplementation(() => {
 				selectCall++;
+
 				if (selectCall === 1) {
+					return {
+						from: vi.fn().mockResolvedValue([
+							{ id: "user-1" },
+							{ id: "user-2" },
+						]),
+					};
+				}
+
+				if (selectCall === 2 || selectCall === 4 || selectCall === 6 || selectCall === 8) {
+					return {
+						from: vi.fn().mockReturnValue({
+							where: vi.fn().mockResolvedValue([{ value: 1 }]),
+						}),
+					};
+				}
+
+				if (selectCall === 3 || selectCall === 7) {
+					return {
+						from: vi.fn().mockReturnValue({
+							where: vi.fn().mockResolvedValue([]),
+						}),
+					};
+				}
+
+				if (selectCall === 5 || selectCall === 9) {
 					return {
 						from: vi.fn().mockReturnValue({
 							where: vi
 								.fn()
-								.mockResolvedValue([{ id: "user-1" }, { id: "user-2" }]),
+								.mockResolvedValue([{ achievementId: "new-ach" }]),
 						}),
 					};
 				}
 
 				return {
 					from: vi.fn().mockReturnValue({
-						where: vi
-							.fn()
-							.mockResolvedValue(selectCall % 2 === 0 ? [{ value: 0 }] : []),
+						where: vi.fn().mockResolvedValue([]),
 					}),
 				};
 			}),

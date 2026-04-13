@@ -36,6 +36,9 @@ vi.mock("@diplom_work/logger/server", () => ({
 import { statusToId } from "@diplom_work/domain/values/sessionStatus";
 import { scriptRouter } from "./script";
 
+const scriptUuid = "123e4567-e89b-12d3-a456-426614174000";
+const expertUuid = "123e4567-e89b-12d3-a456-426614174001";
+
 function createCaller(db: unknown, file: unknown = {}) {
 	return scriptRouter.createCaller({
 		requestId: "req-1",
@@ -60,7 +63,7 @@ function createCaller(db: unknown, file: unknown = {}) {
 describe("scriptRouter", () => {
 	it("returns a script by id", async () => {
 		const findFirst = vi.fn().mockResolvedValue({
-			id: "script-1",
+			id: scriptUuid,
 			title: "Frontend",
 			description: "Build a UI",
 			draftOverAt: null,
@@ -81,10 +84,10 @@ describe("scriptRouter", () => {
 						findFirst,
 					},
 				},
-			}).getInfo("script-1"),
+			}).getInfo(scriptUuid),
 		).resolves.toEqual(
 			expect.objectContaining({
-				id: "script-1",
+				id: scriptUuid,
 				title: "Frontend",
 			}),
 		);
@@ -96,7 +99,7 @@ describe("scriptRouter", () => {
 						findFirst: vi.fn().mockResolvedValue(null),
 					},
 				},
-			}).getInfo("script-1"),
+			}).getInfo(scriptUuid),
 		).rejects.toMatchObject({ code: "NOT_FOUND" });
 	});
 
@@ -104,36 +107,38 @@ describe("scriptRouter", () => {
 		mocks.getPersistentLink.mockResolvedValue("https://cdn.test/image.png");
 		const limit = vi.fn().mockResolvedValue([
 			{
-				id: "script-1",
+				id: scriptUuid,
 				title: "Frontend",
 				description: "Build a UI",
 				image: "avatars/image.png",
 				categoryName: "Frontend",
-				expertId: "expert-1",
+				expertId: expertUuid,
 				expertName: "Alex",
 			},
 			{
-				id: "script-2",
+				id: "123e4567-e89b-12d3-a456-426614174010",
 				title: "Backend",
 				description: "Build an API",
 				image: null,
 				categoryName: "Backend",
-				expertId: "expert-2",
+				expertId: "123e4567-e89b-12d3-a456-426614174011",
 				expertName: "Sam",
 			},
-		]);
-		const offset = vi.fn();
-		const where = vi.fn().mockReturnValue({
-			orderBy: vi.fn().mockReturnValue({
-				limit,
-			}),
-		});
-		const innerJoin = vi.fn().mockReturnValue({
-			where,
-		});
-		const from = vi.fn().mockReturnValue({
-			innerJoin,
-		});
+			]);
+			const offset = vi.fn();
+			const where = vi.fn().mockReturnValue({
+				orderBy: vi.fn().mockReturnValue({
+					limit,
+				}),
+			});
+			const innerJoin = vi.fn().mockReturnValue({
+				innerJoin: vi.fn().mockReturnValue({
+					where,
+				}),
+			});
+			const from = vi.fn().mockReturnValue({
+				innerJoin,
+			});
 		const select = vi.fn().mockReturnValue({
 			from,
 		});
@@ -149,23 +154,23 @@ describe("scriptRouter", () => {
 			).getLatest({
 				limit: 2,
 			}),
-		).resolves.toEqual([
-			{
-				id: "script-1",
-				title: "Frontend",
+			).resolves.toEqual([
+				{
+					id: scriptUuid,
+					title: "Frontend",
 				description: "Build a UI",
 				image: "https://cdn.test/image.png",
 				categoryName: "Frontend",
-				expertId: "expert-1",
+				expertId: expertUuid,
 				expertName: "Alex",
 			},
 			{
-				id: "script-2",
+				id: "123e4567-e89b-12d3-a456-426614174010",
 				title: "Backend",
 				description: "Build an API",
 				image: null,
 				categoryName: "Backend",
-				expertId: "expert-2",
+				expertId: "123e4567-e89b-12d3-a456-426614174011",
 				expertName: "Sam",
 			},
 		]);
@@ -200,31 +205,35 @@ describe("scriptRouter", () => {
 		const totalWhere = vi.fn().mockResolvedValue([{ count: 3 }]);
 		const courseWhere = vi.fn().mockResolvedValue([
 			{
-				id: "script-1",
+				id: scriptUuid,
 				title: "Frontend",
 				description: "Build a UI",
 				image: null,
 				categoryName: "Frontend",
-				expertId: "expert-1",
+				expertId: expertUuid,
 				expertName: "Alex",
 			},
 		]);
-		const totalSelect = vi.fn().mockReturnValue({
-			from: vi.fn().mockReturnValue({
-				where: totalWhere,
-			}),
-		});
-		const courseSelect = vi.fn().mockReturnValue({
-			from: vi.fn().mockReturnValue({
-				where: vi.fn().mockReturnValue({
-					orderBy: vi.fn().mockReturnValue({
-						limit: vi.fn().mockReturnValue({
-							offset: courseWhere,
+			const totalSelect = vi.fn().mockReturnValue({
+				from: vi.fn().mockReturnValue({
+					where: totalWhere,
+				}),
+			});
+			const courseSelect = vi.fn().mockReturnValue({
+				from: vi.fn().mockReturnValue({
+					innerJoin: vi.fn().mockReturnValue({
+						innerJoin: vi.fn().mockReturnValue({
+							where: vi.fn().mockReturnValue({
+								orderBy: vi.fn().mockReturnValue({
+									limit: vi.fn().mockReturnValue({
+										offset: courseWhere,
+									}),
+								}),
+							}),
 						}),
 					}),
 				}),
-			}),
-		});
+			});
 		const select = vi
 			.fn()
 			.mockImplementationOnce(() => totalSelect())
@@ -240,17 +249,17 @@ describe("scriptRouter", () => {
 				search: "frontend",
 			}),
 		).resolves.toEqual({
-			courses: [
-				{
-					id: "script-1",
-					title: "Frontend",
-					description: "Build a UI",
-					image: null,
-					categoryName: "Frontend",
-					expertId: "expert-1",
-					expertName: "Alex",
-				},
-			],
+				courses: [
+					{
+						id: scriptUuid,
+						title: "Frontend",
+						description: "Build a UI",
+						image: null,
+						categoryName: "Frontend",
+						expertId: expertUuid,
+						expertName: "Alex",
+					},
+				],
 			total: 3,
 			page: 2,
 			pages: 3,
@@ -259,7 +268,7 @@ describe("scriptRouter", () => {
 
 	it("returns an expert profile with optional category filtering", async () => {
 		const expertFindFirst = vi.fn().mockResolvedValue({
-			id: "expert-1",
+			id: expertUuid,
 			name: "Alex",
 			image: "avatar.png",
 		});
@@ -279,19 +288,21 @@ describe("scriptRouter", () => {
 		const coursesSelect = vi.fn().mockReturnValue({
 			from: vi.fn().mockReturnValue({
 				innerJoin: vi.fn().mockReturnValue({
-					where: vi.fn().mockReturnValue({
-						orderBy: vi.fn().mockResolvedValue([
-							{
-								id: "script-1",
-								title: "Frontend",
-								description: "Build a UI",
-								image: null,
-								categoryId: 10,
-								categoryName: "Frontend",
-								expertId: "expert-1",
-								expertName: "Alex",
-							},
-						]),
+					innerJoin: vi.fn().mockReturnValue({
+						where: vi.fn().mockReturnValue({
+							orderBy: vi.fn().mockResolvedValue([
+								{
+									id: scriptUuid,
+									title: "Frontend",
+									description: "Build a UI",
+									image: null,
+									categoryId: 10,
+									categoryName: "Frontend",
+									expertId: expertUuid,
+									expertName: "Alex",
+								},
+							]),
+						}),
 					}),
 				}),
 			}),
@@ -310,29 +321,29 @@ describe("scriptRouter", () => {
 				},
 				select,
 			}).getExpertProfile({
-				expertId: "expert-1",
+				expertId: expertUuid,
 				categoryId: 10,
 			}),
 		).resolves.toEqual({
 			expert: {
-				id: "expert-1",
+				id: expertUuid,
 				name: "Alex",
 				image: "avatar.png",
 			},
 			categories: [{ id: 10, name: "Frontend", count: 2 }],
 			courses: [
-				{
-					id: "script-1",
-					title: "Frontend",
-					description: "Build a UI",
-					image: null,
-					categoryId: 10,
-					categoryName: "Frontend",
-					expertId: "expert-1",
-					expertName: "Alex",
-				},
-			],
-		});
+					{
+						id: scriptUuid,
+						title: "Frontend",
+						description: "Build a UI",
+						image: null,
+						categoryId: 10,
+						categoryName: "Frontend",
+						expertId: expertUuid,
+						expertName: "Alex",
+					},
+				],
+			});
 
 		await expect(
 			createCaller({
@@ -343,7 +354,7 @@ describe("scriptRouter", () => {
 				},
 				select: vi.fn(),
 			}).getExpertProfile({
-				expertId: "expert-1",
+				expertId: expertUuid,
 			}),
 		).rejects.toMatchObject({ code: "NOT_FOUND" });
 	});
@@ -464,7 +475,7 @@ describe("scriptRouter", () => {
 						findMany,
 					},
 				},
-			}).getUserHistoryByScript("script-1"),
+			}).getUserHistoryByScript(scriptUuid),
 		).resolves.toEqual([
 			{
 				id: "session-1",

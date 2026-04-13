@@ -1,4 +1,23 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@diplom_work/auth", () => ({
+	auth: {},
+}));
+
+vi.mock("@diplom_work/db", () => ({
+	db: {},
+}));
+
+vi.mock("@diplom_work/file", () => ({
+	getPersistentLink: vi.fn(),
+	getPersistentUploadLink: vi.fn(),
+}));
+
+vi.mock("@diplom_work/llm", () => ({
+	evaluateAnswer: vi.fn(),
+	planInterviewStep: vi.fn(),
+	summarize: vi.fn(),
+}));
 import { defaultDependencies } from "./dependencies";
 
 describe("defaultDependencies", () => {

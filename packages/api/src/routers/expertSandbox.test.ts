@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { statusToId } from "@diplom_work/domain/values/sessionStatus";
 
 const mocks = vi.hoisted(() => ({
 	loggerInfo: vi.fn(),
@@ -146,7 +147,15 @@ describe("expertSandboxRouter", () => {
 				globalCriteria: [],
 				questions: [],
 			},
-			messages: [],
+								messages: [
+									{
+										id: "ai-1",
+										isAi: true,
+										messageText: "Question one",
+										analysisNote: null,
+										createdAt: new Date("2025-01-01T01:00:00.000Z"),
+									},
+								],
 		});
 
 		await expect(
@@ -309,7 +318,7 @@ describe("expertSandboxRouter", () => {
 				sessionId,
 				content: "I have built many interfaces",
 			}),
-		).rejects.toMatchObject({ code: "INTERNAL_SERVER_ERROR" });
+			).rejects.toMatchObject({ code: "BAD_REQUEST" });
 	});
 
 	it("finishes a sandbox session when the planner decides to stop", async () => {
@@ -342,22 +351,15 @@ describe("expertSandboxRouter", () => {
 					},
 				],
 			},
-			messages: [
-				{
-					id: "ai-1",
-					isAi: true,
-					messageText: "Question one",
-					analysisNote: null,
-					createdAt: new Date("2025-01-01T01:00:00.000Z"),
-				},
-				{
-					id: "human-1",
-					isAi: false,
-					messageText: "Answer",
-					analysisNote: null,
-					createdAt: new Date("2025-01-01T01:10:00.000Z"),
-				},
-			],
+				messages: [
+					{
+						id: "ai-1",
+						isAi: true,
+						messageText: "Question one",
+						analysisNote: null,
+						createdAt: new Date("2025-01-01T01:00:00.000Z"),
+					},
+				],
 			statusLogs: [
 				{
 					statusId: 1,
