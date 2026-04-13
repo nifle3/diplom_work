@@ -1,48 +1,31 @@
 @startuml 03_finalize_session
-title Завершение сессии интервью (finalize / cancel)
+title Завершение сессии интервью
 
 start
 
-:Загрузить сессию\n(сообщения, скрипт, критерии);
+:Загрузить сессию;
 
-:Получить последний лог статуса;
-
-if (Статус уже терминальный?\n(complete / canceled)) then (да)
-  :Вернуть {complete: false,\n  experienceGained: 0};
+if (Сессия уже завершена?) then (да)
+  :Вернуть {complete: false};
   stop
 endif
 
-:Сформировать нормализованный\nдиалог из сообщений (Q&A пары);
+:LLM: итоговая оценка сессии\n→ finalScore, expertFeedback;
 
-partition "LLM: Итоговая оценка сессии" {
-  :Вызвать LLM.evaluateAnswer(\n  mode = "session",\n  conversation, context,\n  globalCriteria\n);
-  :Получить: finalScore, expertFeedback;
-}
+:Рассчитать experienceGained;
 
-:Рассчитать experienceGained\nиз finalScore;
-
-:Открыть транзакцию БД;
-
-if (Режим = "завершить" (finalize)?) then (да)
-  :Вставить лог статуса\n(status = "complete");
-  :Обновить сессию:\n  finalScore, expertFeedback;
+if (Режим = finalize?) then (да)
+  :Сохранить статус "complete",\n  finalScore, expertFeedback;
 
   if (experienceGained > 0?) then (да)
-    :Обновить XP пользователя\n(+experienceGained);
+    :Начислить XP пользователю;
   endif
 
-  :Вызвать syncUserAchievements(userId);
-  :Зафиксировать транзакцию;
-  :Вернуть {complete: true,\n  streakUpdated: true,\n  experienceGained};
+  :Синхронизировать достижения;
+  :Вернуть {complete: true, experienceGained};
 
-else (отмена (cancel))
-  :Вставить лог статуса\n(status = "canceled");
-  :Обновить сессию:\n  finalScore, expertFeedback;
-  note right
-    XP не начисляется,
-    ачивки не синхронизируются
-  end note
-  :Зафиксировать транзакцию;
+else (cancel)
+  :Сохранить статус "canceled",\n  finalScore, expertFeedback;
   :Вернуть {canceled: true};
 endif
 

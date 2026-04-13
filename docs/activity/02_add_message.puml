@@ -5,61 +5,33 @@ start
 
 :Пользователь отправляет ответ\n(sessionId, content);
 
-:Загрузить сессию со всеми\nсвязями (сообщения, скрипт,\nстатус, критерии);
+:Загрузить активную сессию\n(принадлежащую пользователю);
 
-if (Сессия найдена\nи принадлежит пользователю?) then (нет)
-  :Выбросить ошибку NOT_FOUND;
+if (Сессия найдена и активна?) then (нет)
+  :Ошибка NOT_FOUND / BAD_REQUEST;
   stop
 endif
 
-if (Статус сессии = "active"?) then (нет)
-  :Выбросить ошибку\n(сессия не активна);
-  stop
-endif
+:LLM: обновить резюме диалога;
 
-:Получить последнее сообщение AI\n(текущий вопрос);
+:LLM: оценить ответ\n→ score, feedback, analysisNote;
 
-partition "LLM: Суммаризация" {
-  :Вызвать LLM.summarize(\n  humanResponse,\n  aiQuestion,\n  prevSummarization\n);
-  :Получить обновлённое резюме;
-}
+:LLM: планировать следующий шаг\n→ follow_up | next_topic | finish;
 
-partition "LLM: Оценка ответа" {
-  :Вызвать LLM.evaluateAnswer(\n  mode = "answer",\n  context, question, answer,\n  globalCriteria, specificCriteria\n);
-  :Получить: score, feedback,\n  analysisNote, strengths,\n  improvements;
-}
-
-partition "LLM: Планирование шага" {
-  :Вызвать LLM.planInterviewStep(\n  context, summary,\n  currentTopic, nextTopic,\n  criteria, latestQ&A\n);
-  :Получить decision:\n  "follow_up" | "next_topic" | "finish";
-}
-
-:Открыть транзакцию БД;
-
-:Обновить поле summarize в сессии;
-
-:Вставить сообщение пользователя\n(с analysisNote);
+:Сохранить сообщение пользователя в БД;
 
 if (decision == "finish"?) then (да)
-  :Вызвать finalizeSession();
-  note right
-    Завершение: оценка всей сессии,
-    начисление XP и ачивок
-  end note
-  :Зафиксировать транзакцию;
+  :Завершить сессию (finalize);
   :Вернуть {type: "finished", result};
   stop
 else (нет)
   if (decision == "follow_up"?) then (да)
-    :Использовать вопрос от LLM\nкак следующий;
+    :Следующий вопрос от LLM;
   else (next_topic)
-    :Взять следующий вопрос\nиз скрипта;
+    :Следующий вопрос из скрипта;
   endif
 
-  :Вычислить nextQuestionIndex;
-  :Обновить currentQuestionIndex в сессии;
-  :Вставить следующее сообщение AI;
-  :Зафиксировать транзакцию;
+  :Сохранить следующий вопрос AI в БД;
   :Вернуть {type: "next-question", message};
   stop
 endif

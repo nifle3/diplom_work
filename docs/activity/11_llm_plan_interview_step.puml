@@ -3,34 +3,18 @@ title LLM: Планирование следующего шага интервь
 
 start
 
-:Получить входные данные:\n  context, summary,\n  currentTopic, currentTopicCriteria,\n  globalCriteria,\n  latestQuestion, latestAnswer,\n  nextTopic (опц.), nextTopicCriteria;
+:Получить входные данные:\n  контекст, резюме, текущая тема,\n  последний Q&A, следующая тема;
 
-:Построить LLM-промпт:\n  - описание ситуации\n  - варианты решений:\n    * follow_up — уточняющий вопрос\n    * next_topic — переход к след. теме\n    * finish — завершить интервью\n  - текущая тема и критерии\n  - последний Q&A обмен\n  - следующая тема (если есть);
+:Сформировать промпт с вариантами:\n  follow_up | next_topic | finish;
 
-note right
-  Правила в промпте:
-  - Задавать уточняющий вопрос
-    только если действительно нужно
-  - Не переходить к finish,
-    пока важные детали не раскрыты
-  - Вопрос должен быть коротким
-    и естественным
-end note
-
-:Запросить структурированный\nJSON-вывод по схеме Zod:\n  - decision: "follow_up" |\n    "next_topic" | "finish"\n  - question: string\n    (пустая строка если "finish");
-
-:Вызвать model.generateText()\n  с Output.object({schema});
-
-:Валидировать вывод через Zod;
+:Запросить структурированный ответ у LLM\n→ decision + question;
 
 if (decision == "follow_up"?) then (да)
-  :Вернуть уточняющий вопрос\nпо текущей теме;
-
+  :Вернуть уточняющий вопрос\n  по текущей теме;
 else if (decision == "next_topic"?) then (да)
-  :Вернуть вводный вопрос\nпо следующей теме;
-
+  :Вернуть вводный вопрос\n  по следующей теме;
 else (finish)
-  :Вернуть decision = "finish"\nс пустым question;
+  :Вернуть decision = "finish";
 endif
 
 stop
