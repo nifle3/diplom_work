@@ -6,6 +6,7 @@ import { type ChangeEvent, type SubmitEvent, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/authClient";
+import { getAuthErrorMessage, validateSignUpValues } from "@/lib/authMessages";
 
 export default function SignUpForm() {
 	const router = useRouter();
@@ -14,6 +15,12 @@ export default function SignUpForm() {
 
 	const handleSubmit = async (e: SubmitEvent) => {
 		e.preventDefault();
+
+		const validationError = validateSignUpValues(values);
+		if (validationError) {
+			toast.error(validationError);
+			return;
+		}
 
 		await authClient.signUp.email(
 			{
@@ -26,7 +33,12 @@ export default function SignUpForm() {
 					router.push("/signIn" as Route);
 				},
 				onError(ctx) {
-					toast.error(ctx.error.message);
+					toast.error(
+						getAuthErrorMessage(
+							ctx.error,
+							"Не удалось зарегистрироваться.",
+						),
+					);
 				},
 				onRequest() {
 					setIsPending(true);
@@ -45,7 +57,7 @@ export default function SignUpForm() {
 		};
 
 	return (
-		<form className="space-y-4" onSubmit={handleSubmit}>
+		<form className="space-y-4" noValidate onSubmit={handleSubmit}>
 			<div>
 				<label className="mb-1 block text-sm" htmlFor="name">
 					Имя
@@ -53,7 +65,6 @@ export default function SignUpForm() {
 				<input
 					id="name"
 					name="name"
-					required
 					value={values.name}
 					onChange={handleChange("name")}
 					className="w-full rounded-md border px-3 py-2"
@@ -68,7 +79,6 @@ export default function SignUpForm() {
 				<input
 					id="email"
 					name="email"
-					required
 					value={values.email}
 					onChange={handleChange("email")}
 					className="w-full rounded-md border px-3 py-2"
@@ -83,8 +93,6 @@ export default function SignUpForm() {
 				<input
 					id="password"
 					name="password"
-					required
-					minLength={8}
 					value={values.password}
 					onChange={handleChange("password")}
 					className="w-full rounded-md border px-3 py-2"
@@ -95,7 +103,7 @@ export default function SignUpForm() {
 			<div className="flex items-center justify-between">
 				<Button
 					type="submit"
-					className="rounded-md bg-green-600` px-4 py-2 text-white"
+					className="rounded-md bg-green-600 px-4 py-2 text-white"
 					disabled={isPending}
 				>
 					{isPending ? "Создаём..." : "Зарегистрироваться"}
