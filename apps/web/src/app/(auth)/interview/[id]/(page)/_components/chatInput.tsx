@@ -8,6 +8,7 @@ interface ChatInputProps {
 	onChange: (val: string) => void;
 	onSend: () => void;
 	disabled: boolean;
+	maxLength?: number;
 	sttSupported?: boolean;
 	ttsSupported?: boolean;
 	isListening?: boolean;
@@ -23,6 +24,7 @@ export const ChatInput = ({
 	onChange,
 	onSend,
 	disabled,
+	maxLength,
 	sttSupported = false,
 	ttsSupported = false,
 	isListening = false,
@@ -94,14 +96,22 @@ export const ChatInput = ({
 				</span>
 			</div>
 			<div className="flex gap-2">
-				<Textarea
-					value={value}
-					onChange={(e) => onChange(e.target.value)}
-					onKeyDown={handleKeyDown}
-					placeholder="Напишите ваш ответ..."
-					className="max-h-[200px] min-h-[44px] resize-none rounded-2xl py-3"
-					disabled={disabled}
-				/>
+				<div className="min-w-0 flex-1 space-y-1">
+					<Textarea
+						value={value}
+						onChange={(e) => onChange(e.target.value)}
+						onKeyDown={handleKeyDown}
+						placeholder="Напишите ваш ответ..."
+						className="max-h-[200px] min-h-[44px] resize-none rounded-2xl py-3"
+						disabled={disabled}
+						maxLength={maxLength}
+					/>
+					{maxLength ? (
+						<div className="text-right text-xs text-muted-foreground">
+							{value.length}/{maxLength}
+						</div>
+					) : null}
+				</div>
 				<Button
 					type="button"
 					size="icon"

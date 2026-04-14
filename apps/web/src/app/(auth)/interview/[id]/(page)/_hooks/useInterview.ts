@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import type { Message } from "../_utils/type";
 
+export const INTERVIEW_ANSWER_MAX_LENGTH = 4000;
+
 type SpeechRecognitionCtor = new () => any;
 
 type WindowWithSpeech = Window & {
@@ -49,9 +51,24 @@ export function useInterview(sessionId: string) {
 		if (!normalizedTranscript) return;
 
 		setInputValue((currentValue) => {
-			if (!currentValue.trim()) return normalizedTranscript;
+			const currentText = currentValue.trimEnd();
+			const currentLength = currentText.trim().length;
 
-			return `${currentValue.trimEnd()} ${normalizedTranscript}`;
+			if (currentLength >= INTERVIEW_ANSWER_MAX_LENGTH) {
+				return currentText;
+			}
+
+			if (!currentText.trim()) {
+				return normalizedTranscript.slice(0, INTERVIEW_ANSWER_MAX_LENGTH);
+			}
+
+			const remainingLength = INTERVIEW_ANSWER_MAX_LENGTH - currentLength - 1;
+
+			if (remainingLength <= 0) {
+				return currentText;
+			}
+
+			return `${currentText} ${normalizedTranscript.slice(0, remainingLength)}`;
 		});
 	};
 
@@ -221,8 +238,10 @@ export function useInterview(sessionId: string) {
 	};
 
 	const handleSend = async () => {
+		const content = inputValue.trim().slice(0, INTERVIEW_ANSWER_MAX_LENGTH);
+
 		if (
-			!inputValue.trim() ||
+			!content ||
 			newMessage.isPending ||
 			finishInterview.isPending ||
 			cancelInterview.isPending
@@ -238,12 +257,12 @@ export function useInterview(sessionId: string) {
 			{
 				id: crypto.randomUUID(),
 				isAi: false,
-				messageText: inputValue,
+				messageText: content,
 				createdAt: new Date(),
 			},
 		]);
 
-		await newMessage.mutateAsync({ sessionId, content: inputValue });
+		await newMessage.mutateAsync({ sessionId, content });
 	};
 
 	const handleFinish = async () => {

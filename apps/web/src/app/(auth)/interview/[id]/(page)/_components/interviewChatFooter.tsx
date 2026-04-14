@@ -1,6 +1,7 @@
 "use client";
 
 import { ChatInput } from "./chatInput";
+import { INTERVIEW_ANSWER_MAX_LENGTH } from "../_hooks/useInterview";
 import { useInterviewContext } from "./interviewProvider";
 
 export function InterviewChatFooter() {
@@ -28,6 +29,7 @@ export function InterviewChatFooter() {
 			onChange={setInputValue}
 			onSend={handleSend}
 			disabled={isBusy}
+			maxLength={INTERVIEW_ANSWER_MAX_LENGTH}
 			sttSupported={sttSupported}
 			ttsSupported={ttsSupported}
 			isListening={isListening}
