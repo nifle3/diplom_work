@@ -120,11 +120,6 @@ describe("reportRouter", () => {
 	});
 
 	it("creates a new report and initial status log", async () => {
-		const reporter = {
-			id: "user-1",
-			name: "Alex",
-			email: "alex@example.com",
-		};
 		const script = {
 			id: scriptUuid,
 			expertId: "expert-1",

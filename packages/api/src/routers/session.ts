@@ -7,7 +7,7 @@ import {
 import { statusToId } from "@diplom_work/domain/values/sessionStatus";
 import { logger } from "@diplom_work/logger/server";
 import { TRPCError } from "@trpc/server";
-import { and, eq, isNull, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { syncUserAchievements } from "../achievements/metrics";
 import type { Context } from "../init/context";

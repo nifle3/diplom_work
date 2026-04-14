@@ -243,14 +243,6 @@ describe("mutateScriptRouter", () => {
 			values: insertValues,
 		});
 		const deleteWhere = vi.fn().mockResolvedValue(undefined);
-		const deleteSet = vi.fn().mockReturnValue({
-			where: deleteWhere,
-		});
-		const criteriaUpdate = vi.fn().mockReturnValue({
-			set: vi.fn().mockReturnValue({
-				where: vi.fn().mockResolvedValue(undefined),
-			}),
-		});
 		const transaction = vi.fn().mockImplementation(async (callback) =>
 			callback({
 				update: vi.fn().mockReturnValue({
@@ -339,7 +331,6 @@ describe("mutateScriptRouter", () => {
 			id: scriptId,
 			expertId: "expert-1",
 		});
-		const existingQuestionId = "123e4567-e89b-12d3-a456-426614174006";
 		const transaction = vi.fn().mockImplementation(async (callback) =>
 			callback({
 				update: vi.fn().mockReturnValue({

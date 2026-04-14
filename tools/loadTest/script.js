@@ -7,6 +7,7 @@ import { textSummary } from "https://jslib.k6.io/k6-summary/0.0.1/index.js";
 const latency = new Trend("trpc_latency", true);
 const reqOk = new Counter("trpc_ok");
 const reqFail = new Counter("trpc_fail");
+const reqRateLimited = new Counter("trpc_rate_limited");
 const errorRate = new Rate("trpc_error_rate");
 
 // ─── Environment ─────────────────────────────────────────────────────────────
@@ -54,6 +55,10 @@ export const options = {
 		trpc_latency: ["p(95)<5000"],
 		trpc_error_rate: ["rate<0.1"],
 		http_req_failed: ["rate<0.1"],
+		// Rate limited запросы не считаются ошибкой системы, но если их
+		// слишком много — это сигнал что лимиты слишком жёсткие для теста.
+		// Порог намеренно мягкий: предупреждение, не провал.
+		trpc_rate_limited: ["count<50"],
 	},
 };
 
@@ -91,15 +96,21 @@ function trpcQuery(procedure, input, tags) {
 	});
 
 	const ok = res.status === 200;
+	const rateLimited = res.status === 429;
 	latency.add(res.timings.duration, tags);
 	if (ok) {
 		reqOk.add(1, tags);
+	} else if (rateLimited) {
+		reqRateLimited.add(1, tags);
 	} else {
 		reqFail.add(1, tags);
 	}
-	errorRate.add(!ok, tags);
+	errorRate.add(!ok && !rateLimited, tags);
 
-	check(res, { "status is 200": (r) => r.status === 200 });
+	check(res, {
+		"status is 200": (r) => r.status === 200,
+		"not rate limited": (r) => r.status !== 429,
+	});
 	return res;
 }
 
@@ -114,15 +125,21 @@ function trpcMutate(procedure, input, tags) {
 	});
 
 	const ok = res.status === 200;
+	const rateLimited = res.status === 429;
 	latency.add(res.timings.duration, tags);
 	if (ok) {
 		reqOk.add(1, tags);
+	} else if (rateLimited) {
+		reqRateLimited.add(1, tags);
 	} else {
 		reqFail.add(1, tags);
 	}
-	errorRate.add(!ok, tags);
+	errorRate.add(!ok && !rateLimited, tags);
 
-	check(res, { "status is 200": (r) => r.status === 200 });
+	check(res, {
+		"status is 200": (r) => r.status === 200,
+		"not rate limited": (r) => r.status !== 429,
+	});
 	return res;
 }
 

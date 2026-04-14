@@ -333,15 +333,6 @@ export const chatMessagesRelations = relations(
 	}),
 );
 
-export const reportStatusRelations = relations(
-	reportStatusLogTable,
-	({ one }) => ({
-		status: one(reportStatusesTable, {
-			fields: [reportStatusLogTable.statusId],
-			references: [reportStatusesTable.id],
-		}),
-	}),
-);
 
 export const userAchievementsRelations = relations(
 	userAchievementsTable,
@@ -375,6 +366,10 @@ export const reportStatusLogRelations = relations(
 		report: one(reportsTable, {
 			fields: [reportStatusLogTable.reportId],
 			references: [reportsTable.id],
+		}),
+		status: one(reportStatusesTable, {
+			fields: [reportStatusLogTable.statusId],
+			references: [reportStatusesTable.id],
 		}),
 	}),
 );
