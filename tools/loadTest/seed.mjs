@@ -13,6 +13,7 @@
  * then exec `k6 run tools/loadTest/script.js` with the resolved env vars.
  */
 import { execSync } from "node:child_process";
+import { mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import process from "node:process";
@@ -64,6 +65,8 @@ async function trpcMutate(procedure, input) {
 
 async function main() {
 	const env = { ...process.env };
+
+	mkdirSync(path.join(__dirname, "reports"), { recursive: true });
 
 	const authRequired = ["catalog", "user", "storage", "session", "core", "all"];
 	if (!COOKIE && authRequired.includes(SUITE)) {
