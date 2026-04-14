@@ -3,6 +3,7 @@
 import { toast } from "sonner";
 
 import { authClient } from "@/lib/authClient";
+import { getAuthErrorMessage } from "@/lib/authMessages";
 import { DropdownMenuItem } from "./ui/dropdown-menu";
 
 export function LogoutButton() {
@@ -13,7 +14,7 @@ export function LogoutButton() {
 					window.location.href = "/";
 				},
 				onError: (error) => {
-					toast(error.error.message);
+					toast.error(getAuthErrorMessage(error, "Не удалось выйти из аккаунта."));
 				},
 			},
 		});

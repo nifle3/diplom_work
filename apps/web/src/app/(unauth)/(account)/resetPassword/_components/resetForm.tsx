@@ -20,7 +20,7 @@ export function ResetForm({ token }: ResetFormParams) {
 	} = useResetPasswordForm(token);
 
 	return (
-		<form className="space-y-4" onSubmit={onCallbackQuery}>
+		<form className="space-y-4" noValidate onSubmit={onCallbackQuery}>
 			<div>
 				<Label className="mb-2" htmlFor="newPassword">
 					Новый пароль
@@ -30,8 +30,6 @@ export function ResetForm({ token }: ResetFormParams) {
 					name="newPassword"
 					type="password"
 					autoComplete="new-password"
-					required
-					minLength={8}
 					value={password}
 					onChange={(e) => setPassword(e.target.value)}
 				/>
@@ -46,8 +44,6 @@ export function ResetForm({ token }: ResetFormParams) {
 					name="confirmPassword"
 					type="password"
 					autoComplete="new-password"
-					required
-					minLength={8}
 					value={repeatPassword}
 					onChange={(e) => setRepeatPassword(e.target.value)}
 				/>

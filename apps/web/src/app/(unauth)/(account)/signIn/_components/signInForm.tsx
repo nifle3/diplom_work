@@ -5,6 +5,7 @@ import { type ChangeEvent, type SubmitEvent, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/authClient";
+import { getAuthErrorMessage } from "@/lib/authMessages";
 
 export default function SignInForm() {
 	const [isPending, setIsPending] = useState(false);
@@ -12,6 +13,16 @@ export default function SignInForm() {
 
 	const handleSubmit = async (e: SubmitEvent) => {
 		e.preventDefault();
+		if (!values.email.trim()) {
+			toast.error("Введите email.");
+			return;
+		}
+
+		if (!values.password) {
+			toast.error("Введите пароль.");
+			return;
+		}
+
 		await authClient.signIn.email(
 			{
 				email: values.email,
@@ -22,7 +33,7 @@ export default function SignInForm() {
 					window.location.href = "/dashboard";
 				},
 				onError: (ctx) => {
-					toast.error(ctx.error.message);
+					toast.error(getAuthErrorMessage(ctx.error, "Не удалось войти."));
 				},
 				onRequest: () => {
 					setIsPending(true);
@@ -40,7 +51,7 @@ export default function SignInForm() {
 		};
 
 	return (
-		<form className="space-y-4" onSubmit={handleSubmit}>
+		<form className="space-y-4" noValidate onSubmit={handleSubmit}>
 			<div>
 				<label className="mb-1 block text-sm" htmlFor="email">
 					Email

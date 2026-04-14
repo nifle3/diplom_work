@@ -19,6 +19,7 @@ import {
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/authClient";
+import { getAuthErrorMessage } from "@/lib/authMessages";
 import { changePasswordSchema } from "../_schema/profileSettings";
 
 export function ChangePasswordDialog() {
@@ -43,6 +44,9 @@ export function ChangePasswordDialog() {
 			setOpen(false);
 			form.reset();
 			router.refresh();
+		},
+		onError: (error) => {
+			toast.error(getAuthErrorMessage(error, "Не удалось обновить пароль."));
 		},
 	});
 

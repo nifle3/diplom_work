@@ -3,6 +3,7 @@
 import { type SubmitEvent, useState } from "react";
 import { toast } from "sonner";
 import { authClient } from "@/lib/authClient";
+import { getAuthErrorMessage } from "@/lib/authMessages";
 
 export function useForgotPasswordForm() {
 	const [isPending, setIsPending] = useState(false);
@@ -10,6 +11,12 @@ export function useForgotPasswordForm() {
 
 	const handleRequestReset = async (event: SubmitEvent) => {
 		event.preventDefault();
+
+		if (!requestEmail.trim()) {
+			toast.error("Введите email.");
+			return;
+		}
+
 		setIsPending(true);
 
 		try {
@@ -24,11 +31,12 @@ export function useForgotPasswordForm() {
 
 			setRequestEmail("");
 		} catch (fetchError) {
-			const message =
-				fetchError instanceof Error
-					? fetchError.message
-					: "Не удалось отправить письмо для сброса пароля.";
-			toast.error(message);
+			toast.error(
+				getAuthErrorMessage(
+					fetchError,
+					"Не удалось отправить письмо для сброса пароля.",
+				),
+			);
 		} finally {
 			setIsPending(false);
 		}

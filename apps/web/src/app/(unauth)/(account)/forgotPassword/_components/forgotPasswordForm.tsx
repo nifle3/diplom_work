@@ -10,7 +10,7 @@ export default function ForgotPasswordForm() {
 		useForgotPasswordForm();
 
 	return (
-		<form className="space-y-4" onSubmit={handleRequestReset}>
+		<form className="space-y-4" noValidate onSubmit={handleRequestReset}>
 			<div>
 				<Label className="mb-2" htmlFor="email">
 					Email
@@ -20,7 +20,6 @@ export default function ForgotPasswordForm() {
 					name="email"
 					type="email"
 					autoComplete="email"
-					required
 					value={requestEmail}
 					onChange={(e) => setRequestEmail(e.target.value)}
 					placeholder="you@example.com"

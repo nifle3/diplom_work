@@ -1,58 +1,85 @@
-type AuthErrorLike = {
-	code?: string;
-	message?: string;
-};
-
 type SignUpValues = {
 	name: string;
 	email: string;
 	password: string;
 };
 
-function normalizeErrorMessage(error: AuthErrorLike | string | null | undefined) {
+function getErrorSource(error: unknown): { code?: string; message?: string } {
 	if (typeof error === "string") {
-		return error.toLowerCase();
+		return { message: error };
 	}
 
-	return error?.message?.toLowerCase() ?? "";
+	if (!error || typeof error !== "object") {
+		return {};
+	}
+
+	const record = error as {
+		code?: unknown;
+		message?: unknown;
+		error?: unknown;
+	};
+
+	if (
+		record.error &&
+		typeof record.error === "object" &&
+		!Array.isArray(record.error)
+	) {
+		const nested = getErrorSource(record.error);
+		if (nested.code || nested.message) {
+			return nested;
+		}
+	}
+
+	return {
+		code: typeof record.code === "string" ? record.code : undefined,
+		message: typeof record.message === "string" ? record.message : undefined,
+	};
+}
+
+function normalizeErrorMessage(error: unknown) {
+	return getErrorSource(error).message?.toLowerCase() ?? "";
 }
 
 export function getAuthErrorMessage(
-	error: AuthErrorLike | string | null | undefined,
+	error: unknown,
 	fallback = "Не удалось выполнить действие. Попробуйте еще раз.",
 ) {
-	const code = typeof error === "string" ? "" : error?.code?.toUpperCase() ?? "";
+	const { code } = getErrorSource(error);
+	const normalizedCode = code?.toUpperCase() ?? "";
 	const message = normalizeErrorMessage(error);
 
-	if (code === "USER_ALREADY_EXISTS" || code === "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL") {
+	if (
+		normalizedCode === "USER_ALREADY_EXISTS" ||
+		normalizedCode === "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL"
+	) {
 		return "Пользователь с таким email уже существует.";
 	}
 
-	if (code === "INVALID_EMAIL") {
+	if (normalizedCode === "INVALID_EMAIL") {
 		return "Введите корректный email.";
 	}
 
-	if (code === "INVALID_PASSWORD") {
+	if (normalizedCode === "INVALID_PASSWORD") {
 		return "Неверный пароль.";
 	}
 
-	if (code === "INVALID_EMAIL_OR_PASSWORD") {
+	if (normalizedCode === "INVALID_EMAIL_OR_PASSWORD") {
 		return "Неверный email или пароль.";
 	}
 
-	if (code === "PASSWORD_TOO_SHORT") {
+	if (normalizedCode === "PASSWORD_TOO_SHORT") {
 		return "Пароль должен содержать минимум 8 символов.";
 	}
 
-	if (code === "PASSWORD_TOO_LONG") {
+	if (normalizedCode === "PASSWORD_TOO_LONG") {
 		return "Пароль слишком длинный.";
 	}
 
-	if (code === "MISSING_FIELD" || code === "VALIDATION_ERROR") {
+	if (normalizedCode === "MISSING_FIELD" || normalizedCode === "VALIDATION_ERROR") {
 		return "Заполните все обязательные поля.";
 	}
 
-	if (code === "FAILED_TO_CREATE_USER") {
+	if (normalizedCode === "FAILED_TO_CREATE_USER") {
 		return "Не удалось создать аккаунт.";
 	}
 

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { type SubmitEvent, useState } from "react";
 import { toast } from "sonner";
 import { authClient } from "@/lib/authClient";
+import { getAuthErrorMessage } from "@/lib/authMessages";
 
 export function useResetPasswordForm(token: string) {
 	const router = useRouter();
@@ -23,6 +24,11 @@ export function useResetPasswordForm(token: string) {
 			return;
 		}
 
+		if (!password) {
+			toast("Введите новый пароль");
+			return;
+		}
+
 		setIsPending(true);
 
 		try {
@@ -33,9 +39,7 @@ export function useResetPasswordForm(token: string) {
 			toast("Пароль был измененён");
 			router.push("/signIn" as Route);
 		} catch (err: unknown) {
-			if (err instanceof Error) {
-				toast(err.message);
-			}
+			toast(getAuthErrorMessage(err, "Не удалось изменить пароль."));
 		} finally {
 			setIsPending(false);
 		}
