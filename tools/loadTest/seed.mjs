@@ -3,14 +3,22 @@
  * Seed script — resolves LOADTEST_SCRIPT_ID and LOADTEST_SESSION_ID
  * via tRPC before launching k6, so the load test can hit session-related endpoints.
  *
- * Usage:
- *   nix develop -c node tools/loadTest/seed.mjs [k6 args...]
+ * Usage (from project root):
+ *   node tools/loadTest/seed.mjs [k6 args...]
+ *
+ * Usage (via pnpm from tools/loadTest/):
+ *   pnpm run load [k6 args...]
  *
  * It will call the API to fetch a scriptId (and optionally create a session),
  * then exec `k6 run tools/loadTest/script.js` with the resolved env vars.
  */
 import { execSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
 import process from "node:process";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const SCRIPT_PATH = path.join(__dirname, "script.js");
 
 const BASE_URL = (process.env.LOADTEST_BASE_URL || "http://localhost:3001").replace(/\/$/, "");
 const COOKIE = process.env.LOADTEST_COOKIE || "";
@@ -57,6 +65,15 @@ async function trpcMutate(procedure, input) {
 async function main() {
 	const env = { ...process.env };
 
+	const authRequired = ["catalog", "user", "storage", "session", "core", "all"];
+	if (!COOKIE && authRequired.includes(SUITE)) {
+		console.warn(
+			`\nWarning: LOADTEST_COOKIE is not set but suite "${SUITE}" requires authentication.\n` +
+			"         Auth-gated scenarios will be silently skipped.\n" +
+			"         Set LOADTEST_COOKIE to a valid session cookie to run them.\n",
+		);
+	}
+
 	if (COOKIE && needsScript && !env.LOADTEST_SCRIPT_ID) {
 		console.log("Seeding: fetching scriptId...");
 		const scripts = await trpcQuery("script.getLatest", { limit: 1 });
@@ -88,12 +105,12 @@ async function main() {
 		"k6",
 		"run",
 		...k6Args,
-		"tools/loadTest/script.js",
+		SCRIPT_PATH,
 	].join(" ");
 
 	console.log(`\nRunning: ${cmd}\n`);
 	try {
-		execSync(cmd, { stdio: "inherit", env });
+		execSync(cmd, { stdio: "inherit", env, cwd: __dirname });
 	} catch (e) {
 		process.exitCode = e.status || 1;
 	}

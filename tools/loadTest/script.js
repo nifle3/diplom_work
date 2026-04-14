@@ -1,6 +1,7 @@
 import http from "k6/http";
 import { check, group, sleep } from "k6";
 import { Trend, Counter, Rate } from "k6/metrics";
+import { textSummary } from "https://jslib.k6.io/k6-summary/0.0.1/index.js";
 
 // ─── Custom metrics ──────────────────────────────────────────────────────────
 const latency = new Trend("trpc_latency", true);
@@ -46,11 +47,13 @@ export const options = {
 			executor: "constant-vus",
 			vus: vus,
 			duration: duration,
+			gracefulStop: "30s",
 		},
 	},
 	thresholds: {
 		trpc_latency: ["p(95)<5000"],
 		trpc_error_rate: ["rate<0.1"],
+		http_req_failed: ["rate<0.1"],
 	},
 };
 
@@ -61,8 +64,12 @@ function buildHeaders() {
 		headers["Cookie"] = COOKIE;
 	}
 	if (HEADERS_JSON.trim()) {
-		const extra = JSON.parse(HEADERS_JSON);
-		Object.assign(headers, extra);
+		try {
+			const extra = JSON.parse(HEADERS_JSON);
+			Object.assign(headers, extra);
+		} catch {
+			throw new Error(`LOADTEST_HEADERS_JSON is not valid JSON: ${HEADERS_JSON}`);
+		}
 	}
 	return headers;
 }
@@ -85,8 +92,11 @@ function trpcQuery(procedure, input, tags) {
 
 	const ok = res.status === 200;
 	latency.add(res.timings.duration, tags);
-	reqOk.add(ok ? 1 : 0, tags);
-	reqFail.add(ok ? 0 : 1, tags);
+	if (ok) {
+		reqOk.add(1, tags);
+	} else {
+		reqFail.add(1, tags);
+	}
 	errorRate.add(!ok, tags);
 
 	check(res, { "status is 200": (r) => r.status === 200 });
@@ -105,8 +115,11 @@ function trpcMutate(procedure, input, tags) {
 
 	const ok = res.status === 200;
 	latency.add(res.timings.duration, tags);
-	reqOk.add(ok ? 1 : 0, tags);
-	reqFail.add(ok ? 0 : 1, tags);
+	if (ok) {
+		reqOk.add(1, tags);
+	} else {
+		reqFail.add(1, tags);
+	}
 	errorRate.add(!ok, tags);
 
 	check(res, { "status is 200": (r) => r.status === 200 });
@@ -291,5 +304,15 @@ export default function () {
 	for (const scenario of scenarios) {
 		scenario();
 	}
-	sleep(0.1);
+	sleep(Math.random() * 1.5 + 0.5);
+}
+
+// ─── Summary ─────────────────────────────────────────────────────────────────
+export function handleSummary(data) {
+	const ts = new Date().toISOString().slice(0, 19).replace(/:/g, "-");
+	const filename = `reports/${mode}_${SUITE}_${ts}.json`;
+	return {
+		stdout: textSummary(data, { indent: "  ", enableColors: true }) + "\n",
+		[filename]: JSON.stringify(data, null, 2),
+	};
 }
