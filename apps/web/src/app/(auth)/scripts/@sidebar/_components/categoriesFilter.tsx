@@ -16,8 +16,6 @@ export function CategoriesFilter({ categories }: CategoriesFilterProps) {
 			<h3 className="font-semibold text-sm">Категории</h3>
 
 			<fieldset className="space-y-3" aria-label="Фильтр по категориям">
-				<legend>role</legend>
-
 				<div className="flex items-center space-x-2">
 					<Checkbox
 						id="category-all"

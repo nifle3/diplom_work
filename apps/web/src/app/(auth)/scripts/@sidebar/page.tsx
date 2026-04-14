@@ -9,7 +9,6 @@ interface SidebarProps {
 	}>;
 }
 
-// TODO: как подумать что бы работало без переобразования number в string
 export default async function SidebarSlot({ searchParams }: SidebarProps) {
 	const { categoryId: _categoryId, search: _search } = await searchParams;
 	const trpcCaller = await serverTrpc();
