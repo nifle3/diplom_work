@@ -2,7 +2,7 @@
 
 skinparam linetype ortho
 skinparam entity {
-  BackgroundColor #f9f9f9
+  BackgroundColor White
   BorderColor #555
   FontSize 12
 }
