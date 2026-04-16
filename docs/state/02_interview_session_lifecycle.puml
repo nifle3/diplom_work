@@ -2,46 +2,27 @@
 title Жизненный цикл интервью-сессии
 
 hide empty description
+skinparam state {
+  BackgroundColor White
+  BorderColor #333333
+}
 
 [*] --> Active : createNewSession()
 
-state Active
-
-note right of Active
-  Статус пишется в status_log как active
-  currentQuestionIndex растёт
-  summarize обновляется после ответов
-end note
+state "Активна" as Active
 
 Active --> Active : addNewMessage()\nnext question / follow-up
 Active --> Complete : finalizeSession()\nfinish branch
 Active --> Canceled : cancelSession()
 
-state Complete
+state "Завершена" as Complete
 
-note right of Complete
-  Терминальный статус
-  finalScore и expertFeedback сохранены
-end note
-
-state Canceled
-
-note right of Canceled
-  Терминальный статус
-  finalScore и expertFeedback сохранены
-end note
+state "Отменена" as Canceled
 
 Complete --> Complete : повторный finalizeSession()\nno-op
 Canceled --> Canceled : повторный cancelSession()\nno-op
 
 Complete --> [*]
 Canceled --> [*]
-
-note bottom
-  Фактическое состояние определяется
-  последней записью в interview_session_status_log.
-  createNewSession() возвращает уже активную
-  сессию, если она существует.
-end note
 
 @enduml

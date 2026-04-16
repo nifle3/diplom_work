@@ -2,43 +2,24 @@
 title Жизненный цикл сценария
 
 hide empty description
+skinparam state {
+  BackgroundColor White
+  BorderColor #333333
+}
 
 [*] --> Draft : createNewDraft
 
-state Draft
-
-note right of Draft
-  isDraft = true
-  Сценарий редактируется
-  и не виден в каталоге
-end note
+state "Черновик" as Draft
 
 Draft --> Published : mutateThirdStep()\npostDraft()
 
-state Published
-
-note right of Published
-  isDraft = false
-  postDraft() дополнительно
-  фиксирует draftOverAt
-end note
+state "Опубликован" as Published
 
 Draft --> Deleted : deleteScript()
 Published --> Deleted : deleteScript()
 
-state Deleted
-
-note right of Deleted
-  deletedAt = now()
-  Мягкое удаление
-end note
+state "Удалён" as Deleted
 
 Deleted --> [*]
-
-note bottom
-  В коде публикация может прийти
-  либо через финальный шаг мастера,
-  либо через отдельный `postDraft()`.
-end note
 
 @enduml

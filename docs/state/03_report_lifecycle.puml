@@ -2,33 +2,20 @@
 title Жизненный цикл жалобы
 
 hide empty description
+skinparam state {
+  BackgroundColor White
+  BorderColor #333333
+}
 
 [*] --> New : create()
 
-state New
+state "Новая" as New
 
-note right of New
-  Первая запись в report_status_log
-  current status = new
-end note
+state "На рассмотрении" as InReview
 
-state InReview
+state "Решена" as Resolved
 
-note right of InReview
-  Жалоба в работе у администратора
-end note
-
-state Resolved
-
-note right of Resolved
-  Жалоба закрыта как решённая
-end note
-
-state Rejected
-
-note right of Rejected
-  Жалоба отклонена
-end note
+state "Отклонена" as Rejected
 
 New --> InReview : admin changeStatus()
 New --> Resolved : admin changeStatus()
@@ -45,13 +32,5 @@ Resolved --> Rejected : admin changeStatus()
 Rejected --> New : admin changeStatus()
 Rejected --> InReview : admin changeStatus()
 Rejected --> Resolved : admin changeStatus()
-
-note bottom
-  changeStatus() не ограничивает переход
-  и просто добавляет новую запись в log.
-  Текущее состояние = последний статус.
-  create() не создаёт дубль, если последняя
-  жалоба уже в new или in_review.
-end note
 
 @enduml
