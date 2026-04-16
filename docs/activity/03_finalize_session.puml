@@ -1,5 +1,6 @@
 @startuml 03_finalize_session
 title Завершение сессии интервью
+skinparam ActivityBackgroundColor White
 
 start
 

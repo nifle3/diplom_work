@@ -1,5 +1,6 @@
 @startuml 06_report_creation
 title Создание жалобы на скрипт
+skinparam ActivityBackgroundColor White
 
 start
 

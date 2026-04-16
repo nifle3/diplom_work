@@ -1,5 +1,6 @@
 @startuml 07_file_upload
 title Загрузка файла (аватар / изображение скрипта)
+skinparam ActivityBackgroundColor White
 
 |Клиент|
 start

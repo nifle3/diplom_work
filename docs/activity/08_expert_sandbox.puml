@@ -1,5 +1,6 @@
 @startuml 08_expert_sandbox
 title Тестирование скрипта в песочнице эксперта
+skinparam ActivityBackgroundColor White
 
 start
 

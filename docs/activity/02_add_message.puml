@@ -1,5 +1,6 @@
 @startuml 02_add_message
 title Обработка ответа пользователя в интервью
+skinparam ActivityBackgroundColor White
 
 start
 

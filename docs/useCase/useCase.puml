@@ -3,24 +3,23 @@
 left to right direction
 skinparam packageStyle rectangle
 skinparam usecase {
-  BackgroundColor #FFFACD
+  BackgroundColor white
   BorderColor #888888
   ArrowColor #555555
   ActorBorderColor #333333
   ActorBackgroundColor #DDEEFF
 }
 
-' ── Левая сторона ─────────────────────────────────────────────────────
 actor "Неавторизованный\nпользователь" as Guest
 actor "Соискатель" as Applicant
+actor "Специалист" as Expert
+actor "Администратор" as Admin
 
 rectangle "Interview Master AI" {
 
-  ' ── Неавторизованный пользователь ────────────────────────────────────
   usecase "Войти" as UC_Login
   usecase "Регистрация" as UC_Register
 
-  ' ── Соискатель ────────────────────────────────────────────────────────
   usecase "Выбрать сценарий" as UC_ChooseScript
   usecase "Фильтрация сценариев" as UC_FilterScripts
 
@@ -38,7 +37,6 @@ rectangle "Interview Master AI" {
 
   usecase "Изучить историю" as UC_History
 
-  ' ── Специалист ────────────────────────────────────────────────────────
   usecase "Создать сценарий" as UC_CreateScript
   usecase "Настроить критерии" as UC_SetCriteria
   usecase "Настроить примеры\nвопросов" as UC_SetQuestions
@@ -55,7 +53,6 @@ rectangle "Interview Master AI" {
 
   usecase "Просмотреть жалобы\nна свои сценарии" as UC_ExpertReports
 
-  ' ── Администратор ─────────────────────────────────────────────────────
   usecase "Модерировать контент" as UC_Moderate
   usecase "Изменить статус жалобы" as UC_ChangeReportStatus
   usecase "Просмотреть все жалобы" as UC_AdminReports
@@ -68,15 +65,9 @@ rectangle "Interview Master AI" {
   usecase "Редактировать категорию" as UC_EditCategory
 }
 
-' ── Правая сторона ────────────────────────────────────────────────────
-actor "Специалист" as Expert
-actor "Администратор" as Admin
-
-' ── Связи: Неавторизованный пользователь ──────────────────────────────
 Guest --> UC_Login
 Guest --> UC_Register
 
-' ── Связи: Соискатель ─────────────────────────────────────────────────
 Applicant --> UC_ChooseScript
 UC_ChooseScript <.. UC_FilterScripts : <<extend>>
 
@@ -94,7 +85,6 @@ UC_Achievements <.. UC_OwnAchievements : <<extend>>
 
 Applicant --> UC_History
 
-' ── Связи: Специалист ─────────────────────────────────────────────────
 Expert --> UC_CreateScript
 UC_CreateScript ..> UC_SetCriteria   : <<include>>
 UC_CreateScript ..> UC_SetQuestions  : <<include>>
@@ -111,7 +101,6 @@ UC_Analytics ..> UC_PassCount   : <<include>>
 
 Expert --> UC_ExpertReports
 
-' ── Связи: Администратор ──────────────────────────────────────────────
 Admin --> UC_Moderate
 UC_Moderate ..> UC_AdminReports       : <<include>>
 UC_Moderate ..> UC_ChangeReportStatus : <<include>>

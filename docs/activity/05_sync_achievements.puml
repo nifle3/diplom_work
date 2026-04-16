@@ -1,5 +1,6 @@
 @startuml 05_sync_achievements
 title Синхронизация достижений пользователя
+skinparam ActivityBackgroundColor White
 
 start
 

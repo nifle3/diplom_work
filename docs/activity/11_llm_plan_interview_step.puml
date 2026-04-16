@@ -1,5 +1,6 @@
 @startuml 11_llm_plan_interview_step
 title LLM: Планирование следующего шага интервью
+skinparam ActivityBackgroundColor White
 
 start
 
