@@ -1,5 +1,5 @@
 @startuml 09_streak_calculation
-title Расчёт серии (streak) пользователя
+title Расчёт серии пользователя
 skinparam ActivityBackgroundColor White
 
 start
