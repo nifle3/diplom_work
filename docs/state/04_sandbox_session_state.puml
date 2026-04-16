@@ -7,28 +7,28 @@ skinparam state {
   BorderColor #333333
 }
 
-[*] --> Ready : createSession()
+[*] --> Ready : создать сессию()
 
 state "Готова" as Ready
 
-Ready --> AwaitingAnswer : first question shown
+Ready --> AwaitingAnswer : показан первый вопрос
 
 state "Ожидание ответа" as AwaitingAnswer
 
-AwaitingAnswer --> Evaluating : sendAnswer()
+AwaitingAnswer --> Evaluating : отправить ответ()
 
 state "Проверка" as Evaluating
 
-Evaluating --> AwaitingAnswer : decision = next_topic / follow_up
-Evaluating --> Finished : decision = finish
+Evaluating --> AwaitingAnswer : решение = следующая тема / уточнение
+Evaluating --> Finished : решение = завершить
 
 state "Завершена" as Finished
 
-AwaitingAnswer --> Rewinding : rewindSession()
+AwaitingAnswer --> Rewinding : перемотать сессию()
 
 state "Перемотка" as Rewinding
 
-Rewinding --> AwaitingAnswer : restore messages
+Rewinding --> AwaitingAnswer : восстановить сообщения
 
 Finished --> [*]
 

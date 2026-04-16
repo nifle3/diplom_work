@@ -7,7 +7,7 @@ skinparam state {
   BorderColor #333333
 }
 
-[*] --> New : create()
+[*] --> New : создать()
 
 state "Новая" as New
 
@@ -17,20 +17,20 @@ state "Решена" as Resolved
 
 state "Отклонена" as Rejected
 
-New --> InReview : admin changeStatus()
-New --> Resolved : admin changeStatus()
-New --> Rejected : admin changeStatus()
+New --> InReview : сменить статус администратором()
+New --> Resolved : сменить статус администратором()
+New --> Rejected : сменить статус администратором()
 
-InReview --> New : admin changeStatus()
-InReview --> Resolved : admin changeStatus()
-InReview --> Rejected : admin changeStatus()
+InReview --> New : сменить статус администратором()
+InReview --> Resolved : сменить статус администратором()
+InReview --> Rejected : сменить статус администратором()
 
-Resolved --> New : admin changeStatus()
-Resolved --> InReview : admin changeStatus()
-Resolved --> Rejected : admin changeStatus()
+Resolved --> New : сменить статус администратором()
+Resolved --> InReview : сменить статус администратором()
+Resolved --> Rejected : сменить статус администратором()
 
-Rejected --> New : admin changeStatus()
-Rejected --> InReview : admin changeStatus()
-Rejected --> Resolved : admin changeStatus()
+Rejected --> New : сменить статус администратором()
+Rejected --> InReview : сменить статус администратором()
+Rejected --> Resolved : сменить статус администратором()
 
 @enduml

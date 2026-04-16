@@ -7,16 +7,16 @@ skinparam state {
   BorderColor #333333
 }
 
-[*] --> Draft : createNewDraft
+[*] --> Draft : создать черновик
 
 state "Черновик" as Draft
 
-Draft --> Published : mutateThirdStep()\npostDraft()
+Draft --> Published : изменить третий шаг()\nопубликовать()
 
 state "Опубликован" as Published
 
-Draft --> Deleted : deleteScript()
-Published --> Deleted : deleteScript()
+Draft --> Deleted : удалить сценарий()
+Published --> Deleted : удалить сценарий()
 
 state "Удалён" as Deleted
 

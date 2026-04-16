@@ -7,20 +7,20 @@ skinparam state {
   BorderColor #333333
 }
 
-[*] --> Active : createNewSession()
+[*] --> Active : создать сессию()
 
 state "Активна" as Active
 
-Active --> Active : addNewMessage()\nnext question / follow-up
-Active --> Complete : finalizeSession()\nfinish branch
-Active --> Canceled : cancelSession()
+Active --> Active : добавить сообщение()\nследующий вопрос / уточнение
+Active --> Complete : завершить сессию()\nветка завершения
+Active --> Canceled : отменить сессию()
 
 state "Завершена" as Complete
 
 state "Отменена" as Canceled
 
-Complete --> Complete : повторный finalizeSession()\nno-op
-Canceled --> Canceled : повторный cancelSession()\nno-op
+Complete --> Complete : повторное завершение()\nбез изменений
+Canceled --> Canceled : повторная отмена()\nбез изменений
 
 Complete --> [*]
 Canceled --> [*]
