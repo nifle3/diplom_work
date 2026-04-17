@@ -1,29 +1,31 @@
 @startuml 15_sandbox_rewind
 title Sandbox: Откат К Ответу
 
+skinparam backgroundColor white
+
 autonumber
 
-actor Expert
-participant UI as "Sandbox UI"
-participant API as "expertSandboxRouter.rewindSession"
-participant DB as Postgres
-participant LLM as LLM
+actor Эксперт
+participant UI as "Интерфейс"
+participant Server as "Сервер"
+participant DB as "База данных"
+participant LLM as "LLM"
 
-Expert -> UI: Выбирает ответ, к которому нужно откатиться
-UI -> API: rewindSession(sessionId, messageId)
-API -> DB: Прочитать сообщения сессии
+Эксперт -> UI: Выбирает ответ, к которому нужно откатиться
+UI -> Server: Откатить сессию до выбранного сообщения
+Server -> DB: Получить сообщения сессии
 
 alt сессия не найдена
-    API --> UI: NOT_FOUND
+    Server --> UI: Ошибка: не найдено
 else сообщение не найдено
-    API --> UI: NOT_FOUND
-else выбран AI message
-    API --> UI: BAD_REQUEST
-else выбран собственный ответ
-    API -> LLM: summarize() для оставшейся цепочки
-    API -> DB: delete messages after selected message
-    API -> DB: update currentQuestionIndex and summarize
-    API --> UI: restored messages + currentQuestionIndex
+    Server --> UI: Ошибка: не найдено
+else выбрано сообщение от ИИ
+    Server --> UI: Ошибка: некорректный запрос
+else выбран ответ пользователя
+    Server -> LLM: Пересчитать сводку по оставшимся ответам
+    Server -> DB: Удалить сообщения после выбранного
+    Server -> DB: Обновить состояние сессии
+    Server --> UI: Восстановленные сообщения
 end
 
 @enduml

@@ -1,25 +1,24 @@
 @startuml 19_achievements
-title Управление Достижениями И Пересчёт Наград
+title Управление Достижениями И Каскадная Синхронизация
+
+skinparam backgroundColor white
 
 autonumber
 
-actor Admin
-participant UI as "Admin UI"
-participant API as "achievementRouter"
-participant DB as Postgres
-participant Log as Logger
+actor Администратор
+participant UI as "Интерфейс"
+participant Server as "Сервер"
+participant DB as "База данных"
 
-Admin -> UI: Создаёт или обновляет достижение
-UI -> API: create(...) / updateById(...)
-API -> DB: Валидация формулы и insert/update achievements
-API -> DB: syncAllUserAchievements()
-API -> Log: Created / Updated achievement
-API --> UI: achievement id
+Администратор -> UI: Создаёт или обновляет достижение
+UI -> Server: Сохранить достижение
+Server -> DB: Сохранить данные достижения
+Server -> DB: Синхронизировать достижения всех пользователей
+Server --> UI: Результат операции
 
-Admin -> UI: Пересчитывает все достижения
-UI -> API: recalculateAll()
-API -> DB: syncAllUserAchievements()
-API -> Log: Recalculated all achievements
-API --> UI: result
+Администратор -> UI: Пересчитать все достижения
+UI -> Server: Запустить пересчёт
+Server -> DB: Синхронизировать достижения всех пользователей
+Server --> UI: Результат операции
 
 @enduml
