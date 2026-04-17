@@ -1,19 +1,16 @@
 @startuml Logical DB Diagram
 
 skinparam linetype ortho
-skinparam entity {
-  BackgroundColor White
-  BorderColor #555
-  FontSize 12
-}
+skinparam EntityBorderColor #555
+skinparam EntityFontSize 12
 
-entity "roles" {
+entity "roles" #White {
   * id : integer <<PK>>
   --
   * name : varchar(50)
 }
 
-entity "users" {
+entity "users" #White {
   * id : uuid <<PK>>
   --
   * name : text
@@ -27,7 +24,7 @@ entity "users" {
   deleted_at : timestamp
 }
 
-entity "categories" {
+entity "categories" #White {
   * id : integer <<PK, identity>>
   --
   * name : varchar(100)
@@ -36,7 +33,7 @@ entity "categories" {
   deleted_at : timestamp
 }
 
-entity "scripts" {
+entity "scripts" #White {
   * id : uuid <<PK>>
   --
   category_id : integer <<FK>>
@@ -52,13 +49,13 @@ entity "scripts" {
   deleted_at : timestamp
 }
 
-entity "criteria_types" {
+entity "criteria_types" #White {
   * id : integer <<PK>>
   --
   * name : varchar(50)
 }
 
-entity "scenario_criteria" {
+entity "scenario_criteria" #White {
   * id : uuid <<PK>>
   --
   * script_id : uuid <<FK>>
@@ -67,7 +64,7 @@ entity "scenario_criteria" {
   deleted_at : timestamp
 }
 
-entity "question_templates" {
+entity "question_templates" #White {
   * id : uuid <<PK>>
   --
   * script_id : uuid <<FK>>
@@ -76,14 +73,14 @@ entity "question_templates" {
   deleted_at : timestamp
 }
 
-entity "specific_criteria" {
+entity "specific_criteria" #White {
   * id : uuid <<PK>>
   --
   * question_id : uuid <<FK>>
   * content : text
 }
 
-entity "interview_sessions" {
+entity "interview_sessions" #White {
   * id : uuid <<PK>>
   --
   * user_id : uuid <<FK>>
@@ -95,13 +92,13 @@ entity "interview_sessions" {
   * started_at : timestamp
 }
 
-entity "interview_session_statuses" {
+entity "interview_session_statuses" #White {
   * id : integer <<PK>>
   --
   * name : varchar(20)
 }
 
-entity "interview_session_status_log" {
+entity "interview_session_status_log" #White {
   * id : uuid <<PK>>
   --
   * session_id : uuid <<FK>>
@@ -109,7 +106,7 @@ entity "interview_session_status_log" {
   * created_at : timestamp
 }
 
-entity "chat_messages" {
+entity "chat_messages" #White {
   * id : uuid <<PK>>
   --
   * session_id : uuid <<FK>>
@@ -119,7 +116,7 @@ entity "chat_messages" {
   * created_at : timestamp
 }
 
-entity "achievements" {
+entity "achievements" #White {
   * id : uuid <<PK>>
   --
   * name : varchar(100)
@@ -130,20 +127,20 @@ entity "achievements" {
   * updated_at : timestamp
 }
 
-entity "user_achievements" {
+entity "user_achievements" #White {
   * user_id : uuid <<FK>>
   * achievement_id : uuid <<FK>>
   --
   * awarded_at : timestamp
 }
 
-entity "report_statuses" {
+entity "report_statuses" #White {
   * id : integer <<PK>>
   --
   * name : varchar(20) <<unique>>
 }
 
-entity "reports" {
+entity "reports" #White {
   * id : uuid <<PK>>
   --
   * reporter_id : uuid <<FK>>
@@ -152,7 +149,7 @@ entity "reports" {
   * created_at : timestamp
 }
 
-entity "report_status_log" {
+entity "report_status_log" #White {
   * id : uuid <<PK>>
   --
   * report_id : uuid <<FK>>
@@ -161,7 +158,7 @@ entity "report_status_log" {
 }
 
 ' Auth
-entity "accounts" {
+entity "accounts" #White {
   * id : uuid <<PK>>
   --
   * account_id : uuid
@@ -178,7 +175,7 @@ entity "accounts" {
   * updated_at : timestamp
 }
 
-entity "sessions" {
+entity "sessions" #White {
   * id : uuid <<PK>>
   --
   * user_id : uuid <<FK>>
@@ -190,7 +187,7 @@ entity "sessions" {
   * updated_at : timestamp
 }
 
-entity "verifications" {
+entity "verifications" #White {
   * id : uuid <<PK>>
   --
   * identifier : text

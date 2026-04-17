@@ -1,54 +1,51 @@
 @startuml Conceptual DB Diagram
 
 skinparam linetype ortho
-skinparam entity {
-  BackgroundColor White
-  BorderColor #555
-  FontSize 12
-}
+skinparam EntityBorderColor #555
+skinparam EntityFontSize 12
 
-entity "Пользователь" {
+entity "Пользователь" #White {
   имя
   email
   роль
   XP
 }
 
-entity "Категория" {
+entity "Категория" #White {
   название
 }
 
-entity "Сценарий" {
+entity "Сценарий" #White {
   название
   описание
   контекст
 }
 
-entity "Вопрос" {
+entity "Вопрос" #White {
   текст
 }
 
-entity "Критерий сценария" {
+entity "Критерий сценария" #White {
   содержание
   тип
 }
 
-entity "Критерий вопроса" {
+entity "Критерий вопроса" #White {
   содержание
 }
 
-entity "Сессия интервью"
+entity "Сессия интервью" #White
 
-entity "Сообщение" {
+entity "Сообщение" #White {
   текст
 }
 
-entity "Достижение" {
+entity "Достижение" #White {
   название
   описание
 }
 
-entity "Жалоба" {
+entity "Жалоба" #White {
   причина
 }
 
