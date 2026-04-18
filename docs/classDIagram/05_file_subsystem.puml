@@ -8,7 +8,7 @@ hide circle
 title File Subsystem
 
 package "Infrastructure" {
-  class env <<config>> {
+  class env <<config>> #White {
     +S3_REGION
     +S3_ENDPOINT
     +S3_BUCKET
@@ -17,31 +17,31 @@ package "Infrastructure" {
     +S3_SECRET_KEY
   }
 
-  class client <<S3Client>> {
+  class client <<S3Client>> #White {
   }
 }
 
 package "Utilities" {
-  class crypto <<node:crypto>> {
+  class crypto <<node:crypto>> #White {
   }
 
-  class path <<node:path>> {
+  class path <<node:path>> #White {
   }
 
-  class generateFileKey <<function>> {
+  class generateFileKey <<function>> #White {
     +originalName
     +folder
     +key
   }
 
-  class wrapS3Error <<function>> {
+  class wrapS3Error <<function>> #White {
     +fn
     +wrappedFn
   }
 }
 
 package "Operations" {
-  class uploadFile <<function>> {
+  class uploadFile <<function>> #White {
     +fileBuffer
     +originalName
     +contentType
@@ -49,25 +49,25 @@ package "Operations" {
     +key
   }
 
-  class deleteFile <<function>> {
+  class deleteFile <<function>> #White {
     +key
   }
 
-  class getPersistentLink <<function>> {
+  class getPersistentLink <<function>> #White {
     +key
     +url
   }
 
-  class getUploadPersistentLink <<function>> {
+  class getUploadPersistentLink <<function>> #White {
     +key
     +contentType
     +url
   }
 
-  class s3Healthcheck <<function>> {
+  class s3Healthcheck <<function>> #White {
   }
 
-  class file <<module>> {
+  class file <<module>> #White {
     +deleteFile
     +getPersistentLink
     +getPersistentUploadLink
@@ -77,13 +77,13 @@ package "Operations" {
 }
 
 package "Domain errors" {
-  class StorageError <<error>> {
+  class StorageError <<error>> #White {
   }
 
-  class FileTooLargeError <<error>> {
+  class FileTooLargeError <<error>> #White {
   }
 
-  class logger <<service>> {
+  class logger <<service>> #White {
   }
 }
 

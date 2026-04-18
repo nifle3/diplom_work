@@ -16,6 +16,7 @@
             nodePackages.typescript
             nodePackages.typescript-language-server
             k6
+            plantuml
           ];
         };
       }

@@ -8,21 +8,21 @@ hide circle
 title Application Service Composition
 
 package "API bootstrap" {
-  class AppDependencies <<type>> {
+  class AppDependencies <<type>> #White {
     +auth
     +db
     +file
     +llm
   }
 
-  class defaultDependencies <<object>> {
+  class defaultDependencies <<object>> #White {
     +auth
     +db
     +file
     +llm
   }
 
-  class createContext <<function>> {
+  class createContext <<function>> #White {
     +req
     +dependencies
     +session
@@ -32,7 +32,7 @@ package "API bootstrap" {
     +setCookieHeaders
   }
 
-  class Context <<type>> {
+  class Context <<type>> #White {
     +session
     +requestId
     +clientIp
@@ -42,22 +42,22 @@ package "API bootstrap" {
 }
 
 package "Auth" {
-  class auth <<service>> {
+  class auth <<service>> #White {
   }
 }
 
 package "Database" {
-  class db <<instance>> {
+  class db <<instance>> #White {
   }
 }
 
 package "File" {
-  class file <<module>> {
+  class file <<module>> #White {
   }
 }
 
 package "LLM" {
-  class llm <<module>> {
+  class llm <<module>> #White {
   }
 }
 

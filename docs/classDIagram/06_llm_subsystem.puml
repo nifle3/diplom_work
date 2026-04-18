@@ -8,59 +8,59 @@ hide circle
 title LLM Subsystem
 
 package "Model setup" {
-  class env <<config>> {
+  class env <<config>> #White {
     +AI_KEY
   }
 
-  class createMistral <<factory>> {
+  class createMistral <<factory>> #White {
   }
 
-  class generateText <<AI SDK>> {
+  class generateText <<AI SDK>> #White {
   }
 
-  class Output <<AI SDK>> {
+  class Output <<AI SDK>> #White {
   }
 
-  class wrapLanguageModel <<adapter>> {
+  class wrapLanguageModel <<adapter>> #White {
   }
 
-  class shieldUserTextMiddleware <<middleware>> {
+  class shieldUserTextMiddleware <<middleware>> #White {
   }
 
-  class model <<instance>> {
+  class model <<instance>> #White {
   }
 }
 
 package "Interviewer" {
-  class outputScheme <<schema>> {
+  class outputScheme <<schema>> #White {
     +content: string
   }
 
-  class generateTemplatePrompt <<function>> {
+  class generateTemplatePrompt <<function>> #White {
   }
 
-  class getFirstQuestion <<function>> {
+  class getFirstQuestion <<function>> #White {
   }
 
-  class getNextQuestion <<function>> {
+  class getNextQuestion <<function>> #White {
   }
 
-  class planInterviewStep <<function>> {
+  class planInterviewStep <<function>> #White {
   }
 }
 
 package "Evaluation" {
-  class evaluateAnswer <<function>> {
+  class evaluateAnswer <<function>> #White {
   }
 }
 
 package "Summarization" {
-  class summarize <<function>> {
+  class summarize <<function>> #White {
   }
 }
 
 package "Validation" {
-  class zod <<library>> {
+  class zod <<library>> #White {
   }
 }
 

@@ -8,30 +8,30 @@ hide circle
 title Auth Integration
 
 package "Auth package" {
-  class betterAuth <<library>>
-  class auth <<instance>>
-  class authSchema <<schema>>
-  class drizzleAdapter <<adapter>>
-  class nextCookies <<plugin>>
-  class customSession <<plugin>>
-  class createSendResetPassword <<factory>>
-  class createLoggerBridge <<factory>>
-  class createSessionHook <<factory>>
-  class generateId <<factory>>
+  class betterAuth <<library>> #White
+  class auth <<instance>> #White
+  class authSchema <<schema>> #White
+  class drizzleAdapter <<adapter>> #White
+  class nextCookies <<plugin>> #White
+  class customSession <<plugin>> #White
+  class createSendResetPassword <<factory>> #White
+  class createLoggerBridge <<factory>> #White
+  class createSessionHook <<factory>> #White
+  class generateId <<factory>> #White
 }
 
 package "Database schema" {
-  class usersTable <<table>>
-  class sessionsTable <<table>>
-  class verificationsTable <<table>>
-  class accountsTable <<table>>
+  class usersTable <<table>> #White
+  class sessionsTable <<table>> #White
+  class verificationsTable <<table>> #White
+  class accountsTable <<table>> #White
 }
 
 package "Support services" {
-  class db <<instance>>
-  class email <<service>>
-  class env <<config>>
-  class logger <<service>>
+  class db <<instance>> #White
+  class email <<service>> #White
+  class env <<config>> #White
+  class logger <<service>> #White
 }
 
 authSchema ..> usersTable

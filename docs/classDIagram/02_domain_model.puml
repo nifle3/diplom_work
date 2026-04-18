@@ -8,21 +8,21 @@ hide circle
 title Domain Model
 
 package "Errors" {
-  class DomainError<T> <<abstract>> {
+  class DomainError<T> <<abstract>> #White {
     +payload?: T
     +message: string
   }
 
-  class StorageError <<error>> {
+  class StorageError <<error>> #White {
   }
 
-  class FileTooLargeError <<error>> {
+  class FileTooLargeError <<error>> #White {
   }
 
-  class EmailConfigurationError <<error>> {
+  class EmailConfigurationError <<error>> #White {
   }
 
-  class EmailDeliveryError <<error>> {
+  class EmailDeliveryError <<error>> #White {
   }
 }
 
@@ -33,20 +33,20 @@ package "Values" {
     canceled
   }
 
-  class statusToId <<const map>> {
+  class statusToId <<const map>> #White {
     +active: 1
     +complete: 2
     +canceled: 3
   }
 
-  class reportStatuses <<const tuple>> {
+  class reportStatuses <<const tuple>> #White {
     new
     in_review
     resolved
     rejected
   }
 
-  class ReportStatus <<type alias>> {
+  class ReportStatus <<type alias>> #White {
   }
 }
 

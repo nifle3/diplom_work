@@ -8,12 +8,12 @@ hide circle
 title Persistence Model
 
 package "Auth" {
-  class rolesTable <<table>> {
+  class rolesTable <<table>> #White {
     +id: integer
     +name: varchar(50)
   }
 
-  class usersTable <<table>> {
+  class usersTable <<table>> #White {
     +id: uuid
     +name: text
     +email: text
@@ -23,7 +23,7 @@ package "Auth" {
     +deletedAt: timestamp?
   }
 
-  class accountsTable <<table>> {
+  class accountsTable <<table>> #White {
     +id: uuid
     +accountId: uuid
     +providerId: text
@@ -31,14 +31,14 @@ package "Auth" {
     +password: text?
   }
 
-  class sessionsTable <<table>> {
+  class sessionsTable <<table>> #White {
     +id: uuid
     +token: text
     +expiresAt: timestamp
     +userId: uuid
   }
 
-  class verificationsTable <<table>> {
+  class verificationsTable <<table>> #White {
     +id: uuid
     +identifier: text
     +value: text
@@ -47,13 +47,13 @@ package "Auth" {
 }
 
 package "Catalog & Scenario" {
-  class categoriesTable <<table>> {
+  class categoriesTable <<table>> #White {
     +id: integer
     +name: varchar(100)
     +deletedAt: timestamp?
   }
 
-  class scriptsTable <<table>> {
+  class scriptsTable <<table>> #White {
     +id: uuid
     +categoryId: integer?
     +expertId: uuid
@@ -63,12 +63,12 @@ package "Catalog & Scenario" {
     +deletedAt: timestamp?
   }
 
-  class criteriaTypesTable <<table>> {
+  class criteriaTypesTable <<table>> #White {
     +id: integer
     +name: varchar(50)
   }
 
-  class scriptCriteriaTable <<table>> {
+  class scriptCriteriaTable <<table>> #White {
     +id: uuid
     +scriptId: uuid
     +typeId: integer
@@ -76,7 +76,7 @@ package "Catalog & Scenario" {
     +deletedAt: timestamp?
   }
 
-  class questionTemplatesTable <<table>> {
+  class questionTemplatesTable <<table>> #White {
     +id: uuid
     +scriptId: uuid
     +order: integer
@@ -84,7 +84,7 @@ package "Catalog & Scenario" {
     +deletedAt: timestamp?
   }
 
-  class specificCriteriaTable <<table>> {
+  class specificCriteriaTable <<table>> #White {
     +id: uuid
     +questionId: uuid
     +content: text
@@ -92,7 +92,7 @@ package "Catalog & Scenario" {
 }
 
 package "Interview" {
-  class interviewSessionsTable <<table>> {
+  class interviewSessionsTable <<table>> #White {
     +id: uuid
     +userId: uuid
     +scriptId: uuid
@@ -103,19 +103,19 @@ package "Interview" {
     +summarize: text?
   }
 
-  class interviewSessionStatusesTable <<table>> {
+  class interviewSessionStatusesTable <<table>> #White {
     +id: integer
     +name: varchar(20)
   }
 
-  class interviewSessionStatusLogTable <<table>> {
+  class interviewSessionStatusLogTable <<table>> #White {
     +id: uuid
     +sessionId: uuid
     +statusId: integer
     +createdAt: timestamp
   }
 
-  class chatMessagesTable <<table>> {
+  class chatMessagesTable <<table>> #White {
     +id: uuid
     +sessionId: uuid
     +isAi: boolean
@@ -126,32 +126,32 @@ package "Interview" {
 }
 
 package "Reputation & Moderation" {
-  class achievementsTable <<table>> {
+  class achievementsTable <<table>> #White {
     +id: uuid
     +name: varchar(100)
     +description: text
     +formula: text
   }
 
-  class userAchievementsTable <<table>> {
+  class userAchievementsTable <<table>> #White {
     +userId: uuid
     +achievementId: uuid
     +awardedAt: timestamp
   }
 
-  class reportsTable <<table>> {
+  class reportsTable <<table>> #White {
     +id: uuid
     +reporterId: uuid
     +scriptId: uuid
     +reason: text
   }
 
-  class reportStatusesTable <<table>> {
+  class reportStatusesTable <<table>> #White {
     +id: integer
     +name: varchar(20)
   }
 
-  class reportStatusLogTable <<table>> {
+  class reportStatusLogTable <<table>> #White {
     +id: uuid
     +reportId: uuid
     +statusId: integer
