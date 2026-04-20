@@ -1,26 +1,6 @@
-# Жизненный Цикл Интервью-Сессии
+# Создание Сессии Интервью И Обработка Ответа
 
-Этот файл описывает основной продуктовый поток: создание интервью, получение первого вопроса, ответы, финализацию, отмену и просмотр результата.
-
-## Кейсы
-
-- Создание новой интервью-сессии.
-- Получение сценария по interview id.
-- Получение истории сообщений.
-- Отправка ответа и получение следующего вопроса.
-- Завершение интервью по решению планировщика.
-- Ручное завершение интервью.
-- Отмена интервью.
-- Получение результата завершённой сессии.
-
-## Участники
-
-- `User` - кандидат.
-- `Interview UI` - экран интервью.
-- `tRPC API` - `sessionRouter`.
-- `Postgres` - интервью-сессии, статус-логи, сообщения, XP.
-- `LLM` - суммаризация, оценка ответа, планирование следующего шага.
-- `Logger` - фиксация завершения, отмены и отправки ответа.
+Этот файл оставляет только два базовых потока: создание сессии и обработку ответа с цепочкой LLM-вызовов.
 
 ## Создание Сессии
 
@@ -101,60 +81,4 @@ sequenceDiagram
             API-->>UI: next-question
         end
     end
-```
-
-## Ручное Завершение И Отмена
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor User
-    participant UI as Interview UI
-    participant API as sessionRouter.finishSession / cancelSession
-    participant DB as Postgres
-    participant LLM as LLM
-    participant Log as Logger
-
-    User->>UI: Нажимает "Finish" или "Cancel"
-    UI->>API: finishSession(sessionId) / cancelSession(sessionId)
-    API->>DB: Найти сессию, сообщения, последний статус и сценарий
-    alt сессия не найдена
-        API-->>UI: NOT_FOUND
-    else сессия уже terminal
-        API-->>UI: result = complete:false / canceled:false
-    else нужна финализация
-        API->>LLM: evaluateAnswer(mode = session) или calculate final evaluation
-        API->>DB: insert complete/canceled status
-        API->>DB: update finalScore / expertFeedback
-        opt finishSession
-            API->>DB: add XP
-            API->>DB: sync achievements
-        end
-        API->>Log: Finished interview session / Canceled interview session
-        API-->>UI: result
-    end
-```
-
-## Результат И История
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor User
-    participant UI as Interview UI
-    participant API as sessionRouter.getResultBySessionId / getAllHistory / getScriptByInterviewId
-    participant DB as Postgres
-
-    User->>UI: Открывает результаты или историю
-    UI->>API: getResultBySessionId(sessionId)
-    API->>DB: Прочитать сессию, сообщения, status log и script
-    alt сессия не найдена
-        API-->>UI: NOT_FOUND
-    else сессия найдена
-        API-->>UI: result + questions + experienceGained
-    end
-
-    UI->>API: getAllHistory(sessionId) / getScriptByInterviewId(sessionId)
-    API->>DB: Прочитать историю сообщений или script
-    API-->>UI: История или script
 ```
