@@ -1,6 +1,7 @@
 @startuml InterviewMasterAI_UseCase
 
 left to right direction
+
 skinparam packageStyle rectangle
 skinparam usecase {
   BackgroundColor white
@@ -12,8 +13,6 @@ skinparam usecase {
 
 actor "Неавторизованный\nпользователь" as Guest
 actor "Соискатель" as Applicant
-actor "Специалист" as Expert
-actor "Администратор" as Admin
 
 rectangle "Interview Master AI" {
 
@@ -64,6 +63,9 @@ rectangle "Interview Master AI" {
   usecase "Добавить категорию" as UC_AddCategory
   usecase "Редактировать категорию" as UC_EditCategory
 }
+
+actor "Специалист" as Expert
+actor "Администратор" as Admin
 
 Guest --> UC_Login
 Guest --> UC_Register

@@ -9,10 +9,6 @@ import { describe, expect, it } from "vitest";
 
 import { mapDbError } from "./mapError";
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
 function makePgError(
 	message: string,
 	fields: {
@@ -27,10 +23,6 @@ function makePgError(
 	Object.assign(error, fields);
 	return error;
 }
-
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
 
 describe("mapDbError — unique constraint (23505)", () => {
 	it("maps to DbUniqueConstraintError with all available fields", () => {
@@ -50,9 +42,7 @@ describe("mapDbError — unique constraint (23505)", () => {
 			expect(error).toBeInstanceOf(DbUniqueConstraintError);
 			const e = error as DbUniqueConstraintError;
 			expect(e.name).toBe("DbUniqueConstraintError");
-			expect(e.message).toBe(
-				"duplicate key value violates unique constraint",
-			);
+			expect(e.message).toBe("duplicate key value violates unique constraint");
 			expect(e.payload).toEqual({
 				constraint: "users_email_unique",
 				table: "users",
@@ -100,15 +90,12 @@ describe("mapDbError — foreign key constraint (23503)", () => {
 
 describe("mapDbError — check constraint (23514)", () => {
 	it("maps to DbCheckConstraintError with all available fields", () => {
-		const raw = makePgError(
-			"new row for relation violates check constraint",
-			{
-				code: "23514",
-				constraint: "users_age_check",
-				table: "users",
-				detail: "Failing row contains age=-1.",
-			},
-		);
+		const raw = makePgError("new row for relation violates check constraint", {
+			code: "23514",
+			constraint: "users_age_check",
+			table: "users",
+			detail: "Failing row contains age=-1.",
+		});
 
 		expect(() => mapDbError(raw)).toThrow(DbCheckConstraintError);
 
@@ -138,23 +125,23 @@ describe("mapDbError — connection errors", () => {
 		{ code: "ECONNRESET", expectedReason: "connection_refused" },
 		{ code: "ENOTFOUND", expectedReason: "connection_refused" },
 		{ code: "ETIMEDOUT", expectedReason: "timeout" },
-	])(
-		"maps code $code to DbConnectionError with reason $expectedReason",
-		({ code, expectedReason }) => {
-			const raw = makePgError("connection error", { code });
+	])("maps code $code to DbConnectionError with reason $expectedReason", ({
+		code,
+		expectedReason,
+	}) => {
+		const raw = makePgError("connection error", { code });
 
-			expect(() => mapDbError(raw)).toThrow(DbConnectionError);
+		expect(() => mapDbError(raw)).toThrow(DbConnectionError);
 
-			try {
-				mapDbError(raw);
-			} catch (error) {
-				expect(error).toBeInstanceOf(DbConnectionError);
-				const e = error as DbConnectionError;
-				expect(e.name).toBe("DbConnectionError");
-				expect(e.payload?.reason).toBe(expectedReason);
-			}
-		},
-	);
+		try {
+			mapDbError(raw);
+		} catch (error) {
+			expect(error).toBeInstanceOf(DbConnectionError);
+			const e = error as DbConnectionError;
+			expect(e.name).toBe("DbConnectionError");
+			expect(e.payload?.reason).toBe(expectedReason);
+		}
+	});
 });
 
 describe("mapDbError — generic query errors (fallback)", () => {
