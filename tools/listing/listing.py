@@ -59,6 +59,9 @@ def should_skip(path: Path) -> bool:
     if path.name in EXCLUDED_FILES:
         return True
 
+    if "test.ts" in path.name:
+        return True
+
     return False
 
 
