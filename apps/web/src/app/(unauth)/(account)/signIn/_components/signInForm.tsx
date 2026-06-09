@@ -60,6 +60,7 @@ export default function SignInForm() {
 					id="email"
 					name="email"
 					required
+					maxLength={100}
 					value={values.email}
 					onChange={handleChange("email")}
 					className="w-full rounded-md border px-3 py-2"
@@ -76,6 +77,7 @@ export default function SignInForm() {
 					id="password"
 					name="password"
 					required
+					maxLength={100}
 					value={values.password}
 					onChange={handleChange("password")}
 					className="w-full rounded-md border px-3 py-2"

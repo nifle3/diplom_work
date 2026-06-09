@@ -105,6 +105,7 @@ export function AchievementForm({
 									id={field.name}
 									name={field.name}
 									value={field.state.value}
+									maxLength={100}
 									onBlur={field.handleBlur}
 									onChange={(event) => field.handleChange(event.target.value)}
 									placeholder="Например, Мастер стрика"

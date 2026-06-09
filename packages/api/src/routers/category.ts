@@ -36,10 +36,11 @@ export const categoryRouter = router({
 			}),
 		)
 		.mutation(async ({ input, ctx }) => {
+			const catName = input.name.toLocaleLowerCase().trim();
 			const result = await ctx.db
 				.update(categoriesTable)
 				.set({
-					name: input.name,
+					name: catName,
 					updatedAt: new Date(),
 				})
 				.where(eq(categoriesTable.id, input.id));
@@ -51,11 +52,25 @@ export const categoryRouter = router({
 			logger.info({ categoryId: input.id }, "Updated category");
 		}),
 	create: adminProcedure.input(z.string()).mutation(async ({ input, ctx }) => {
+		const catName = input.toLocaleLowerCase().trim();
+
+		const cat = await ctx.db.query.categoriesTable.findFirst({
+			where: (categories, { eq, and, isNull }) =>
+				and(eq(categories.name, catName), isNull(categories.deletedAt)),
+		});
+
+		if (cat) {
+			throw new TRPCError({
+				code: "BAD_REQUEST",
+				message: "Такая категория уже есть",
+			});
+		}
+
 		await ctx.db.insert(categoriesTable).values({
-			name: input,
+			name: catName,
 			createdAt: new Date(),
 		});
 
-		logger.info({ name: input }, "Created category");
+		logger.info({ name: catName }, "Created category");
 	}),
 });

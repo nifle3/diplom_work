@@ -114,6 +114,7 @@ export function ChangeEmailDialog({ email }: { email: string }) {
 									value={field.state.value}
 									onBlur={field.handleBlur}
 									onChange={(e) => field.handleChange(e.target.value)}
+									maxLength={100}
 									disabled={mutation.isPending}
 								/>
 								<FieldError

@@ -111,6 +111,7 @@ export function ChangePasswordDialog() {
 									type="password"
 									value={field.state.value}
 									onBlur={field.handleBlur}
+									maxLength={100}
 									onChange={(e) => field.handleChange(e.target.value)}
 									disabled={mutation.isPending}
 								/>
@@ -125,6 +126,7 @@ export function ChangePasswordDialog() {
 									id={field.name}
 									name={field.name}
 									type="password"
+									maxLength={100}
 									value={field.state.value}
 									onBlur={field.handleBlur}
 									onChange={(e) => field.handleChange(e.target.value)}
@@ -141,6 +143,7 @@ export function ChangePasswordDialog() {
 									id={field.name}
 									name={field.name}
 									type="password"
+									maxLength={100}
 									value={field.state.value}
 									onBlur={field.handleBlur}
 									onChange={(e) => field.handleChange(e.target.value)}

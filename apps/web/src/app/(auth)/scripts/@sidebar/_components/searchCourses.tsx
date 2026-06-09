@@ -45,6 +45,7 @@ export function SearchCourses() {
 				onKeyDown={handleKeyDown}
 				disabled={isPending}
 				className="pr-10 pl-10"
+				maxLength={100}
 			/>
 			{query && (
 				<Button

@@ -11,7 +11,9 @@ interface SidebarProps {
 
 export default async function SidebarSlot({ searchParams }: SidebarProps) {
 	const { categoryId: _categoryId, search: _search } = await searchParams;
+
 	const trpcCaller = await serverTrpc();
+
 	const categories = await trpcCaller.script.categories();
 	const categoriesForQuery = categories.map((val) => {
 		return {

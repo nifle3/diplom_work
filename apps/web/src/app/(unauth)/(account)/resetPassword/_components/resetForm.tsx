@@ -29,6 +29,7 @@ export function ResetForm({ token }: ResetFormParams) {
 					id="newPassword"
 					name="newPassword"
 					type="password"
+					maxLength={100}
 					autoComplete="new-password"
 					value={password}
 					onChange={(e) => setPassword(e.target.value)}

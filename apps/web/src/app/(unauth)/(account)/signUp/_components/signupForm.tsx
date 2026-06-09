@@ -34,10 +34,7 @@ export default function SignUpForm() {
 				},
 				onError(ctx) {
 					toast.error(
-						getAuthErrorMessage(
-							ctx.error,
-							"Не удалось зарегистрироваться.",
-						),
+						getAuthErrorMessage(ctx.error, "Не удалось зарегистрироваться."),
 					);
 				},
 				onRequest() {
@@ -66,6 +63,7 @@ export default function SignUpForm() {
 					id="name"
 					name="name"
 					value={values.name}
+					maxLength={100}
 					onChange={handleChange("name")}
 					className="w-full rounded-md border px-3 py-2"
 					type="text"
@@ -79,6 +77,7 @@ export default function SignUpForm() {
 				<input
 					id="email"
 					name="email"
+					maxLength={100}
 					value={values.email}
 					onChange={handleChange("email")}
 					className="w-full rounded-md border px-3 py-2"
@@ -93,6 +92,7 @@ export default function SignUpForm() {
 				<input
 					id="password"
 					name="password"
+					maxLength={100}
 					value={values.password}
 					onChange={handleChange("password")}
 					className="w-full rounded-md border px-3 py-2"

@@ -14,7 +14,7 @@ export function ExpertForm() {
 	const setMutation = useMutation(
 		trpc.expertManager.setUserExpert.mutationOptions({
 			onSuccess: () => {
-				toast("Пользователь добавлен");
+				toast("Пользователь стал экспертом");
 				router.refresh();
 			},
 		}),
@@ -51,6 +51,7 @@ export function ExpertForm() {
 									value={field.state.value}
 									onBlur={field.handleBlur}
 									onChange={(e) => field.handleChange(e.target.value)}
+									maxLength={100}
 									placeholder="example@mail.ru"
 								/>
 								{isInvalid && <FieldError errors={field.state.meta.errors} />}

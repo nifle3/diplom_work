@@ -109,6 +109,7 @@ export default function FirstStepForm({
 													onBlur={field.handleBlur}
 													onChange={(e) => field.handleChange(e.target.value)}
 													placeholder="Например, Интервью на позицию middle frontend"
+													maxLength={100}
 												/>
 											</FormFieldWrapper>
 										)}
@@ -130,6 +131,7 @@ export default function FirstStepForm({
 														rows={10}
 														className="min-h-32 resize-none"
 														placeholder="Кратко опишите, что это за курс и кому он подойдет"
+														maxLength={500}
 													/>
 													<InputGroupAddon align="block-end">
 														<InputGroupText className="tabular-nums">

@@ -20,6 +20,7 @@ export default function ForgotPasswordForm() {
 					name="email"
 					type="email"
 					autoComplete="email"
+					maxLength={100}
 					value={requestEmail}
 					onChange={(e) => setRequestEmail(e.target.value)}
 					placeholder="you@example.com"

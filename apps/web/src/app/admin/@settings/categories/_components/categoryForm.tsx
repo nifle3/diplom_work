@@ -70,6 +70,7 @@ export function CategoryForm({ category }: CategoryFormProps) {
 									id={field.name}
 									name={field.name}
 									value={field.state.value}
+									maxLength={100}
 									onBlur={field.handleBlur}
 									onChange={(e) => field.handleChange(e.target.value)}
 									placeholder="Введите название категории"

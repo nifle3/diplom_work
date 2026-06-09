@@ -112,7 +112,8 @@ export const scriptRouter = router({
 	categories: protectedProcedure.query(async ({ ctx }) => {
 		const categories = await ctx.db
 			.select({ id: categoriesTable.id, name: categoriesTable.name })
-			.from(categoriesTable);
+			.from(categoriesTable)
+			.where(isNull(categoriesTable.deletedAt));
 
 		return categories;
 	}),

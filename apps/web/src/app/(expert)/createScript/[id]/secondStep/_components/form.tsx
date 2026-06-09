@@ -92,6 +92,7 @@ export default function SecondStepForm({
 														onBlur={field.handleBlur}
 														onChange={(e) => field.handleChange(e.target.value)}
 														rows={10}
+														maxLength={500}
 														className="min-h-32 resize-none"
 														placeholder="Опишите контекст интервью, целевую аудиторию и уровень кандидата"
 													/>
