@@ -15,7 +15,6 @@ function isNonAuthPage(url: string): boolean {
 		"/signUp",
 		"/forgotPassword",
 		"/resetPassword",
-		"/static",
 	];
 
 	const isNonAuthPage = nonAuthPages.some((value) => url === value, url);
@@ -24,10 +23,7 @@ function isNonAuthPage(url: string): boolean {
 }
 
 function checkCookie(request: NextRequest): boolean {
-	return (
-		request.cookies.has("better-auth.session_token") &&
-		request.cookies.has("better-auth.session_data")
-	);
+	return request.cookies.has("better-auth.session_token");
 }
 
 export default function proxy(request: NextRequest) {
