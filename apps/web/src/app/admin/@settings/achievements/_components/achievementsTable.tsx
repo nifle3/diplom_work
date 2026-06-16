@@ -8,8 +8,8 @@ import {
 } from "@tanstack/react-table";
 import { Pencil, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { GeneralTable } from "@/components/generalTable";
 import { AchievementIcon } from "@/components/achievementIcon";
+import { GeneralTable } from "@/components/generalTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {

@@ -8,7 +8,7 @@ import { statusToId } from "@diplom_work/domain/values/sessionStatus";
 import { TRPCError } from "@trpc/server";
 import { and, count, desc, eq, ilike, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
-import { protectedProcedure, router } from "../init/routers";
+import { adminProcedure, protectedProcedure, router } from "../init/routers";
 
 type SessionStatusLog = {
 	statusId: number;
@@ -57,6 +57,30 @@ export const scriptRouter = router({
 				description: true,
 				draftOverAt: true,
 				image: true,
+			},
+			with: {
+				expert: true,
+				category: true,
+			},
+		});
+
+		if (!script) {
+			throw new TRPCError({ code: "NOT_FOUND" });
+		}
+
+		return script;
+	}),
+	getInfoAdmin: adminProcedure.input(z.uuid()).query(async ({ input, ctx }) => {
+		const script = await ctx.db.query.scriptsTable.findFirst({
+			where: (scriptsTable, { eq }) => eq(scriptsTable.id, input),
+			columns: {
+				id: true,
+				title: true,
+				description: true,
+				draftOverAt: true,
+				image: true,
+				isDraft: true,
+				deletedAt: true,
 			},
 			with: {
 				expert: true,

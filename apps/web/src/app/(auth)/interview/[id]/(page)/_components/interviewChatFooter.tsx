@@ -1,7 +1,7 @@
 "use client";
 
-import { ChatInput } from "./chatInput";
 import { INTERVIEW_ANSWER_MAX_LENGTH } from "../_hooks/useInterview";
+import { ChatInput } from "./chatInput";
 import { useInterviewContext } from "./interviewProvider";
 
 export function InterviewChatFooter() {

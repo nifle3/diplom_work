@@ -9,7 +9,7 @@ import { TRPCError } from "@trpc/server";
 import { and, eq, isNull } from "drizzle-orm";
 import { z } from "zod";
 
-import { protectedProcedure, router } from "../init/routers";
+import { adminProcedure, protectedProcedure, router } from "../init/routers";
 
 export const firstStepScheme = z.object({
 	scriptId: z.uuid(),
@@ -392,6 +392,66 @@ export const mutateScriptRouter = router({
 					deletedQuestionsCount: input.deletedQuestions?.length ?? 0,
 				},
 				"Updated third step script fields",
+			);
+		}),
+	adminDeleteScript: adminProcedure
+		.input(z.string())
+		.mutation(async ({ ctx, input }) => {
+			const script = await ctx.db.query.scriptsTable.findFirst({
+				where: (scriptsTable, { eq }) => eq(scriptsTable.id, input),
+			});
+
+			if (!script) {
+				throw new TRPCError({ code: "NOT_FOUND" });
+			}
+
+			await ctx.db
+				.update(scriptsTable)
+				.set({ deletedAt: new Date() })
+				.where(eq(scriptsTable.id, input));
+
+			logger.info(
+				{ scriptId: input, adminId: ctx.session!.user.id },
+				"Admin deleted script",
+			);
+		}),
+	adminRevertToDraft: adminProcedure
+		.input(z.string())
+		.mutation(async ({ ctx, input }) => {
+			const script = await ctx.db.query.scriptsTable.findFirst({
+				where: (scriptsTable, { eq }) => eq(scriptsTable.id, input),
+			});
+
+			if (!script) {
+				throw new TRPCError({ code: "NOT_FOUND" });
+			}
+
+			if (script.isDraft) {
+				throw new TRPCError({
+					code: "BAD_REQUEST",
+					message: "Сценарий уже находится в черновиках",
+				});
+			}
+
+			if (script.deletedAt) {
+				throw new TRPCError({
+					code: "BAD_REQUEST",
+					message: "Нельзя вернуть удаленный сценарий",
+				});
+			}
+
+			await ctx.db
+				.update(scriptsTable)
+				.set({
+					isDraft: true,
+					updatedAt: new Date(),
+					draftOverAt: null,
+				})
+				.where(eq(scriptsTable.id, input));
+
+			logger.info(
+				{ scriptId: input, adminId: ctx.session!.user.id },
+				"Admin returned script to draft",
 			);
 		}),
 });

@@ -14,7 +14,9 @@ export function LogoutButton() {
 					window.location.href = "/";
 				},
 				onError: (error) => {
-					toast.error(getAuthErrorMessage(error, "Не удалось выйти из аккаунта."));
+					toast.error(
+						getAuthErrorMessage(error, "Не удалось выйти из аккаунта."),
+					);
 				},
 			},
 		});

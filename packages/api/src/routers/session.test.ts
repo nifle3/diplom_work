@@ -90,9 +90,13 @@ describe("sessionRouter", () => {
 				},
 			],
 		});
-		const randomUUID = vi.spyOn(crypto, "randomUUID").mockReturnValue(sessionId);
+		const randomUUID = vi
+			.spyOn(crypto, "randomUUID")
+			.mockReturnValue(sessionId);
 
-		const insertSessionReturning = vi.fn().mockResolvedValue([{ id: sessionId }]);
+		const insertSessionReturning = vi
+			.fn()
+			.mockResolvedValue([{ id: sessionId }]);
 		const insertSessionValues = vi.fn().mockReturnValue({
 			returning: insertSessionReturning,
 		});

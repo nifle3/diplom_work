@@ -14,14 +14,16 @@
  */
 import { execSync } from "node:child_process";
 import { mkdirSync } from "node:fs";
-import { fileURLToPath } from "node:url";
 import path from "node:path";
 import process from "node:process";
+import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SCRIPT_PATH = path.join(__dirname, "script.js");
 
-const BASE_URL = (process.env.LOADTEST_BASE_URL || "http://localhost:3001").replace(/\/$/, "");
+const BASE_URL = (
+	process.env.LOADTEST_BASE_URL || "http://localhost:3001"
+).replace(/\/$/, "");
 const COOKIE = process.env.LOADTEST_COOKIE || "";
 const SUITE = process.env.LOADTEST_SUITE || "core";
 
@@ -72,8 +74,8 @@ async function main() {
 	if (!COOKIE && authRequired.includes(SUITE)) {
 		console.warn(
 			`\nWarning: LOADTEST_COOKIE is not set but suite "${SUITE}" requires authentication.\n` +
-			"         Auth-gated scenarios will be silently skipped.\n" +
-			"         Set LOADTEST_COOKIE to a valid session cookie to run them.\n",
+				"         Auth-gated scenarios will be silently skipped.\n" +
+				"         Set LOADTEST_COOKIE to a valid session cookie to run them.\n",
 		);
 	}
 
@@ -104,12 +106,7 @@ async function main() {
 	}
 
 	const k6Args = process.argv.slice(2);
-	const cmd = [
-		"k6",
-		"run",
-		...k6Args,
-		SCRIPT_PATH,
-	].join(" ");
+	const cmd = ["k6", "run", ...k6Args, SCRIPT_PATH].join(" ");
 
 	console.log(`\nRunning: ${cmd}\n`);
 	try {

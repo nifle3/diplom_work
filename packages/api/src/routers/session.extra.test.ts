@@ -91,7 +91,9 @@ describe("sessionRouter extra coverage", () => {
 			],
 		});
 		vi.spyOn(crypto, "randomUUID").mockReturnValue(sessionId);
-		const insertSessionReturning = vi.fn().mockResolvedValue([{ id: sessionId }]);
+		const insertSessionReturning = vi
+			.fn()
+			.mockResolvedValue([{ id: sessionId }]);
 		const transaction = vi.fn().mockImplementation(async (callback) =>
 			callback({
 				query: {

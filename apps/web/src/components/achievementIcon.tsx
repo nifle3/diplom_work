@@ -2,8 +2,8 @@
 
 import { Trophy } from "lucide-react";
 import Image from "next/image";
-import { cn } from "@/lib/utils";
 import { getAssetUrl } from "@/lib/assetUrl";
+import { cn } from "@/lib/utils";
 
 type AchievementIconProps = {
 	iconUrl: string | null;

@@ -65,7 +65,9 @@ export function ThirdStepForm({ initialData }: ThirdStepFormProps) {
 						<div className="flex flex-wrap items-center gap-2">
 							<Badge variant="secondary">Шаг 3</Badge>
 							<Badge variant="outline">
-								{isDraft ? "Сохранение и публикация" : "Сохранение и обновление"}
+								{isDraft
+									? "Сохранение и публикация"
+									: "Сохранение и обновление"}
 							</Badge>
 						</div>
 						<CardTitle className="text-xl tracking-tight sm:text-2xl">

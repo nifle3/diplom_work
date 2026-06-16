@@ -51,7 +51,9 @@ describe("DbUniqueConstraintError", () => {
 		expect(error.name).toBe("DbUniqueConstraintError");
 		expect(error.message).toBe("Unique constraint violated");
 		expect(error.payload).toEqual(payload);
-		expect(Object.getPrototypeOf(error)).toBe(DbUniqueConstraintError.prototype);
+		expect(Object.getPrototypeOf(error)).toBe(
+			DbUniqueConstraintError.prototype,
+		);
 	});
 
 	it("allows a payload with only optional fields omitted", () => {

@@ -18,6 +18,7 @@ vi.mock("@diplom_work/llm", () => ({
 	planInterviewStep: vi.fn(),
 	summarize: vi.fn(),
 }));
+
 import { defaultDependencies } from "./dependencies";
 
 describe("defaultDependencies", () => {

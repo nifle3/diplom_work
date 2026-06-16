@@ -124,21 +124,21 @@ describe("scriptRouter", () => {
 				expertId: "123e4567-e89b-12d3-a456-426614174011",
 				expertName: "Sam",
 			},
-			]);
-			const offset = vi.fn();
-			const where = vi.fn().mockReturnValue({
-				orderBy: vi.fn().mockReturnValue({
-					limit,
-				}),
-			});
-			const innerJoin = vi.fn().mockReturnValue({
-				innerJoin: vi.fn().mockReturnValue({
-					where,
-				}),
-			});
-			const from = vi.fn().mockReturnValue({
-				innerJoin,
-			});
+		]);
+		const offset = vi.fn();
+		const where = vi.fn().mockReturnValue({
+			orderBy: vi.fn().mockReturnValue({
+				limit,
+			}),
+		});
+		const innerJoin = vi.fn().mockReturnValue({
+			innerJoin: vi.fn().mockReturnValue({
+				where,
+			}),
+		});
+		const from = vi.fn().mockReturnValue({
+			innerJoin,
+		});
 		const select = vi.fn().mockReturnValue({
 			from,
 		});
@@ -154,10 +154,10 @@ describe("scriptRouter", () => {
 			).getLatest({
 				limit: 2,
 			}),
-			).resolves.toEqual([
-				{
-					id: scriptUuid,
-					title: "Frontend",
+		).resolves.toEqual([
+			{
+				id: scriptUuid,
+				title: "Frontend",
 				description: "Build a UI",
 				image: "https://cdn.test/image.png",
 				categoryName: "Frontend",
@@ -214,26 +214,26 @@ describe("scriptRouter", () => {
 				expertName: "Alex",
 			},
 		]);
-			const totalSelect = vi.fn().mockReturnValue({
-				from: vi.fn().mockReturnValue({
-					where: totalWhere,
-				}),
-			});
-			const courseSelect = vi.fn().mockReturnValue({
-				from: vi.fn().mockReturnValue({
+		const totalSelect = vi.fn().mockReturnValue({
+			from: vi.fn().mockReturnValue({
+				where: totalWhere,
+			}),
+		});
+		const courseSelect = vi.fn().mockReturnValue({
+			from: vi.fn().mockReturnValue({
+				innerJoin: vi.fn().mockReturnValue({
 					innerJoin: vi.fn().mockReturnValue({
-						innerJoin: vi.fn().mockReturnValue({
-							where: vi.fn().mockReturnValue({
-								orderBy: vi.fn().mockReturnValue({
-									limit: vi.fn().mockReturnValue({
-										offset: courseWhere,
-									}),
+						where: vi.fn().mockReturnValue({
+							orderBy: vi.fn().mockReturnValue({
+								limit: vi.fn().mockReturnValue({
+									offset: courseWhere,
 								}),
 							}),
 						}),
 					}),
 				}),
-			});
+			}),
+		});
 		const select = vi
 			.fn()
 			.mockImplementationOnce(() => totalSelect())
@@ -249,17 +249,17 @@ describe("scriptRouter", () => {
 				search: "frontend",
 			}),
 		).resolves.toEqual({
-				courses: [
-					{
-						id: scriptUuid,
-						title: "Frontend",
-						description: "Build a UI",
-						image: null,
-						categoryName: "Frontend",
-						expertId: expertUuid,
-						expertName: "Alex",
-					},
-				],
+			courses: [
+				{
+					id: scriptUuid,
+					title: "Frontend",
+					description: "Build a UI",
+					image: null,
+					categoryName: "Frontend",
+					expertId: expertUuid,
+					expertName: "Alex",
+				},
+			],
 			total: 3,
 			page: 2,
 			pages: 3,
@@ -332,18 +332,18 @@ describe("scriptRouter", () => {
 			},
 			categories: [{ id: 10, name: "Frontend", count: 2 }],
 			courses: [
-					{
-						id: scriptUuid,
-						title: "Frontend",
-						description: "Build a UI",
-						image: null,
-						categoryId: 10,
-						categoryName: "Frontend",
-						expertId: expertUuid,
-						expertName: "Alex",
-					},
-				],
-			});
+				{
+					id: scriptUuid,
+					title: "Frontend",
+					description: "Build a UI",
+					image: null,
+					categoryId: 10,
+					categoryName: "Frontend",
+					expertId: expertUuid,
+					expertName: "Alex",
+				},
+			],
+		});
 
 		await expect(
 			createCaller({

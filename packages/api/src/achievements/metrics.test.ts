@@ -192,9 +192,7 @@ describe("syncUserAchievements", () => {
 			if (selectCall === 4) {
 				return {
 					from: vi.fn().mockReturnValue({
-						where: vi
-							.fn()
-							.mockResolvedValue([{ achievementId: "new-ach" }]),
+						where: vi.fn().mockResolvedValue([{ achievementId: "new-ach" }]),
 					}),
 				};
 			}
@@ -317,14 +315,18 @@ describe("syncAllUserAchievements", () => {
 
 				if (selectCall === 1) {
 					return {
-						from: vi.fn().mockResolvedValue([
-							{ id: "user-1" },
-							{ id: "user-2" },
-						]),
+						from: vi
+							.fn()
+							.mockResolvedValue([{ id: "user-1" }, { id: "user-2" }]),
 					};
 				}
 
-				if (selectCall === 2 || selectCall === 4 || selectCall === 6 || selectCall === 8) {
+				if (
+					selectCall === 2 ||
+					selectCall === 4 ||
+					selectCall === 6 ||
+					selectCall === 8
+				) {
 					return {
 						from: vi.fn().mockReturnValue({
 							where: vi.fn().mockResolvedValue([{ value: 1 }]),
@@ -343,9 +345,7 @@ describe("syncAllUserAchievements", () => {
 				if (selectCall === 5 || selectCall === 9) {
 					return {
 						from: vi.fn().mockReturnValue({
-							where: vi
-								.fn()
-								.mockResolvedValue([{ achievementId: "new-ach" }]),
+							where: vi.fn().mockResolvedValue([{ achievementId: "new-ach" }]),
 						}),
 					};
 				}

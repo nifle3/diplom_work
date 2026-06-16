@@ -442,46 +442,46 @@ export const sessionRouter = router({
 				});
 			}
 
-				const result = await ctx.db.transaction(async (tx) => {
-					const sessionId = crypto.randomUUID();
-					const activeSessionId = await getActiveInterviewSessionId(
-						tx,
-						ctx.session.user.id,
-					);
+			const result = await ctx.db.transaction(async (tx) => {
+				const sessionId = crypto.randomUUID();
+				const activeSessionId = await getActiveInterviewSessionId(
+					tx,
+					ctx.session.user.id,
+				);
 
-					if (activeSessionId) {
-						return activeSessionId;
-					}
+				if (activeSessionId) {
+					return activeSessionId;
+				}
 
-					const { 0: addedSession } = await tx
-						.insert(interviewSessionsTable)
-						.values({
-							id: sessionId,
-							currentQuestionIndex: 0,
-							userId: ctx.session.user.id,
-							startedAt: new Date(),
-							scriptId: input,
-						})
-						.returning();
+				const { 0: addedSession } = await tx
+					.insert(interviewSessionsTable)
+					.values({
+						id: sessionId,
+						currentQuestionIndex: 0,
+						userId: ctx.session.user.id,
+						startedAt: new Date(),
+						scriptId: input,
+					})
+					.returning();
 
-					if (!addedSession) {
-						throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
-					}
+				if (!addedSession) {
+					throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+				}
 
-					await tx.insert(interviewSessionStatusLogTable).values({
-						sessionId,
-						statusId: statusToId.active,
-						createdAt: new Date(),
-					});
-
-					await tx.insert(chatMessagesTable).values({
-						sessionId,
-						isAi: true,
-						messageText: firstTopic,
-					});
-
-					return sessionId;
+				await tx.insert(interviewSessionStatusLogTable).values({
+					sessionId,
+					statusId: statusToId.active,
+					createdAt: new Date(),
 				});
+
+				await tx.insert(chatMessagesTable).values({
+					sessionId,
+					isAi: true,
+					messageText: firstTopic,
+				});
+
+				return sessionId;
+			});
 
 			logger.info(
 				{ sessionId: result, scriptId: input, userId: ctx.session.user.id },

@@ -1,3 +1,5 @@
+import { auth } from "@diplom_work/auth";
+import { headers } from "next/headers";
 import Image from "next/image";
 
 import { Badge } from "@/components/ui/badge";
@@ -5,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { getAssetUrl } from "@/lib/assetUrl";
 import { datePresets, formatDate } from "@/lib/date";
 import { serverTrpc } from "@/lib/trpcServer";
+import { AdminScriptActions } from "./_components/adminScriptActions";
 import NewSessionButton from "./_components/newSessionButton";
 import { ReportScriptButton } from "./_components/reportScriptButton";
 
@@ -15,7 +18,17 @@ export default async function Page({
 }) {
 	const { id } = await params;
 	const trpcCaller = await serverTrpc();
-	const data = await trpcCaller.script.getInfo(id);
+	const session = await auth.api.getSession({
+		headers: await headers(),
+	});
+	const isAdmin = session?.session.role === "admin";
+	const data = isAdmin
+		? await trpcCaller.script.getInfoAdmin(id)
+		: await trpcCaller.script.getInfo(id);
+	const dataWithAdmin = data as typeof data & {
+		isDraft?: boolean;
+		deletedAt?: Date | null;
+	};
 
 	const imageSrc = getAssetUrl(data.image);
 	const description =
@@ -36,6 +49,17 @@ export default async function Page({
 							<Badge variant="secondary" className="bg-sky-100 text-sky-900">
 								{data.category?.name ?? "Без категории"}
 							</Badge>
+							{isAdmin && dataWithAdmin.deletedAt && (
+								<Badge variant="destructive">Удалён</Badge>
+							)}
+							{isAdmin && dataWithAdmin.isDraft && !dataWithAdmin.deletedAt && (
+								<Badge
+									variant="outline"
+									className="border-amber-400 text-amber-700"
+								>
+									Черновик
+								</Badge>
+							)}
 							<Badge variant="outline" className="bg-background/80">
 								Дата создания: {createdAt}
 							</Badge>
@@ -73,6 +97,12 @@ export default async function Page({
 							<div className="flex flex-col gap-3 pt-2 sm:flex-row">
 								<NewSessionButton scriptId={id} />
 								<ReportScriptButton scriptId={id} />
+								{isAdmin && (
+									<AdminScriptActions
+										scriptId={id}
+										isDraft={dataWithAdmin.isDraft ?? false}
+									/>
+								)}
 							</div>
 						</div>
 

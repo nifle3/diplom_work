@@ -188,7 +188,7 @@ export function AchievementForm({
 							</Field>
 						);
 					}}
-					</form.Field>
+				</form.Field>
 
 				<form.Field name="iconUrl">
 					{(field) => {
@@ -201,7 +201,7 @@ export function AchievementForm({
 									Необязательно. Можно загрузить JPG, PNG или WebP до 4 МБ.
 								</FieldDescription>
 
-								<div className="mt-3 flex flex-col gap-3 rounded-xl border border-dashed border-border/70 bg-muted/20 p-3">
+								<div className="mt-3 flex flex-col gap-3 rounded-xl border border-border/70 border-dashed bg-muted/20 p-3">
 									<div className="flex min-h-40 items-center justify-center overflow-hidden rounded-lg border border-border/60 bg-background p-4">
 										<AchievementIcon
 											iconUrl={iconSrc}
@@ -210,50 +210,50 @@ export function AchievementForm({
 										/>
 									</div>
 
-										<input
-											ref={fileInputRef}
-											type="file"
-											accept="image/jpeg,image/png,image/webp"
-											className="hidden"
-											onChange={(event) => {
-												const file = event.target.files?.[0];
+									<input
+										ref={fileInputRef}
+										type="file"
+										accept="image/jpeg,image/png,image/webp"
+										className="hidden"
+										onChange={(event) => {
+											const file = event.target.files?.[0];
 
-												if (!file) {
-													return;
+											if (!file) {
+												return;
+											}
+
+											const nextPreviewUrl = URL.createObjectURL(file);
+											setPreviewUrl((prev) => {
+												if (prev?.startsWith("blob:")) {
+													URL.revokeObjectURL(prev);
 												}
 
-												const nextPreviewUrl = URL.createObjectURL(file);
-												setPreviewUrl((prev) => {
-													if (prev?.startsWith("blob:")) {
-														URL.revokeObjectURL(prev);
-													}
+												return nextPreviewUrl;
+											});
+											setSelectedIcon(file);
+										}}
+									/>
 
-													return nextPreviewUrl;
-												});
-												setSelectedIcon(file);
-											}}
-										/>
-
-										<div className="flex flex-col gap-2">
-											<Button
-												type="button"
-												variant="outline"
-												onClick={() => fileInputRef.current?.click()}
-												disabled={isUploading}
-											>
-												{iconSrc ? "Заменить иконку" : "Выбрать иконку"}
-											</Button>
-											<p className="text-muted-foreground text-xs leading-5">
-												{selectedIcon
-													? `Выбран файл: ${selectedIcon.name}`
-													: "Файл будет загружен в S3, а в достижении сохранится ключ."}
-											</p>
-										</div>
+									<div className="flex flex-col gap-2">
+										<Button
+											type="button"
+											variant="outline"
+											onClick={() => fileInputRef.current?.click()}
+											disabled={isUploading}
+										>
+											{iconSrc ? "Заменить иконку" : "Выбрать иконку"}
+										</Button>
+										<p className="text-muted-foreground text-xs leading-5">
+											{selectedIcon
+												? `Выбран файл: ${selectedIcon.name}`
+												: "Файл будет загружен в S3, а в достижении сохранится ключ."}
+										</p>
 									</div>
-								</Field>
-							);
-						}}
-					</form.Field>
+								</div>
+							</Field>
+						);
+					}}
+				</form.Field>
 
 				<form.Field name="formula">
 					{(field) => {
@@ -287,22 +287,20 @@ export function AchievementForm({
 				</form.Field>
 			</FieldGroup>
 
-				<div className="flex justify-end gap-2 pt-6">
-					<Button
-						type="submit"
-						disabled={
-							createMutation.isPending ||
-							updateMutation.isPending ||
-							isUploading
-						}
-					>
-						{createMutation.isPending || updateMutation.isPending || isUploading
-							? "Сохранение..."
-							: achievement
-								? "Обновить"
-								: "Добавить"}
-					</Button>
-				</div>
-			</form>
-		);
-	}
+			<div className="flex justify-end gap-2 pt-6">
+				<Button
+					type="submit"
+					disabled={
+						createMutation.isPending || updateMutation.isPending || isUploading
+					}
+				>
+					{createMutation.isPending || updateMutation.isPending || isUploading
+						? "Сохранение..."
+						: achievement
+							? "Обновить"
+							: "Добавить"}
+				</Button>
+			</div>
+		</form>
+	);
+}

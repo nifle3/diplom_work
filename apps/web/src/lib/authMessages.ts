@@ -75,7 +75,10 @@ export function getAuthErrorMessage(
 		return "Пароль слишком длинный.";
 	}
 
-	if (normalizedCode === "MISSING_FIELD" || normalizedCode === "VALIDATION_ERROR") {
+	if (
+		normalizedCode === "MISSING_FIELD" ||
+		normalizedCode === "VALIDATION_ERROR"
+	) {
 		return "Заполните все обязательные поля.";
 	}
 

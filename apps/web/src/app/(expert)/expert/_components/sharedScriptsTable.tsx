@@ -178,12 +178,7 @@ export function SharedScriptsTable({ data, isDraftTable }: SharedTableProps) {
 
 	const table = useReactTable({
 		data,
-		columns: defaultColumns(
-			onDelete,
-			onPublish,
-			onRevertToDraft,
-			isDraftTable,
-		),
+		columns: defaultColumns(onDelete, onPublish, onRevertToDraft, isDraftTable),
 		getCoreRowModel: getCoreRowModel(),
 	});
 

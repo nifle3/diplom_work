@@ -1,4 +1,4 @@
-import { TRPCError, type TRPC_ERROR_CODE_KEY } from "@trpc/server";
+import { type TRPC_ERROR_CODE_KEY, TRPCError } from "@trpc/server";
 import { t } from "../init/trpc";
 
 type DomainErrorLike = Error & {

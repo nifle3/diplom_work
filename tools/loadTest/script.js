@@ -1,7 +1,7 @@
-import http from "k6/http";
-import { check, group, sleep } from "k6";
-import { Trend, Counter, Rate } from "k6/metrics";
 import { textSummary } from "https://jslib.k6.io/k6-summary/0.0.1/index.js";
+import { check, group, sleep } from "k6";
+import http from "k6/http";
+import { Counter, Rate, Trend } from "k6/metrics";
 
 // ─── Custom metrics ──────────────────────────────────────────────────────────
 const latency = new Trend("trpc_latency", true);
@@ -38,7 +38,9 @@ if (!preset) {
 	);
 }
 
-const vus = __ENV.LOADTEST_USERS ? parseInt(__ENV.LOADTEST_USERS, 10) : preset.vus;
+const vus = __ENV.LOADTEST_USERS
+	? Number.parseInt(__ENV.LOADTEST_USERS, 10)
+	: preset.vus;
 const duration = __ENV.LOADTEST_DURATION || preset.duration;
 
 // ─── k6 options ──────────────────────────────────────────────────────────────
@@ -73,7 +75,9 @@ function buildHeaders() {
 			const extra = JSON.parse(HEADERS_JSON);
 			Object.assign(headers, extra);
 		} catch {
-			throw new Error(`LOADTEST_HEADERS_JSON is not valid JSON: ${HEADERS_JSON}`);
+			throw new Error(
+				`LOADTEST_HEADERS_JSON is not valid JSON: ${HEADERS_JSON}`,
+			);
 		}
 	}
 	return headers;
@@ -169,11 +173,7 @@ function scriptLatest() {
 function scriptList() {
 	if (!hasAuth) return;
 	group("script.list", () => {
-		trpcQuery(
-			"script.list",
-			{ page: 1, limit: 12 },
-			{ name: "script.list" },
-		);
+		trpcQuery("script.list", { page: 1, limit: 12 }, { name: "script.list" });
 	});
 }
 

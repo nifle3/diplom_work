@@ -107,7 +107,7 @@ export const ChatInput = ({
 						maxLength={maxLength}
 					/>
 					{maxLength ? (
-						<div className="text-right text-xs text-muted-foreground">
+						<div className="text-right text-muted-foreground text-xs">
 							{value.length}/{maxLength}
 						</div>
 					) : null}

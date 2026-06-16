@@ -360,14 +360,14 @@ describe("reportRouter", () => {
 					name: "Expert",
 				},
 			},
-				statusLogs: [
-					{
-						status: {
-							name: "new",
-						},
-						createdAt: new Date("2025-01-02T00:00:00.000Z"),
+			statusLogs: [
+				{
+					status: {
+						name: "new",
 					},
-				],
+					createdAt: new Date("2025-01-02T00:00:00.000Z"),
+				},
+			],
 		};
 		const findFirst = vi.fn().mockResolvedValue(report);
 
@@ -390,8 +390,8 @@ describe("reportRouter", () => {
 			}),
 		);
 
-			await expect(
-				createCaller(
+		await expect(
+			createCaller(
 				{
 					query: {
 						reportsTable: {

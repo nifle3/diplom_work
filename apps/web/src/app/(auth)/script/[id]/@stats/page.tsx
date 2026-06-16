@@ -52,9 +52,7 @@ export default async function Page({
 		{
 			label: "Средний балл",
 			value:
-				stats.averageScore === null
-					? "—"
-					: `${stats.averageScore.toFixed(1)}%`,
+				stats.averageScore === null ? "—" : `${stats.averageScore.toFixed(1)}%`,
 			description: "Среднее значение по завершённым интервью.",
 			icon: Award,
 			accent: "from-violet-500 to-fuchsia-500",
@@ -83,8 +81,7 @@ export default async function Page({
 							</h3>
 							<p className="max-w-2xl text-muted-foreground text-sm leading-6">
 								Здесь собраны основные метрики по прохождениям интервью, чтобы
-								быстро оценить активность и средний результат по этому
-								сценарию.
+								быстро оценить активность и средний результат по этому сценарию.
 							</p>
 						</div>
 					</div>

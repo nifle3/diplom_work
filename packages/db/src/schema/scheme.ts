@@ -333,7 +333,6 @@ export const chatMessagesRelations = relations(
 	}),
 );
 
-
 export const userAchievementsRelations = relations(
 	userAchievementsTable,
 	({ one }) => ({
