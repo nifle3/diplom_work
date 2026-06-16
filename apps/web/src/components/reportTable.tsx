@@ -6,12 +6,16 @@ import {
 	getCoreRowModel,
 	useReactTable,
 } from "@tanstack/react-table";
-import { CheckCircle2, ChevronDown, Clock3, ShieldAlert } from "lucide-react";
+import {
+	ChevronDown,
+	Eye,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { toast } from "sonner";
 import { GeneralTable } from "@/components/generalTable";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/statusBadge";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -20,8 +24,9 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { formatDate } from "@/lib/date";
-import { type ReportStatus, reportStatuses } from "@/lib/reportStatus";
+import { type ReportStatus, reportStatuses, statusMeta } from "@/lib/reportStatus";
 import { trpc } from "@/lib/trpc";
+import { ReportDetailDialog } from "./reportDetailDialog";
 
 type ReportRow = {
 	id: string;
@@ -55,40 +60,6 @@ type ReportTableProps = {
 	emptyMessage?: string;
 };
 
-const statusMeta: Record<
-	ReportStatus,
-	{
-		label: string;
-		icon: typeof Clock3;
-		className: string;
-	}
-> = {
-	new: {
-		label: "Новая",
-		icon: ShieldAlert,
-		className:
-			"border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-300",
-	},
-	in_review: {
-		label: "На проверке",
-		icon: Clock3,
-		className:
-			"border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300",
-	},
-	resolved: {
-		label: "Решено",
-		icon: CheckCircle2,
-		className:
-			"border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-300",
-	},
-	rejected: {
-		label: "Отклонено",
-		icon: ShieldAlert,
-		className:
-			"border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900 dark:bg-rose-950 dark:text-rose-300",
-	},
-};
-
 export function ReportTable({
 	data,
 	canManage = false,
@@ -96,6 +67,7 @@ export function ReportTable({
 	emptyMessage = "Жалоб пока нет",
 }: ReportTableProps) {
 	const router = useRouter();
+	const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
 	const changeStatusMutation = useMutation(
 		trpc.report.changeStatus.mutationOptions({
 			onSuccess: () => {
@@ -106,6 +78,20 @@ export function ReportTable({
 	);
 
 	const columns: ColumnDef<ReportRow>[] = [
+		{
+			id: "details",
+			header: "",
+			cell: ({ row }) => (
+				<Button
+					variant="ghost"
+					size="icon"
+					onClick={() => setSelectedReportId(row.original.id)}
+					aria-label="Подробнее"
+				>
+					<Eye className="size-4" />
+				</Button>
+			),
+		},
 		{
 			accessorKey: "scenario.title",
 			header: "Курс",
@@ -149,16 +135,9 @@ export function ReportTable({
 		{
 			accessorKey: "status",
 			header: "Статус",
-			cell: ({ row }) => {
-				const meta = statusMeta[row.original.status];
-				const Icon = meta.icon;
-				return (
-					<Badge variant="outline" className={`gap-1.5 ${meta.className}`}>
-						<Icon className="size-3.5" />
-						{meta.label}
-					</Badge>
-				);
-			},
+			cell: ({ row }) => (
+				<StatusBadge status={row.original.status} />
+			),
 		},
 		{
 			accessorKey: "reason",
@@ -226,12 +205,22 @@ export function ReportTable({
 	});
 
 	return (
-		<div className="overflow-hidden rounded-xl border bg-card shadow-sm">
-			<GeneralTable
-				headerGroups={table.getHeaderGroups()}
-				rows={table.getRowModel().rows}
-				emptyMessage={emptyMessage}
+		<>
+			<div className="overflow-hidden rounded-xl border bg-card shadow-sm">
+				<GeneralTable
+					headerGroups={table.getHeaderGroups()}
+					rows={table.getRowModel().rows}
+					emptyMessage={emptyMessage}
+				/>
+			</div>
+
+			<ReportDetailDialog
+				reportId={selectedReportId ?? ""}
+				open={!!selectedReportId}
+				onOpenChange={(open) => {
+					if (!open) setSelectedReportId(null);
+				}}
 			/>
-		</div>
+		</>
 	);
 }

@@ -421,6 +421,10 @@ export const reportRouter = router({
 			reporter: report.reporter,
 			scenario: report.scenario,
 			statusUpdatedAt: report.statusLogs[0]?.createdAt ?? report.createdAt,
+			statusLogs: report.statusLogs.map((log) => ({
+				status: log.status.name,
+				createdAt: log.createdAt,
+			})),
 		};
 	}),
 	changeStatus: adminProcedure
