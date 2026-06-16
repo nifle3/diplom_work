@@ -13,7 +13,7 @@ type ListProps = {
 export default async function ListSlot({ searchParams }: ListProps) {
 	const { page, categoryId, search } = await searchParams;
 	const pageInt = Number.parseInt(page || "1", 10) || 1;
-	const categoryIdInt = Number.parseInt(categoryId || "1", 10) || 1;
+	const categoryIdInt = Number.parseInt(categoryId || "-1", 10);
 
 	const trpcCaller = await serverTrpc();
 	const coursesData = await trpcCaller.script.list({

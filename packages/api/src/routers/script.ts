@@ -127,7 +127,9 @@ export const scriptRouter = router({
 			const whereClause = and(
 				isNull(scriptsTable.deletedAt),
 				eq(scriptsTable.isDraft, false),
-				categoryId ? eq(scriptsTable.categoryId, categoryId) : undefined,
+				categoryId && categoryId !== -1
+					? eq(scriptsTable.categoryId, categoryId)
+					: undefined,
 				search ? ilike(scriptsTable.title, `%${search}%`) : undefined,
 			);
 
