@@ -29,6 +29,7 @@ export type ThirdStepFormValues = z.infer<typeof thirdStepFormSchema>;
 interface UseThirdStepFormOptions {
 	initialData: {
 		id: string;
+		isDraft: boolean | null;
 		questions: Array<{
 			id: string;
 			text: string;
@@ -98,7 +99,9 @@ export function useThirdStepForm({ initialData }: UseThirdStepFormOptions) {
 				return;
 			}
 
-			toast.success("Черновик сохранен");
+			toast.success(
+				initialData.isDraft ? "Черновик сохранен" : "Сценарий обновлен",
+			);
 			router.refresh();
 		},
 	});
@@ -164,6 +167,7 @@ export function useThirdStepForm({ initialData }: UseThirdStepFormOptions) {
 	return {
 		form,
 		scriptId: initialData.id,
+		isDraft: initialData.isDraft,
 		isPending: saveMutation.isPending || publishMutation.isPending,
 		submit,
 		addQuestion,

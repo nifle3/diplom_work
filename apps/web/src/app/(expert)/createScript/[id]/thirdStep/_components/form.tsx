@@ -22,6 +22,7 @@ import { useThirdStepForm } from "../_hooks/useThirdStepForm";
 interface ThirdStepFormProps {
 	initialData: {
 		id: string;
+		isDraft: boolean | null;
 		questions: Array<{
 			id: string;
 			text: string;
@@ -37,6 +38,7 @@ export function ThirdStepForm({ initialData }: ThirdStepFormProps) {
 	const {
 		form,
 		scriptId,
+		isDraft,
 		isPending,
 		submit,
 		addQuestion,
@@ -62,7 +64,9 @@ export function ThirdStepForm({ initialData }: ThirdStepFormProps) {
 					<CardHeader className="border-border/60 border-b px-5 pt-5">
 						<div className="flex flex-wrap items-center gap-2">
 							<Badge variant="secondary">Шаг 3</Badge>
-							<Badge variant="outline">Сохранение и публикация</Badge>
+							<Badge variant="outline">
+								{isDraft ? "Сохранение и публикация" : "Сохранение и обновление"}
+							</Badge>
 						</div>
 						<CardTitle className="text-xl tracking-tight sm:text-2xl">
 							Соберите шаблоны вопросов
@@ -70,7 +74,7 @@ export function ThirdStepForm({ initialData }: ThirdStepFormProps) {
 						<CardDescription className="max-w-2xl text-sm leading-6 sm:text-base">
 							На этом шаге сценарий уже практически готов. Добавьте вопросы,
 							критерии внутри каждого вопроса и затем сохраните черновик или
-							сразу опубликуйте его.
+							обновите уже опубликованный сценарий.
 						</CardDescription>
 					</CardHeader>
 
@@ -88,7 +92,9 @@ export function ThirdStepForm({ initialData }: ThirdStepFormProps) {
 												локальных критериев.
 											</p>
 										</div>
-										<Badge variant="secondary">Черновик</Badge>
+										<Badge variant="secondary">
+											{isDraft ? "Черновик" : "Опубликован"}
+										</Badge>
 									</div>
 
 									<form.Field name="questions">
@@ -225,30 +231,43 @@ export function ThirdStepForm({ initialData }: ThirdStepFormProps) {
 
 						<div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
 							<p className="text-muted-foreground text-xs leading-5">
-								Сохранение оставит сценарий в черновиках. Публикация переведет
-								его в обычный курс.
+								{isDraft
+									? "Сохранение оставит сценарий в черновиках. Публикация переведет его в обычный курс."
+									: "После изменений сценарий нужно только обновить, повторная публикация не требуется."}
 							</p>
-							<div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+							{isDraft ? (
+								<div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+									<Button
+										type="button"
+										disabled={isPending}
+										variant="outline"
+										size="lg"
+										className="w-full sm:w-auto"
+										onClick={() => submit(false)}
+									>
+										{isPending ? "Сохранение..." : "Сохранить черновик"}
+									</Button>
+									<Button
+										type="button"
+										disabled={isPending}
+										size="lg"
+										className="w-full sm:w-auto"
+										onClick={() => submit(true)}
+									>
+										{isPending ? "Публикация..." : "Опубликовать сценарий"}
+									</Button>
+								</div>
+							) : (
 								<Button
 									type="button"
 									disabled={isPending}
-									variant="outline"
 									size="lg"
 									className="w-full sm:w-auto"
 									onClick={() => submit(false)}
 								>
-									{isPending ? "Сохранение..." : "Сохранить черновик"}
+									{isPending ? "Обновление..." : "Обновить сценарий"}
 								</Button>
-								<Button
-									type="button"
-									disabled={isPending}
-									size="lg"
-									className="w-full sm:w-auto"
-									onClick={() => submit(true)}
-								>
-									{isPending ? "Публикация..." : "Опубликовать сценарий"}
-								</Button>
-							</div>
+							)}
 						</div>
 					</CardFooter>
 				</Card>

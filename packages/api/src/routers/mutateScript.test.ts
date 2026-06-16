@@ -233,6 +233,7 @@ describe("mutateScriptRouter", () => {
 		const scriptFindFirst = vi.fn().mockResolvedValue({
 			id: scriptId,
 			expertId: "expert-1",
+			isDraft: false,
 		});
 		const updateWhere = vi.fn().mockResolvedValue(undefined);
 		const updateSet = vi.fn().mockReturnValue({
@@ -330,6 +331,7 @@ describe("mutateScriptRouter", () => {
 		const scriptFindFirst = vi.fn().mockResolvedValue({
 			id: scriptId,
 			expertId: "expert-1",
+			isDraft: false,
 		});
 		const updateSet = vi.fn().mockReturnValue({
 			where: vi.fn().mockResolvedValue(undefined),
@@ -408,7 +410,7 @@ describe("mutateScriptRouter", () => {
 		expect(transaction).toHaveBeenCalledTimes(1);
 		expect(updateSet).toHaveBeenCalledWith(
 			expect.objectContaining({
-				isDraft: true,
+				isDraft: false,
 			}),
 		);
 

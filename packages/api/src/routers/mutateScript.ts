@@ -332,7 +332,7 @@ export const mutateScriptRouter = router({
 				}
 
 				const scriptUpdate = {
-					isDraft: true,
+					isDraft: script.isDraft ?? true,
 					updatedAt: new Date(),
 				};
 
