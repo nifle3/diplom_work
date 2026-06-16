@@ -3,6 +3,7 @@
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { trpc } from "@/lib/trpc";
@@ -41,40 +42,75 @@ interface UseThirdStepFormOptions {
 
 export function useThirdStepForm({ initialData }: UseThirdStepFormOptions) {
 	const router = useRouter();
+	const submitModeRef = useRef<"save" | "publish">("save");
 
-	const mutation = useMutation(
-		trpc.createScript.mutateThirdStep.mutationOptions({
+	const createDefaultValues = (
+		data: UseThirdStepFormOptions["initialData"],
+	): ThirdStepFormValues => ({
+		questions: data.questions.map((q) => ({
+			id: q.id,
+			text: q.text,
+			specificCriteria: q.specificCriteria.map((c) => ({
+				id: c.id,
+				content: c.content,
+			})),
+		})),
+		deletedQuestions: [] as unknown as ThirdStepFormValues["deletedQuestions"],
+	});
+
+	const saveMutation = useMutation(
+		trpc.createScript.updateThirdStep.mutationOptions(),
+	);
+	const publishMutation = useMutation(
+		trpc.createScript.postDraft.mutationOptions({
 			onSuccess: () => {
-				toast.success("Скрипт успешно создан");
+				toast.success("Сценарий опубликован");
 				router.replace("/expert");
 			},
 		}),
 	);
 
 	const form = useForm({
-		defaultValues: {
-			questions: initialData.questions.map((q) => ({
-				id: q.id,
-				text: q.text,
-				specificCriteria: q.specificCriteria.map((c) => ({
-					id: c.id,
-					content: c.content,
-				})),
-			})),
-			deletedQuestions:
-				[] as unknown as ThirdStepFormValues["deletedQuestions"],
-		} as ThirdStepFormValues,
+		defaultValues: createDefaultValues(initialData),
 		validators: {
 			onSubmit: thirdStepFormSchema as never,
 		},
 		onSubmit: async ({ value }) => {
-			mutation.mutate({
+			const payload = {
 				scriptId: initialData.id,
 				questions: value.questions,
 				deletedQuestions: value.deletedQuestions,
-			});
+			};
+
+			try {
+				await saveMutation.mutateAsync(payload);
+			} catch {
+				toast.error("Не удалось сохранить сценарий");
+				return;
+			}
+
+			if (submitModeRef.current === "publish") {
+				try {
+					await publishMutation.mutateAsync(initialData.id);
+				} catch {
+					toast.error("Не удалось опубликовать сценарий");
+				}
+				return;
+			}
+
+			toast.success("Черновик сохранен");
+			router.refresh();
 		},
 	});
+
+	useEffect(() => {
+		form.reset(createDefaultValues(initialData));
+	}, [form, initialData]);
+
+	const submit = (publish: boolean) => {
+		submitModeRef.current = publish ? "publish" : "save";
+		form.handleSubmit();
+	};
 
 	const addQuestion = () => {
 		form.setFieldValue("questions", [
@@ -128,7 +164,8 @@ export function useThirdStepForm({ initialData }: UseThirdStepFormOptions) {
 	return {
 		form,
 		scriptId: initialData.id,
-		isPending: mutation.isPending,
+		isPending: saveMutation.isPending || publishMutation.isPending,
+		submit,
 		addQuestion,
 		removeQuestion,
 		addSpecificCriterion,

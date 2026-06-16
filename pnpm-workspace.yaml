@@ -6,6 +6,7 @@ packages:
 catalog:
   '@trpc/client': ^11.7.2
   '@trpc/server': ^11.7.2
+  '@vitest/coverage-v8': ^4.1.2
   better-auth: ^1.4.18
   dotenv: ^17.2.2
   drizzle-orm: ^0.45.1
@@ -14,4 +15,8 @@ catalog:
   typescript: ^5
   vitest: ^4.1.0
   zod: ^4.1.13
-  '@vitest/coverage-v8': ^4.1.2 
+
+ignoredBuiltDependencies:
+  - esbuild
+  - msw
+  - sharp

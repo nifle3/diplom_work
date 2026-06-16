@@ -236,7 +236,7 @@ export const mutateScriptRouter = router({
 				"Updated second step script fields",
 			);
 		}),
-	mutateThirdStep: protectedProcedure
+	updateThirdStep: protectedProcedure
 		.input(thirdStepScheme)
 		.mutation(async ({ ctx, input }) => {
 			const script = await ctx.db.query.scriptsTable.findFirst({
@@ -331,11 +331,14 @@ export const mutateScriptRouter = router({
 					}
 				}
 
+				const scriptUpdate = {
+					isDraft: true,
+					updatedAt: new Date(),
+				};
+
 				await tx
 					.update(scriptsTable)
-					.set({
-						isDraft: false,
-					})
+					.set(scriptUpdate)
 					.where(eq(scriptsTable.id, input.scriptId));
 			});
 

@@ -326,17 +326,18 @@ describe("mutateScriptRouter", () => {
 		).rejects.toMatchObject({ code: "FORBIDDEN" });
 	});
 
-	it("updates third step questions and marks the draft as published", async () => {
+	it("updates third step questions and publishes when requested", async () => {
 		const scriptFindFirst = vi.fn().mockResolvedValue({
 			id: scriptId,
 			expertId: "expert-1",
 		});
+		const updateSet = vi.fn().mockReturnValue({
+			where: vi.fn().mockResolvedValue(undefined),
+		});
 		const transaction = vi.fn().mockImplementation(async (callback) =>
 			callback({
 				update: vi.fn().mockReturnValue({
-					set: vi.fn().mockReturnValue({
-						where: vi.fn().mockResolvedValue(undefined),
-					}),
+					set: updateSet,
 				}),
 				insert: vi.fn().mockReturnValue({
 					values: vi.fn().mockReturnValue({
@@ -373,7 +374,7 @@ describe("mutateScriptRouter", () => {
 					},
 				},
 				transaction,
-			}).mutateThirdStep({
+			}).updateThirdStep({
 				scriptId,
 				questions: [
 					{
@@ -405,6 +406,11 @@ describe("mutateScriptRouter", () => {
 			}),
 		).resolves.toBeUndefined();
 		expect(transaction).toHaveBeenCalledTimes(1);
+		expect(updateSet).toHaveBeenCalledWith(
+			expect.objectContaining({
+				isDraft: true,
+			}),
+		);
 
 		await expect(
 			createCaller({
@@ -413,7 +419,7 @@ describe("mutateScriptRouter", () => {
 						findFirst: vi.fn().mockResolvedValue(null),
 					},
 				},
-			}).mutateThirdStep({
+			}).updateThirdStep({
 				scriptId,
 				questions: [],
 				deletedQuestions: null,
@@ -430,7 +436,7 @@ describe("mutateScriptRouter", () => {
 						}),
 					},
 				},
-			}).mutateThirdStep({
+			}).updateThirdStep({
 				scriptId,
 				questions: [],
 				deletedQuestions: null,
@@ -468,7 +474,7 @@ describe("mutateScriptRouter", () => {
 					},
 				},
 				transaction: emptyTransaction,
-			}).mutateThirdStep({
+			}).updateThirdStep({
 				scriptId,
 				questions: [
 					{

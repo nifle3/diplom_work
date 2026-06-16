@@ -38,6 +38,7 @@ export function ThirdStepForm({ initialData }: ThirdStepFormProps) {
 		form,
 		scriptId,
 		isPending,
+		submit,
 		addQuestion,
 		removeQuestion,
 		addSpecificCriterion,
@@ -61,14 +62,15 @@ export function ThirdStepForm({ initialData }: ThirdStepFormProps) {
 					<CardHeader className="border-border/60 border-b px-5 pt-5">
 						<div className="flex flex-wrap items-center gap-2">
 							<Badge variant="secondary">Шаг 3</Badge>
-							<Badge variant="outline">Финальная публикация</Badge>
+							<Badge variant="outline">Сохранение и публикация</Badge>
 						</div>
 						<CardTitle className="text-xl tracking-tight sm:text-2xl">
 							Соберите шаблоны вопросов
 						</CardTitle>
 						<CardDescription className="max-w-2xl text-sm leading-6 sm:text-base">
 							На этом шаге сценарий уже практически готов. Добавьте вопросы,
-							критерии внутри каждого вопроса и затем опубликуйте черновик.
+							критерии внутри каждого вопроса и затем сохраните черновик или
+							сразу опубликуйте его.
 						</CardDescription>
 					</CardHeader>
 
@@ -223,16 +225,30 @@ export function ThirdStepForm({ initialData }: ThirdStepFormProps) {
 
 						<div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
 							<p className="text-muted-foreground text-xs leading-5">
-								После публикации черновик станет обычным курсом в системе.
+								Сохранение оставит сценарий в черновиках. Публикация переведет
+								его в обычный курс.
 							</p>
-							<Button
-								type="submit"
-								disabled={isPending}
-								size="lg"
-								className="w-full sm:w-auto"
-							>
-								{isPending ? "Публикация..." : "Опубликовать сценарий"}
-							</Button>
+							<div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+								<Button
+									type="button"
+									disabled={isPending}
+									variant="outline"
+									size="lg"
+									className="w-full sm:w-auto"
+									onClick={() => submit(false)}
+								>
+									{isPending ? "Сохранение..." : "Сохранить черновик"}
+								</Button>
+								<Button
+									type="button"
+									disabled={isPending}
+									size="lg"
+									className="w-full sm:w-auto"
+									onClick={() => submit(true)}
+								>
+									{isPending ? "Публикация..." : "Опубликовать сценарий"}
+								</Button>
+							</div>
 						</div>
 					</CardFooter>
 				</Card>
