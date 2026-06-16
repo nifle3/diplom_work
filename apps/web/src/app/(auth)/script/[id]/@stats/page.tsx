@@ -12,15 +12,6 @@ type StatCard = {
 	accent: string;
 };
 
-function shouldHideStats(error: unknown) {
-	if (typeof error !== "object" || error === null) {
-		return false;
-	}
-
-	const code = (error as { code?: string }).code;
-	return code === "NOT_FOUND" || code === "FORBIDDEN";
-}
-
 export default async function Page({
 	params,
 }: {
@@ -29,17 +20,7 @@ export default async function Page({
 	const { id } = await params;
 	const trpcCaller = await serverTrpc();
 
-	let stats;
-
-	try {
-		stats = await trpcCaller.script.getAuthorStatsByScript(id);
-	} catch (error) {
-		if (!shouldHideStats(error)) {
-			throw error;
-		}
-
-		return null;
-	}
+	const stats = await trpcCaller.script.getAuthorStatsByScript(id);
 
 	const cards: StatCard[] = [
 		{

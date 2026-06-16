@@ -1,20 +1,35 @@
 import type { ReactNode } from "react";
 
-export default function Layout({
+import { serverTrpc } from "@/lib/trpcServer";
+
+export default async function Layout({
 	children,
 	stats,
 	myHistory,
+	params,
 }: Readonly<{
 	children: ReactNode;
 	stats?: ReactNode;
 	myHistory: ReactNode;
+	params: Promise<{ id: string }>;
 }>) {
+	const { id } = await params;
+
+	let isOwner = false;
+	try {
+		const trpcCaller = await serverTrpc();
+		await trpcCaller.script.getAuthorStatsByScript(id);
+		isOwner = true;
+	} catch {
+		// not the owner — keep isOwner as false
+	}
+
 	return (
 		<div className="bg-gradient-to-b from-background via-background to-muted/30">
 			<div className="mx-auto flex w-full max-w-7xl flex-col gap-10 px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
 				<section className="space-y-6">{children}</section>
 
-				{stats ? (
+				{isOwner ? (
 					<section className="space-y-4">
 						<div className="flex flex-col gap-1">
 							<p className="text-muted-foreground text-sm uppercase tracking-[0.24em]">
