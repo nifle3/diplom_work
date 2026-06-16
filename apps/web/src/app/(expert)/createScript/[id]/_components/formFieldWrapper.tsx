@@ -16,15 +16,11 @@ export function FormFieldWrapper({
 }: FormFieldWrapperProps) {
 	const invalid = isTouched && errors.length > 0;
 
-	const formattedErrors = errors.map((err) => ({
-		message: typeof err === "string" ? err : String(err),
-	}));
-
 	return (
 		<Field data-invalid={invalid}>
 			<FieldLabel>{label}</FieldLabel>
 			{children}
-			{invalid && <FieldError errors={formattedErrors} />}
+			{invalid && <FieldError errors={errors} />}
 		</Field>
 	);
 }

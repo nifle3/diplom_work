@@ -7,6 +7,45 @@ import { cn } from "@/lib/utils"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 
+function extractErrorMessages(error: unknown): string[] {
+  if (!error) {
+    return []
+  }
+
+  if (typeof error === "string") {
+    return [error]
+  }
+
+  if (error instanceof Error) {
+    return error.message ? [error.message] : []
+  }
+
+  if (Array.isArray(error)) {
+    return error.flatMap(extractErrorMessages)
+  }
+
+  if (typeof error === "object") {
+    const typedError = error as {
+      message?: unknown
+      issues?: unknown
+      form?: unknown
+      fields?: unknown
+    }
+
+    if (typeof typedError.message === "string") {
+      return [typedError.message]
+    }
+
+    return [
+      ...extractErrorMessages(typedError.issues),
+      ...extractErrorMessages(typedError.form),
+      ...extractErrorMessages(typedError.fields),
+    ]
+  }
+
+  return []
+}
+
 function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
   return (
     <fieldset
@@ -189,7 +228,7 @@ function FieldError({
   errors,
   ...props
 }: React.ComponentProps<"div"> & {
-  errors?: Array<{ message?: string } | undefined>
+  errors?: readonly unknown[]
 }) {
   const content = useMemo(() => {
     if (children) {
@@ -200,20 +239,17 @@ function FieldError({
       return null
     }
 
-    const uniqueErrors = [
-      ...new Map(errors.map((error) => [error?.message, error])).values(),
-    ]
+    const uniqueErrors = [...new Set(errors.flatMap(extractErrorMessages))]
 
     if (uniqueErrors?.length == 1) {
-      return uniqueErrors[0]?.message
+      return uniqueErrors[0]
     }
 
     return (
       <ul className="ml-4 flex list-disc flex-col gap-1">
-        {uniqueErrors.map(
-          (error, index) =>
-            error?.message && <li key={index}>{error.message}</li>
-        )}
+        {uniqueErrors.map((message, index) => (
+          <li key={index}>{message}</li>
+        ))}
       </ul>
     )
   }, [children, errors])
