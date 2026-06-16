@@ -114,6 +114,71 @@ describe("mutateScriptRouter", () => {
 		).rejects.toMatchObject({ code: "FORBIDDEN" });
 	});
 
+	it("returns a published script back to drafts", async () => {
+		const findFirst = vi.fn().mockResolvedValue({
+			id: scriptId,
+			expertId: "expert-1",
+			isDraft: false,
+		});
+		const where = vi.fn().mockResolvedValue(undefined);
+		const set = vi.fn().mockReturnValue({
+			where,
+		});
+		const update = vi.fn().mockReturnValue({
+			set,
+		});
+
+		await expect(
+			createCaller({
+				query: {
+					scriptsTable: {
+						findFirst,
+					},
+				},
+				update,
+			}).revertToDraft(scriptId),
+		).resolves.toBeUndefined();
+		expect(update).toHaveBeenCalledTimes(1);
+		expect(set).toHaveBeenCalledWith(
+			expect.objectContaining({
+				isDraft: true,
+				draftOverAt: null,
+			}),
+		);
+		expect(mocks.loggerInfo).toHaveBeenCalledWith(
+			{ scriptId, expertId: "expert-1" },
+			"Returned script to draft",
+		);
+
+		await expect(
+			createCaller({
+				query: {
+					scriptsTable: {
+						findFirst: vi.fn().mockResolvedValue({
+							id: scriptId,
+							expertId: "someone-else",
+							isDraft: false,
+						}),
+					},
+				},
+			}).revertToDraft(scriptId),
+		).rejects.toMatchObject({ code: "FORBIDDEN" });
+
+		await expect(
+			createCaller({
+				query: {
+					scriptsTable: {
+						findFirst: vi.fn().mockResolvedValue({
+							id: scriptId,
+							expertId: "expert-1",
+							isDraft: true,
+						}),
+					},
+				},
+			}).revertToDraft(scriptId),
+		).rejects.toMatchObject({ code: "BAD_REQUEST" });
+	});
+
 	it("rejects draft publication when the script is missing or incomplete", async () => {
 		const missingCaller = createCaller({
 			query: {

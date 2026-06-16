@@ -109,6 +109,48 @@ export const mutateScriptRouter = router({
 				"Published script draft",
 			);
 		}),
+	revertToDraft: protectedProcedure
+		.input(z.string())
+		.mutation(async ({ ctx, input }) => {
+			const script = await ctx.db.query.scriptsTable.findFirst({
+				where: (scriptsTable, { eq, isNull, and }) =>
+					and(eq(scriptsTable.id, input), isNull(scriptsTable.deletedAt)),
+			});
+			if (!script) {
+				throw new TRPCError({ code: "NOT_FOUND" });
+			}
+
+			if (script.expertId !== ctx.session.user.id) {
+				throw new TRPCError({ code: "FORBIDDEN" });
+			}
+
+			if (script.isDraft) {
+				throw new TRPCError({
+					code: "BAD_REQUEST",
+					message: "Сценарий уже находится в черновиках",
+				});
+			}
+
+			await ctx.db
+				.update(scriptsTable)
+				.set({
+					isDraft: true,
+					updatedAt: new Date(),
+					draftOverAt: null,
+				})
+				.where(
+					and(
+						eq(scriptsTable.id, input),
+						isNull(scriptsTable.deletedAt),
+						eq(scriptsTable.isDraft, false),
+					),
+				);
+
+			logger.info(
+				{ scriptId: input, expertId: ctx.session.user.id },
+				"Returned script to draft",
+			);
+		}),
 	deleteScript: protectedProcedure
 		.input(z.string())
 		.mutation(async ({ ctx, input }) => {

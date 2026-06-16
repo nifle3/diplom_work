@@ -6,7 +6,7 @@ import {
 	getCoreRowModel,
 	useReactTable,
 } from "@tanstack/react-table";
-import { Pencil, Play, Trash2, Upload } from "lucide-react";
+import { Pencil, Play, Trash2, Undo2, Upload } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -32,6 +32,7 @@ interface SharedTableProps {
 const defaultColumns = (
 	onDelete: (id: string) => void,
 	onPublish: (id: string) => void,
+	onRevertToDraft: (id: string) => void,
 	isDraftTable?: boolean,
 ): ColumnDef<ScriptRow>[] => [
 	{
@@ -83,6 +84,19 @@ const defaultColumns = (
 						>
 							<Button variant="ghost" size="icon">
 								<Upload className="h-4 w-4" />
+							</Button>
+						</Modal>
+					)}
+					{!isDraftTable && (
+						<Modal
+							header={"Вернуть сценарий в черновик"}
+							description={`Вы хотите вернуть сценарий ${scriptTitle} в черновик?`}
+							actionName={"Вернуть"}
+							action={() => onRevertToDraft(row.original.id)}
+							asChild={true}
+						>
+							<Button variant="ghost" size="icon" title="Вернуть в черновик">
+								<Undo2 className="h-4 w-4" />
 							</Button>
 						</Modal>
 					)}
@@ -141,6 +155,15 @@ export function SharedScriptsTable({ data, isDraftTable }: SharedTableProps) {
 		}),
 	);
 
+	const revertToDraftScript = useMutation(
+		trpc.createScript.revertToDraft.mutationOptions({
+			onSuccess: () => {
+				toast("Переведено в черновик");
+				router.refresh();
+			},
+		}),
+	);
+
 	const onDelete = async (scriptId: string) => {
 		await deleteScript.mutateAsync(scriptId);
 	};
@@ -149,9 +172,18 @@ export function SharedScriptsTable({ data, isDraftTable }: SharedTableProps) {
 		await publishScript.mutateAsync(scriptId);
 	};
 
+	const onRevertToDraft = async (scriptId: string) => {
+		await revertToDraftScript.mutateAsync(scriptId);
+	};
+
 	const table = useReactTable({
 		data,
-		columns: defaultColumns(onDelete, onPublish, isDraftTable),
+		columns: defaultColumns(
+			onDelete,
+			onPublish,
+			onRevertToDraft,
+			isDraftTable,
+		),
 		getCoreRowModel: getCoreRowModel(),
 	});
 
