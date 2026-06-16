@@ -3,7 +3,7 @@ import { serverTrpc } from "@/lib/trpcServer";
 
 export default async function Page() {
 	const trpcCaller = await serverTrpc();
-	const latestCourses = await trpcCaller.script.getLatest({ limit: 5 });
+	const latestCourses = await trpcCaller.script.getLatest({ limit: 3 });
 
 	return (
 		<>
