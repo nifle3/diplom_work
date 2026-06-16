@@ -6,7 +6,7 @@ import { protectedProcedure, router } from "../init/routers";
 const input = z.object({
 	filename: z.string(),
 	contentType: z.string(),
-	folder: z.enum(["avatars", "scripts"]),
+	folder: z.enum(["avatars", "scripts", "achievements"]),
 });
 
 export const fileRouter = router({

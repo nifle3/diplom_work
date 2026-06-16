@@ -3,7 +3,10 @@
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { z } from "zod";
+import { AchievementIcon } from "@/components/achievementIcon";
 import { Button } from "@/components/ui/button";
 import {
 	Field,
@@ -14,6 +17,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useFileUpload } from "@/hooks/useFileUpload";
 import { trpc } from "@/lib/trpc";
 import type { AchievementRow } from "./achievementsTable";
 
@@ -29,6 +33,16 @@ const formulaExamples = [
 	"achievementCount >= 3 && completedToday >= 1",
 ].join(" | ");
 
+const achievementIconSchema = z
+	.custom<File>((value) => value instanceof File, "Выберите файл")
+	.refine(
+		(file) => ["image/jpeg", "image/png", "image/webp"].includes(file.type),
+		{ message: "Только jpg, png, webp" },
+	)
+	.refine((file) => file.size <= 4 * 1024 * 1024, {
+		message: "Файл не больше 4 МБ",
+	});
+
 function normalizeOptionalValue(value: string) {
 	const trimmed = value.trim();
 	return trimmed.length > 0 ? trimmed : null;
@@ -39,6 +53,18 @@ export function AchievementForm({
 	onSuccess,
 }: AchievementFormProps) {
 	const router = useRouter();
+	const fileInputRef = useRef<HTMLInputElement>(null);
+	const { uploadFile, isUploading } = useFileUpload();
+	const [selectedIcon, setSelectedIcon] = useState<File | null>(null);
+	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+	useEffect(() => {
+		return () => {
+			if (previewUrl?.startsWith("blob:")) {
+				URL.revokeObjectURL(previewUrl);
+			}
+		};
+	}, [previewUrl]);
+
 	const createMutation = useMutation(
 		trpc.achievement.create.mutationOptions({
 			onSuccess: () => {
@@ -66,10 +92,27 @@ export function AchievementForm({
 			formula: achievement?.formula ?? "",
 		},
 		onSubmit: async ({ value }) => {
+			let iconUrl = normalizeOptionalValue(value.iconUrl);
+
+			if (selectedIcon) {
+				const parsedIcon = achievementIconSchema.safeParse(selectedIcon);
+
+				if (!parsedIcon.success) {
+					toast.error(
+						parsedIcon.error.issues[0]?.message ?? "Выберите изображение",
+					);
+					return;
+				}
+
+				iconUrl = await uploadFile(parsedIcon.data, {
+					folder: "achievements",
+				});
+			}
+
 			const payload = {
 				name: value.name,
 				description: value.description,
-				iconUrl: normalizeOptionalValue(value.iconUrl),
+				iconUrl,
 				formula: value.formula,
 			};
 
@@ -145,27 +188,72 @@ export function AchievementForm({
 							</Field>
 						);
 					}}
-				</form.Field>
+					</form.Field>
 
 				<form.Field name="iconUrl">
-					{(field) => (
-						<Field>
-							<FieldLabel htmlFor={field.name}>Иконка</FieldLabel>
-							<Input
-								id={field.name}
-								name={field.name}
-								value={field.state.value}
-								onBlur={field.handleBlur}
-								onChange={(event) => field.handleChange(event.target.value)}
-								placeholder="https://..."
-							/>
-							<FieldDescription>
-								Необязательно. Можно оставить пустым, тогда в списке покажется
-								стандартная иконка.
-							</FieldDescription>
-						</Field>
-					)}
-				</form.Field>
+					{(field) => {
+						const iconSrc = previewUrl ?? achievement?.iconUrl ?? null;
+
+						return (
+							<Field>
+								<FieldLabel htmlFor={field.name}>Иконка</FieldLabel>
+								<FieldDescription>
+									Необязательно. Можно загрузить JPG, PNG или WebP до 4 МБ.
+								</FieldDescription>
+
+								<div className="mt-3 flex flex-col gap-3 rounded-xl border border-dashed border-border/70 bg-muted/20 p-3">
+									<div className="flex min-h-40 items-center justify-center overflow-hidden rounded-lg border border-border/60 bg-background p-4">
+										<AchievementIcon
+											iconUrl={iconSrc}
+											alt={achievement?.name ?? "Превью иконки"}
+											className="size-24 rounded-2xl"
+										/>
+									</div>
+
+										<input
+											ref={fileInputRef}
+											type="file"
+											accept="image/jpeg,image/png,image/webp"
+											className="hidden"
+											onChange={(event) => {
+												const file = event.target.files?.[0];
+
+												if (!file) {
+													return;
+												}
+
+												const nextPreviewUrl = URL.createObjectURL(file);
+												setPreviewUrl((prev) => {
+													if (prev?.startsWith("blob:")) {
+														URL.revokeObjectURL(prev);
+													}
+
+													return nextPreviewUrl;
+												});
+												setSelectedIcon(file);
+											}}
+										/>
+
+										<div className="flex flex-col gap-2">
+											<Button
+												type="button"
+												variant="outline"
+												onClick={() => fileInputRef.current?.click()}
+												disabled={isUploading}
+											>
+												{iconSrc ? "Заменить иконку" : "Выбрать иконку"}
+											</Button>
+											<p className="text-muted-foreground text-xs leading-5">
+												{selectedIcon
+													? `Выбран файл: ${selectedIcon.name}`
+													: "Файл будет загружен в S3, а в достижении сохранится ключ."}
+											</p>
+										</div>
+									</div>
+								</Field>
+							);
+						}}
+					</form.Field>
 
 				<form.Field name="formula">
 					{(field) => {
@@ -199,14 +287,22 @@ export function AchievementForm({
 				</form.Field>
 			</FieldGroup>
 
-			<div className="flex justify-end gap-2 pt-6">
-				<Button
-					type="submit"
-					disabled={createMutation.isPending || updateMutation.isPending}
-				>
-					{achievement ? "Обновить" : "Добавить"}
-				</Button>
-			</div>
-		</form>
-	);
-}
+				<div className="flex justify-end gap-2 pt-6">
+					<Button
+						type="submit"
+						disabled={
+							createMutation.isPending ||
+							updateMutation.isPending ||
+							isUploading
+						}
+					>
+						{createMutation.isPending || updateMutation.isPending || isUploading
+							? "Сохранение..."
+							: achievement
+								? "Обновить"
+								: "Добавить"}
+					</Button>
+				</div>
+			</form>
+		);
+	}

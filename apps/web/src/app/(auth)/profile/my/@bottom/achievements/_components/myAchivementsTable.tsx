@@ -6,7 +6,8 @@ import {
 	getCoreRowModel,
 	useReactTable,
 } from "@tanstack/react-table";
-import { Award, Calendar, Star, Target, Trophy, Zap } from "lucide-react";
+import { Calendar, Trophy } from "lucide-react";
+import { AchievementIcon } from "@/components/achievementIcon";
 import { formatDate } from "@/lib/date";
 
 interface AchievementRow {
@@ -21,38 +22,20 @@ interface MyAchievementsTableProps {
 	data: Array<AchievementRow>;
 }
 
-const iconMap: Record<string, typeof Trophy> = {
-	Trophy: Trophy,
-	Star: Star,
-	Zap: Zap,
-	Target: Target,
-	Award: Award,
-};
-
-const getRandomIcon = () => {
-	const icons = Object.keys(iconMap);
-	const randomIcon = icons[Math.floor(Math.random() * icons.length)];
-	return iconMap[randomIcon] || Trophy;
-};
-
 const columns: ColumnDef<AchievementRow>[] = [
 	{
 		accessorKey: "name",
 		header: "Название",
 		cell: ({ row }) => {
 			const isEarned = row.original.awardedAt !== null;
-			const Icon = getRandomIcon();
 			return (
 				<div className="flex items-center gap-3">
-					<div
-						className={`flex h-10 w-10 items-center justify-center rounded-full ${
-							isEarned
-								? "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400"
-								: "bg-muted text-muted-foreground"
-						}`}
-					>
-						<Icon className="h-5 w-5" />
-					</div>
+					<AchievementIcon
+						iconUrl={row.original.iconUrl}
+						alt={row.original.name}
+						earned={isEarned}
+						className="size-10 rounded-full"
+					/>
 					<span
 						className={`font-medium ${!isEarned && "text-muted-foreground"}`}
 					>

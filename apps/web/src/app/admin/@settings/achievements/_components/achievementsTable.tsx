@@ -9,6 +9,7 @@ import {
 import { Pencil, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { GeneralTable } from "@/components/generalTable";
+import { AchievementIcon } from "@/components/achievementIcon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,6 +41,19 @@ interface AchievementsTableProps {
 const columns = (
 	onEdit: (achievement: AchievementRow) => void,
 ): ColumnDef<AchievementRow>[] => [
+	{
+		accessorKey: "iconUrl",
+		header: "Иконка",
+		cell: ({ row }) => {
+			return (
+				<AchievementIcon
+					iconUrl={row.original.iconUrl}
+					alt={row.original.name}
+					className="size-12 rounded-xl"
+				/>
+			);
+		},
+	},
 	{
 		accessorKey: "name",
 		header: "Название",

@@ -5,7 +5,7 @@ import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 
 type UploadOptions = {
-	folder: "avatars" | "scripts";
+	folder: "avatars" | "scripts" | "achievements";
 };
 
 export function useFileUpload() {

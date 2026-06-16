@@ -128,4 +128,42 @@ describe("fileRouter.getUploadLink", () => {
 			"application/gzip",
 		);
 	});
+
+	it("returns a signed upload link for achievement images", async () => {
+		const caller = fileRouter.createCaller({
+			requestId: "req-3",
+			clientIp: "127.0.0.1",
+			userAgent: "vitest",
+			session: {
+				user: {
+					id: "user-3",
+				},
+				session: {
+					role: "admin",
+				},
+			},
+			setCookieHeaders: [],
+			auth: {} as never,
+			db: {} as never,
+			file: {
+				getPersistentUploadLink: mocks.getPersistentUploadLink,
+			},
+			llm: {} as never,
+		} as never);
+
+		const result = await caller.getUploadLink({
+			filename: "achievement.png",
+			contentType: "image/png",
+			folder: "achievements",
+		});
+
+		expect(result).toEqual({
+			url: "https://storage.test/upload",
+			key: "achievements/fixed-upload-id.png",
+		});
+		expect(mocks.getPersistentUploadLink).toHaveBeenCalledWith(
+			"achievements/fixed-upload-id.png",
+			"image/png",
+		);
+	});
 });
