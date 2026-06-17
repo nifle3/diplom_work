@@ -55,3 +55,4 @@ db.db
 .claude/skills
 docs/**/*.png
 *.txt
+.opencode

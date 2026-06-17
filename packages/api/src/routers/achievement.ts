@@ -52,6 +52,29 @@ export const achievementRouter = router({
 			)
 			.orderBy(desc(achievementsTable.createdAt));
 	}),
+	getById: adminProcedure
+		.input(achievementIdSchema)
+		.query(async ({ input, ctx }) => {
+			const [achievement] = await ctx.db
+				.select({
+					id: achievementsTable.id,
+					name: achievementsTable.name,
+					description: achievementsTable.description,
+					iconUrl: achievementsTable.iconUrl,
+					formula: achievementsTable.formula,
+					createdAt: achievementsTable.createdAt,
+					updatedAt: achievementsTable.updatedAt,
+				})
+				.from(achievementsTable)
+				.where(eq(achievementsTable.id, input))
+				.limit(1);
+
+			if (!achievement) {
+				throw new TRPCError({ code: "NOT_FOUND" });
+			}
+
+			return achievement;
+		}),
 	create: adminProcedure
 		.input(baseAchievementSchema)
 		.mutation(async ({ input, ctx }) => {

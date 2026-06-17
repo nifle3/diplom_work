@@ -7,21 +7,14 @@ import {
 	useReactTable,
 } from "@tanstack/react-table";
 import { Pencil } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AchievementIcon } from "@/components/achievementIcon";
 import { GeneralTable } from "@/components/generalTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from "@/components/ui/dialog";
 import { formatDate } from "@/lib/date";
 import { trpc } from "@/lib/trpc";
-import { AchievementForm } from "./achievementForm";
 
 export interface AchievementRow {
 	id: string;
@@ -31,16 +24,14 @@ export interface AchievementRow {
 	formula: string;
 	createdAt: Date;
 	updatedAt: Date;
-	awardedCount: number;
+	awardedCount?: number;
 }
 
 interface AchievementsTableProps {
 	data: AchievementRow[];
 }
 
-const columns = (
-	onEdit: (achievement: AchievementRow) => void,
-): ColumnDef<AchievementRow>[] => [
+const columns: ColumnDef<AchievementRow>[] = [
 	{
 		accessorKey: "iconUrl",
 		header: "Иконка",
@@ -92,22 +83,11 @@ const columns = (
 		header: "Действия",
 		cell: ({ row }) => (
 			<div className="flex gap-2">
-				<Dialog>
-					<DialogTrigger asChild>
-						<Button variant="ghost" size="icon">
-							<Pencil className="h-4 w-4" />
-						</Button>
-					</DialogTrigger>
-					<DialogContent className="max-w-2xl">
-						<DialogHeader>
-							<DialogTitle>Редактировать достижение</DialogTitle>
-						</DialogHeader>
-						<AchievementForm
-							achievement={row.original}
-							onSuccess={() => onEdit(row.original)}
-						/>
-					</DialogContent>
-				</Dialog>
+				<Button variant="ghost" size="icon" asChild>
+					<Link href={`/admin/achievements/${row.original.id}/edit`}>
+						<Pencil className="h-4 w-4" />
+					</Link>
+				</Button>
 			</div>
 		),
 	},
@@ -125,9 +105,7 @@ export function AchievementsTable({ data }: AchievementsTableProps) {
 
 	const table = useReactTable({
 		data,
-		columns: columns(() => {
-			router.refresh();
-		}),
+		columns,
 		getCoreRowModel: getCoreRowModel(),
 	});
 

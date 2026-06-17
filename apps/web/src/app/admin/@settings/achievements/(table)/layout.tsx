@@ -1,4 +1,6 @@
-import { Sparkles } from "lucide-react";
+import { Plus, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default async function Layout({
 	children,
@@ -22,6 +24,13 @@ export default async function Layout({
 						</div>
 					</div>
 				</div>
+
+				<Button asChild variant="default">
+					<Link href="/admin/achievements/new">
+						<Plus className="mr-2 h-4 w-4" />
+						Создать достижение
+					</Link>
+				</Button>
 			</div>
 
 			{children}
