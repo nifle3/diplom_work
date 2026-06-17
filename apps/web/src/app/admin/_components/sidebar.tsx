@@ -26,7 +26,7 @@ const navItems = [
 
 export function AdminSidebar() {
 	return (
-		<aside className="fixed inset-y-0 left-0 z-0 w-64 overflow-y-auto border-r bg-card">
+		<aside className="sticky top-0 h-full w-64 flex-shrink-0 overflow-y-auto border-r bg-card">
 			<div className="flex h-full flex-col">
 				<div className="border-b p-4">
 					<h2 className="font-semibold text-lg">Админ-панель</h2>

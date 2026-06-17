@@ -28,13 +28,15 @@ export default async function Layout({
 				email={session.user.email}
 				role={session.session.role}
 			/>
-			<AdminSidebar />
-			<main className="ml-64 px-4 py-6">
-				{settings}
-				<footer className="mt-16 border-t py-6 text-center text-muted-foreground text-sm">
-					diplom_work
-				</footer>
-			</main>
+			<div className="flex flex-1 overflow-hidden">
+				<AdminSidebar />
+				<main className="flex flex-1 flex-col overflow-y-auto">
+					<div className="flex-1 px-4 py-6">{settings}</div>
+					<footer className="border-t py-6 text-center text-muted-foreground text-sm">
+						diplom_work
+					</footer>
+				</main>
+			</div>
 		</>
 	);
 }
