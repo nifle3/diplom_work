@@ -42,7 +42,7 @@ export const ChatInput = ({
 	};
 
 	return (
-		<div className="space-y-3">
+		<div className="max-h-full space-y-3 overflow-y-auto">
 			<div className="flex flex-wrap items-center gap-2">
 				<Button
 					type="button"

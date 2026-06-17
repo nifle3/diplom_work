@@ -29,7 +29,7 @@ export default async function InterviewPage({
 
 	return (
 		<InterviewProvider interviewId={id}>
-			<div className="flex h-screen flex-col bg-background text-foreground">
+			<div className="flex h-full flex-col bg-background text-foreground">
 				<header className="flex shrink-0 items-center justify-between gap-3 border-b px-4 py-3">
 					<h1 className="min-w-0 truncate font-semibold text-base">
 						{script.title ?? ""}
@@ -45,7 +45,7 @@ export default async function InterviewPage({
 					</div>
 				</header>
 
-				<main className="flex-1 overflow-y-auto px-4">
+				<main className="min-h-0 flex-1 overflow-y-auto px-4">
 					<div className="mx-auto max-w-3xl space-y-6 py-6">
 						{(data ?? []).map((message) => (
 							<MessageItem key={message.id} message={message} />
@@ -54,7 +54,7 @@ export default async function InterviewPage({
 					</div>
 				</main>
 
-				<footer className="shrink-0 border-t p-4">
+				<footer className="max-h-[50vh] shrink-0 overflow-hidden border-t p-4">
 					<div className="mx-auto max-w-3xl">
 						<InterviewChatFooter />
 					</div>
