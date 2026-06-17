@@ -60,11 +60,7 @@ export default async function Page({
 									Черновик
 								</Badge>
 							)}
-							<Badge variant="outline" className="bg-background/80">
-								Дата создания: {createdAt}
-							</Badge>
 						</div>
-
 						<div className="min-w-0 space-y-4">
 							<h1 className="max-w-3xl break-words font-semibold text-3xl tracking-tight sm:text-4xl lg:text-5xl">
 								{data.title}

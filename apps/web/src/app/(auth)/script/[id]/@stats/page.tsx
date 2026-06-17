@@ -1,6 +1,5 @@
 import { Award, MessageSquare } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { serverTrpc } from "@/lib/trpcServer";
 
@@ -47,15 +46,6 @@ export default async function Page({
 
 				<div className="relative space-y-6">
 					<div className="space-y-3">
-						<div className="flex flex-wrap gap-2">
-							<Badge variant="secondary" className="bg-sky-100 text-sky-900">
-								Только для автора
-							</Badge>
-							<Badge variant="outline" className="bg-background/80">
-								По завершённым интервью
-							</Badge>
-						</div>
-
 						<div className="space-y-2">
 							<h3 className="font-semibold text-2xl tracking-tight">
 								Сводка по сценарию
