@@ -6,10 +6,7 @@ import {
 	getCoreRowModel,
 	useReactTable,
 } from "@tanstack/react-table";
-import {
-	ChevronDown,
-	Eye,
-} from "lucide-react";
+import { ChevronDown, Eye } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -24,7 +21,11 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { formatDate } from "@/lib/date";
-import { type ReportStatus, reportStatuses, statusMeta } from "@/lib/reportStatus";
+import {
+	type ReportStatus,
+	reportStatuses,
+	statusMeta,
+} from "@/lib/reportStatus";
 import { trpc } from "@/lib/trpc";
 import { ReportDetailDialog } from "./reportDetailDialog";
 
@@ -135,9 +136,7 @@ export function ReportTable({
 		{
 			accessorKey: "status",
 			header: "Статус",
-			cell: ({ row }) => (
-				<StatusBadge status={row.original.status} />
-			),
+			cell: ({ row }) => <StatusBadge status={row.original.status} />,
 		},
 		{
 			accessorKey: "reason",

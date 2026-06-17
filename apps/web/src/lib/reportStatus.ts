@@ -1,4 +1,9 @@
-import { CheckCircle2, Clock3, type LucideIcon, ShieldAlert } from "lucide-react";
+import {
+	CheckCircle2,
+	Clock3,
+	type LucideIcon,
+	ShieldAlert,
+} from "lucide-react";
 
 export const reportStatuses = [
 	"new",

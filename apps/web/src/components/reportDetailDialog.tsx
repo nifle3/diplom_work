@@ -1,9 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import {
-	ExternalLink,
-} from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { StatusBadge } from "@/components/statusBadge";
 import {
@@ -37,7 +35,7 @@ export function ReportDetailDialog({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+			<DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
 				<DialogHeader>
 					<DialogTitle>Детали жалобы</DialogTitle>
 					<DialogDescription>
@@ -55,7 +53,7 @@ export function ReportDetailDialog({
 				) : data ? (
 					<div className="space-y-6">
 						<section className="space-y-3">
-							<h4 className="text-sm font-medium text-muted-foreground">
+							<h4 className="font-medium text-muted-foreground text-sm">
 								Курс
 							</h4>
 							{data.scenario ? (
@@ -80,7 +78,7 @@ export function ReportDetailDialog({
 						</section>
 
 						<section className="space-y-3">
-							<h4 className="text-sm font-medium text-muted-foreground">
+							<h4 className="font-medium text-muted-foreground text-sm">
 								Заявитель
 							</h4>
 							<div className="space-y-1">
@@ -92,14 +90,14 @@ export function ReportDetailDialog({
 						</section>
 
 						<section className="space-y-3">
-							<h4 className="text-sm font-medium text-muted-foreground">
+							<h4 className="font-medium text-muted-foreground text-sm">
 								Текущий статус
 							</h4>
 							<StatusBadge status={data.status} />
 						</section>
 
 						<section className="space-y-3">
-							<h4 className="text-sm font-medium text-muted-foreground">
+							<h4 className="font-medium text-muted-foreground text-sm">
 								Причина
 							</h4>
 							<p className="whitespace-pre-wrap break-words rounded-lg bg-muted p-4 text-sm leading-6">
@@ -108,7 +106,7 @@ export function ReportDetailDialog({
 						</section>
 
 						<section className="space-y-3">
-							<h4 className="text-sm font-medium text-muted-foreground">
+							<h4 className="font-medium text-muted-foreground text-sm">
 								Дата создания
 							</h4>
 							<p className="text-sm">
@@ -123,7 +121,7 @@ export function ReportDetailDialog({
 						</section>
 
 						<section className="space-y-3">
-							<h4 className="text-sm font-medium text-muted-foreground">
+							<h4 className="font-medium text-muted-foreground text-sm">
 								История статусов
 							</h4>
 							{data.statusLogs.length > 0 ? (
@@ -136,10 +134,7 @@ export function ReportDetailDialog({
 											const isFirst = index === 0;
 
 											return (
-												<div
-													key={index}
-													className="flex gap-3 pb-4 last:pb-0"
-												>
+												<div key={index} className="flex gap-3 pb-4 last:pb-0">
 													<div className="flex flex-col items-center">
 														<StatusBadge
 															status={log.status}
@@ -152,7 +147,7 @@ export function ReportDetailDialog({
 													</div>
 													<div className="pt-1">
 														<div className="flex items-baseline gap-2">
-															<span className="text-sm font-medium">
+															<span className="font-medium text-sm">
 																{statusMeta[log.status].label}
 															</span>
 															{isFirst && (

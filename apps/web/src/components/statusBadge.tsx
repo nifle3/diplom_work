@@ -7,11 +7,7 @@ type StatusBadgeProps = {
 	className?: string;
 };
 
-export function StatusBadge({
-	status,
-	iconOnly,
-	className,
-}: StatusBadgeProps) {
+export function StatusBadge({ status, iconOnly, className }: StatusBadgeProps) {
 	const meta = statusMeta[status];
 	const Icon = meta.icon;
 

@@ -29,9 +29,9 @@ export default async function Layout({
 				role={session.session.role}
 			/>
 			<AdminSidebar />
-			<main className="ml-64 min-h-[calc(100vh-5rem)] px-4 py-6">
+			<main className="ml-64 px-4 py-6">
 				{settings}
-				<footer className="mt-8 border-t pt-4 pb-2 text-center text-muted-foreground text-xs">
+				<footer className="mt-16 border-t py-6 text-center text-muted-foreground text-sm">
 					diplom_work
 				</footer>
 			</main>
