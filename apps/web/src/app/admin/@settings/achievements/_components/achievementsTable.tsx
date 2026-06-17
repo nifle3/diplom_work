@@ -6,7 +6,7 @@ import {
 	getCoreRowModel,
 	useReactTable,
 } from "@tanstack/react-table";
-import { Pencil, Sparkles } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { AchievementIcon } from "@/components/achievementIcon";
 import { GeneralTable } from "@/components/generalTable";
@@ -115,7 +115,7 @@ const columns = (
 
 export function AchievementsTable({ data }: AchievementsTableProps) {
 	const router = useRouter();
-	const recalculateMutation = useMutation(
+	const _recalculateMutation = useMutation(
 		trpc.achievement.recalculateAll.mutationOptions({
 			onSuccess: () => {
 				router.refresh();
@@ -131,56 +131,11 @@ export function AchievementsTable({ data }: AchievementsTableProps) {
 		getCoreRowModel: getCoreRowModel(),
 	});
 
-	const totalAwards = data.reduce((sum, item) => sum + item.awardedCount, 0);
-
 	return (
-		<div className="space-y-6">
-			<div className="flex flex-col gap-4 rounded-2xl border bg-card p-5 shadow-sm lg:flex-row lg:items-center lg:justify-between">
-				<div className="space-y-2">
-					<div className="flex items-center gap-2">
-						<div className="flex size-10 items-center justify-center rounded-full bg-muted">
-							<Sparkles className="h-5 w-5 text-muted-foreground" />
-						</div>
-						<div>
-							<h1 className="font-semibold text-2xl">Достижения</h1>
-							<p className="text-muted-foreground">
-								Создавайте формулы, чтобы награды выдавались автоматически по
-								данным пользователя.
-							</p>
-						</div>
-					</div>
-					<p className="text-muted-foreground text-sm">
-						Всего достижений: {data.length}. Всего выдач: {totalAwards}.
-					</p>
-				</div>
-
-				<div className="flex flex-wrap gap-2">
-					<Dialog>
-						<DialogTrigger asChild>
-							<Button>Создать достижение</Button>
-						</DialogTrigger>
-						<DialogContent className="max-w-2xl">
-							<DialogHeader>
-								<DialogTitle>Новое достижение</DialogTitle>
-							</DialogHeader>
-							<AchievementForm />
-						</DialogContent>
-					</Dialog>
-					<Button
-						variant="outline"
-						onClick={() => recalculateMutation.mutate()}
-						disabled={recalculateMutation.isPending}
-					>
-						Пересчитать награды
-					</Button>
-				</div>
-			</div>
-
-			<GeneralTable
-				headerGroups={table.getHeaderGroups()}
-				rows={table.getRowModel().rows}
-				emptyMessage="Достижения ещё не созданы"
-			/>
-		</div>
+		<GeneralTable
+			headerGroups={table.getHeaderGroups()}
+			rows={table.getRowModel().rows}
+			emptyMessage="Достижения ещё не созданы"
+		/>
 	);
 }

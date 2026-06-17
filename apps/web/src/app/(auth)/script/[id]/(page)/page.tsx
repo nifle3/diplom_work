@@ -46,9 +46,6 @@ export default async function Page({
 					<div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.10),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(34,197,94,0.10),transparent_30%)]" />
 					<div className="relative flex h-full flex-col gap-8">
 						<div className="flex flex-wrap gap-2">
-							<Badge variant="secondary" className="bg-sky-100 text-sky-900">
-								{data.category?.name ?? "Без категории"}
-							</Badge>
 							{isAdmin && dataWithAdmin.deletedAt && (
 								<Badge variant="destructive">Удалён</Badge>
 							)}
