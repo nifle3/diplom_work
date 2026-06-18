@@ -19,7 +19,7 @@ import { FormFieldWrapper } from "../../_components/formFieldWrapper";
 import { StepNavigation } from "../../_components/stepNavigation";
 import { useThirdStepForm } from "../_hooks/useThirdStepForm";
 
-interface ThirdStepFormProps {
+type ThirdStepFormProps = {
 	initialData: {
 		id: string;
 		isDraft: boolean | null;
@@ -32,7 +32,7 @@ interface ThirdStepFormProps {
 			}>;
 		}>;
 	};
-}
+};
 
 export function ThirdStepForm({ initialData }: ThirdStepFormProps) {
 	const {

@@ -65,6 +65,10 @@ function isTerminalStatus(statusId: number | undefined) {
 	return statusId === statusToId.complete || statusId === statusToId.canceled;
 }
 
+function isCompletedStatus(statusId: number | undefined) {
+	return statusId === statusToId.complete;
+}
+
 type SessionForFinalEvaluation = {
 	summarize: string | null;
 	messages: Array<{
@@ -610,7 +614,7 @@ export const sessionRouter = router({
 				id: session.id,
 				finalScore: session.finalScore,
 				expertFeedback: session.expertFeedback,
-				experienceGained: isTerminalStatus(latestStatusLog?.statusId)
+				experienceGained: isCompletedStatus(latestStatusLog?.statusId)
 					? calculateInterviewExperience(session.finalScore)
 					: 0,
 				startedAt: session.startedAt,

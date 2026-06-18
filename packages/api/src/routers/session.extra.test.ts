@@ -229,6 +229,61 @@ describe("sessionRouter extra coverage", () => {
 		).rejects.toMatchObject({ code: "NOT_FOUND" });
 	});
 
+	it("returns experienceGained: 0 for a canceled session", async () => {
+		const findFirst = vi.fn().mockResolvedValue({
+			id: sessionId,
+			finalScore: 88,
+			expertFeedback: "Great",
+			startedAt: new Date("2025-01-01T00:00:00.000Z"),
+			statusLogs: [
+				{
+					statusId: statusToId.canceled,
+					createdAt: new Date("2025-01-01T02:00:00.000Z"),
+					status: {
+						name: "canceled",
+					},
+				},
+			],
+			script: {
+				id: scriptId,
+				title: "Frontend",
+				description: "Description",
+			},
+			messages: [
+				{
+					id: "ai-1",
+					isAi: true,
+					messageText: "Question one",
+					analysisNote: null,
+					createdAt: new Date("2025-01-01T01:00:00.000Z"),
+				},
+				{
+					id: "human-1",
+					isAi: false,
+					messageText: "Answer",
+					analysisNote: "Nice",
+					createdAt: new Date("2025-01-01T01:10:00.000Z"),
+				},
+			],
+		});
+
+		await expect(
+			createCaller({
+				query: {
+					interviewSessionsTable: {
+						findFirst,
+					},
+				},
+			}).getResultBySessionId(sessionId),
+		).resolves.toEqual(
+			expect.objectContaining({
+				id: sessionId,
+				finishedAt: new Date("2025-01-01T02:00:00.000Z"),
+				experienceGained: 0,
+			}),
+		);
+	});
+
 	it("returns the session script by interview id and rejects missing sessions", async () => {
 		const findFirst = vi.fn().mockResolvedValue({
 			script: {
