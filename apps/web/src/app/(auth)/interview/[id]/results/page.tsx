@@ -56,6 +56,7 @@ export default async function ResultsPage({
 						finishedAt={result.finishedAt ?? null}
 						scoreTone={scoreTone}
 						startedAt={result.startedAt ?? null}
+						status={result.status?.name}
 					/>
 
 					<SummaryCard
