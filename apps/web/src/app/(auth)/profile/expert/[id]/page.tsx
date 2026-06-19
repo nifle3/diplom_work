@@ -47,7 +47,7 @@ export default async function Page({ params, searchParams }: PageProps) {
 		(category) => category.id === selectedCategoryId,
 	);
 	const totalCourses = profile.categories.reduce(
-		(sum, category) => sum + category.count,
+		(sum, category) => sum + Number(category.count),
 		0,
 	);
 

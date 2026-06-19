@@ -219,7 +219,7 @@ export const scriptRouter = router({
 				.select({
 					id: categoriesTable.id,
 					name: categoriesTable.name,
-					count: sql<number>`count(${scriptsTable.id})`,
+					count: sql<number>`count(${scriptsTable.id})`.mapWith(Number),
 				})
 				.from(scriptsTable)
 				.innerJoin(
