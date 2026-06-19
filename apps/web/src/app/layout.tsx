@@ -24,7 +24,7 @@ export default function RootLayout({
 				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 			>
 				<Providers>
-					<div className="grid min-h-screen grid-rows-[auto_1fr]">
+					<div className="min-h-dvh">
 						{children}
 					</div>
 				</Providers>
