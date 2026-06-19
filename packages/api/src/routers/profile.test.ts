@@ -202,7 +202,7 @@ describe("profileRouter", () => {
 		]);
 	});
 
-	it("returns achievements in descending award order", async () => {
+	it("returns all achievements with user award dates first", async () => {
 		const orderBy = vi.fn().mockResolvedValue([
 			{
 				awardedAt: new Date("2025-01-02T00:00:00.000Z"),
@@ -211,15 +211,19 @@ describe("profileRouter", () => {
 				description: "Second badge",
 				iconUrl: "https://example.com/2.png",
 			},
+			{
+				awardedAt: null,
+				id: "ach-1",
+				name: "First",
+				description: "First badge",
+				iconUrl: null,
+			},
 		]);
-		const where = vi.fn().mockReturnValue({
+		const leftJoin = vi.fn().mockReturnValue({
 			orderBy,
 		});
-		const innerJoin = vi.fn().mockReturnValue({
-			where,
-		});
 		const from = vi.fn().mockReturnValue({
-			innerJoin,
+			leftJoin,
 		});
 		const select = vi.fn().mockReturnValue({
 			from,
@@ -236,6 +240,13 @@ describe("profileRouter", () => {
 				name: "Second",
 				description: "Second badge",
 				iconUrl: "https://example.com/2.png",
+			},
+			{
+				awardedAt: null,
+				id: "ach-1",
+				name: "First",
+				description: "First badge",
+				iconUrl: null,
 			},
 		]);
 	});

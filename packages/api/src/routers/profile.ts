@@ -4,7 +4,7 @@ import {
 } from "@diplom_work/db/schema/scheme";
 import { statusToId } from "@diplom_work/domain/values/sessionStatus";
 import { TRPCError } from "@trpc/server";
-import { count, desc, eq } from "drizzle-orm";
+import { and, asc, count, desc, eq, isNull } from "drizzle-orm";
 import { protectedProcedure, router } from "../init/routers";
 
 type SessionStatusLog = {
@@ -151,13 +151,19 @@ export const profileRouter = router({
 				description: achievementsTable.description,
 				iconUrl: achievementsTable.iconUrl,
 			})
-			.from(userAchievementsTable)
-			.innerJoin(
-				achievementsTable,
-				eq(userAchievementsTable.achievementId, achievementsTable.id),
+			.from(achievementsTable)
+			.leftJoin(
+				userAchievementsTable,
+				and(
+					eq(userAchievementsTable.achievementId, achievementsTable.id),
+					eq(userAchievementsTable.userId, ctx.session.user.id),
+				),
 			)
-			.where(eq(userAchievementsTable.userId, ctx.session.user.id))
-			.orderBy(desc(userAchievementsTable.awardedAt));
+			.orderBy(
+				asc(isNull(userAchievementsTable.awardedAt)),
+				desc(userAchievementsTable.awardedAt),
+				desc(achievementsTable.createdAt),
+			);
 
 		return achievements;
 	}),

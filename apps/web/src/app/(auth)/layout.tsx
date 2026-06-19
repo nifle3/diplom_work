@@ -24,9 +24,7 @@ export default async function UnauthLayout({
 				username={session.user.name}
 				email={session.user.email}
 			/>
-			<main className="min-h-0 overflow-y-auto">
-				{children}
-			</main>
+			<main className="min-h-0 overflow-y-auto">{children}</main>
 		</div>
 	);
 }

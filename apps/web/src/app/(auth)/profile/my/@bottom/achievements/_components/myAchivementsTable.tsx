@@ -84,6 +84,8 @@ export function MyAchievementsTable({ data }: MyAchievementsTableProps) {
 
 	const earnedCount = data.filter((a) => a.awardedAt !== null).length;
 	const totalCount = data.length;
+	const progressPercent =
+		totalCount === 0 ? 0 : (earnedCount / totalCount) * 100;
 
 	return (
 		<div className="space-y-4">
@@ -102,7 +104,7 @@ export function MyAchievementsTable({ data }: MyAchievementsTableProps) {
 				<div className="h-3 w-32 overflow-hidden rounded-full bg-muted">
 					<div
 						className="h-full bg-gradient-to-r from-amber-400 to-yellow-500 transition-all"
-						style={{ width: `${(earnedCount / totalCount) * 100}%` }}
+						style={{ width: `${progressPercent}%` }}
 					/>
 				</div>
 			</div>
