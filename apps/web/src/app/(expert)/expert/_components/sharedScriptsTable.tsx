@@ -102,8 +102,7 @@ const defaultColumns = (
 					)}
 					<Link
 						href={{
-							pathname: "/expert/sandbox",
-							query: { scriptId: row.original.id },
+							pathname: `/sandbox/${row.original.id}`,
 						}}
 						className="inline-flex size-8 items-center justify-center rounded-none hover:bg-muted"
 						title="Открыть sandbox курса"

@@ -3,7 +3,10 @@ export async function register() {
 		return;
 	}
 
-	const [{ logger }, { startupHealthcheck }] = await Promise.all([
+	const {
+		0: { logger },
+		1: { startupHealthcheck },
+	} = await Promise.all([
 		import("@diplom_work/logger/server"),
 		import("@diplom_work/healthcheck"),
 	]);
@@ -12,11 +15,7 @@ export async function register() {
 		logger.info("Next.js instrumentation initialized");
 		await startupHealthcheck();
 	} catch (error: unknown) {
-		if (error instanceof Error) {
-			logger.error({ error }, "Startup healthcheck failed");
-		} else {
-			logger.error({ error }, "Startup healthcheck failed");
-		}
+		logger.error({ error }, "Startup healthcheck failed");
 		throw error;
 	}
 }
