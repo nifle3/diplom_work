@@ -95,7 +95,6 @@ async function getRelevantScriptIds(
 ) {
 	const whereClause = and(
 		isNull(scriptsTable.deletedAt),
-		eq(scriptsTable.isDraft, false),
 		categoryId ? eq(scriptsTable.categoryId, categoryId) : undefined,
 		scriptId ? eq(scriptsTable.id, scriptId) : undefined,
 		expertId ? eq(scriptsTable.expertId, expertId) : undefined,
