@@ -100,6 +100,7 @@ const columns: ColumnDef<HistoryRow>[] = [
 	},
 	{
 		id: "status",
+		accessorFn: (row) => row.status?.name ?? "",
 		header: "Статус",
 		filterFn: "equalsString",
 		cell: ({ row }) => {
