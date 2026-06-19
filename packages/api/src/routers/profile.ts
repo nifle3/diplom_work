@@ -1,6 +1,5 @@
 import {
 	achievementsTable,
-	interviewSessionsTable,
 	userAchievementsTable,
 } from "@diplom_work/db/schema/scheme";
 import { statusToId } from "@diplom_work/domain/values/sessionStatus";
@@ -18,6 +17,10 @@ type SessionStatusLog = {
 
 function isTerminalStatus(statusId: number | undefined) {
 	return statusId === statusToId.complete || statusId === statusToId.canceled;
+}
+
+function isCompletedStatus(statusId: number | undefined) {
+	return statusId === statusToId.complete;
 }
 
 export const profileRouter = router({
@@ -39,36 +42,46 @@ export const profileRouter = router({
 	getMyProfileStats: protectedProcedure.query(async ({ ctx }) => {
 		const userId = ctx.session.user.id;
 
-		const [user, interviewCountResult, achievementCountResult] =
-			await Promise.all([
-				ctx.db.query.usersTable.findFirst({
-					where: (usersTable, { and, eq, isNull }) =>
-						and(eq(usersTable.id, userId), isNull(usersTable.deletedAt)),
-					columns: {
-						xp: true,
+		const [user, sessions, achievementCountResult] = await Promise.all([
+			ctx.db.query.usersTable.findFirst({
+				where: (usersTable, { and, eq, isNull }) =>
+					and(eq(usersTable.id, userId), isNull(usersTable.deletedAt)),
+				columns: {
+					xp: true,
+				},
+			}),
+			ctx.db.query.interviewSessionsTable.findMany({
+				where: (interviewSessionsTable, { eq }) =>
+					eq(interviewSessionsTable.userId, userId),
+				with: {
+					statusLogs: {
+						columns: {
+							statusId: true,
+						},
+						orderBy: (statusLogs, { desc }) => [desc(statusLogs.createdAt)],
+						limit: 1,
 					},
-				}),
-				ctx.db
-					.select({
-						value: count(interviewSessionsTable.id),
-					})
-					.from(interviewSessionsTable)
-					.where(eq(interviewSessionsTable.userId, userId)),
-				ctx.db
-					.select({
-						value: count(userAchievementsTable.achievementId),
-					})
-					.from(userAchievementsTable)
-					.where(eq(userAchievementsTable.userId, userId)),
-			]);
+				},
+			}),
+			ctx.db
+				.select({
+					value: count(userAchievementsTable.achievementId),
+				})
+				.from(userAchievementsTable)
+				.where(eq(userAchievementsTable.userId, userId)),
+		]);
 
 		if (!user) {
 			throw new TRPCError({ code: "NOT_FOUND" });
 		}
 
+		const completedSessions = sessions.filter((session) =>
+			isCompletedStatus(session.statusLogs[0]?.statusId),
+		);
+
 		return {
 			xp: user.xp,
-			interviewCount: interviewCountResult[0]?.value ?? 0,
+			interviewCount: completedSessions.length,
 			achievementCount: achievementCountResult[0]?.value ?? 0,
 		};
 	}),

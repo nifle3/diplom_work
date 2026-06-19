@@ -80,20 +80,26 @@ describe("profileRouter", () => {
 
 	it("returns profile stats", async () => {
 		const userFindFirst = vi.fn().mockResolvedValue({ xp: 900 });
-		const interviewCountSelect = vi.fn().mockReturnValue({
-			from: vi.fn().mockReturnValue({
-				where: vi.fn().mockResolvedValue([{ value: 11 }]),
-			}),
-		});
+		const interviewSessionsFindMany = vi.fn().mockResolvedValue([
+			{
+				statusLogs: [{ statusId: 2 }],
+			},
+			{
+				statusLogs: [{ statusId: 2 }],
+			},
+			{
+				statusLogs: [{ statusId: 3 }],
+			},
+			{
+				statusLogs: [{ statusId: 1 }],
+			},
+		]);
 		const achievementCountSelect = vi.fn().mockReturnValue({
 			from: vi.fn().mockReturnValue({
 				where: vi.fn().mockResolvedValue([{ value: 3 }]),
 			}),
 		});
-		const select = vi
-			.fn()
-			.mockImplementationOnce(() => interviewCountSelect())
-			.mockImplementationOnce(() => achievementCountSelect());
+		const select = vi.fn().mockReturnValue(achievementCountSelect());
 
 		await expect(
 			createCaller({
@@ -101,12 +107,15 @@ describe("profileRouter", () => {
 					usersTable: {
 						findFirst: userFindFirst,
 					},
+					interviewSessionsTable: {
+						findMany: interviewSessionsFindMany,
+					},
 				},
 				select,
 			}).getMyProfileStats(),
 		).resolves.toEqual({
 			xp: 900,
-			interviewCount: 11,
+			interviewCount: 2,
 			achievementCount: 3,
 		});
 	});
