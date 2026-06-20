@@ -9,6 +9,7 @@
 		"ignoreUnknown": false,
 		"includes": [
 			"**",
+			"!**/*.test.ts",
 			"!**/ui",
 			"!**/.next",
 			"!**/dist",
