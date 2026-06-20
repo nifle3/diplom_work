@@ -34,14 +34,12 @@ export function useSandbox(scriptId: string) {
 		}),
 	);
 
-	// Use useQuery to fetch session data when sessionId is available
 	const { data: sessionData, isLoading: isLoadingSession } = useQuery(
 		trpc.expertSandbox.getSession.queryOptions(sessionId ?? "", {
 			enabled: !!sessionId && !isCreating,
 		}),
 	);
 
-	// Handle session data when it arrives
 	useEffect(() => {
 		if (sessionData) {
 			setMessages(
@@ -67,13 +65,13 @@ export function useSandbox(scriptId: string) {
 
 				const previousMessages = messages;
 
-const optimisticMessage: Message = {
-				id: crypto.randomUUID(),
-				isAi: false,
-				messageText: variables.content,
-				analysisNote: null,
-				createdAt: new Date(),
-			};
+				const optimisticMessage: Message = {
+					id: crypto.randomUUID(),
+					isAi: false,
+					messageText: variables.content,
+					analysisNote: null,
+					createdAt: new Date(),
+				};
 
 				setMessages((current) => [...current, optimisticMessage]);
 
@@ -92,6 +90,7 @@ const optimisticMessage: Message = {
 							messageText:
 								"Интервью завершено. Оценка: " +
 								(result.finalEvaluation?.score ?? "N/A"),
+							analysisNote: null,
 							createdAt: new Date(),
 						},
 					]);
@@ -105,6 +104,7 @@ const optimisticMessage: Message = {
 							id: result.message.id,
 							isAi: result.message.isAi,
 							messageText: result.message.messageText,
+							analysisNote: null,
 							createdAt: new Date(result.message.createdAt),
 						},
 					]);
@@ -144,6 +144,7 @@ const optimisticMessage: Message = {
 						id: m.id,
 						isAi: m.isAi,
 						messageText: m.messageText,
+						analysisNote: m.analysisNote,
 						createdAt: new Date(m.createdAt),
 					})),
 				);

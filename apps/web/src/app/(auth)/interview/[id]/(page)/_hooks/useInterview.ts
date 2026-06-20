@@ -124,7 +124,13 @@ export function useInterview(sessionId: string) {
 					return;
 				}
 
-				setMessages((currentMessages) => [...currentMessages, result.message]);
+				setMessages((currentMessages) => [
+					...currentMessages,
+					{
+						...result.message,
+						analysisNote: null,
+					},
+				]);
 				scrollToBottom("auto");
 			},
 		}),
@@ -258,6 +264,7 @@ export function useInterview(sessionId: string) {
 				id: crypto.randomUUID(),
 				isAi: false,
 				messageText: content,
+				analysisNote: null,
 				createdAt: new Date(),
 			},
 		]);
