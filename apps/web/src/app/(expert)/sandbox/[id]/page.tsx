@@ -14,14 +14,14 @@ export default async function Page({
 }: {
 	params: Promise<{ id: string }>;
 }) {
-	const { id: scriptId } = await params;
+	const { id } = await params;
 
 	return (
-		<SandboxProvider scriptId={scriptId}>
+		<SandboxProvider scriptId={id}>
 			<div className="flex h-full min-h-0 flex-col overflow-hidden bg-background text-foreground">
 				<header className="z-10 flex shrink-0 items-center justify-between gap-3 border-b bg-background px-4 py-3">
 					<h1 className="min-w-0 truncate font-semibold text-base">
-						Sandbox: {scriptId}
+						Sandbox: {id}
 					</h1>
 					<div className="flex shrink-0 items-center gap-2">
 						<Button asChild variant="outline" size="sm">

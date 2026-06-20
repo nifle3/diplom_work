@@ -1,11 +1,12 @@
 "use client";
 
-import { Bot, RotateCcw, User } from "lucide-react";
+import { Bot, MessageSquare, RotateCcw, User } from "lucide-react";
 import { useState } from "react";
 import type { Message } from "@/app/(auth)/interview/[id]/(page)/_utils/type";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { RewindDialog } from "./rewindDialog";
+import { FeedbackDialog } from "./feedbackDialog";
 
 interface SandboxMessageItemProps {
 	message: Message;
@@ -18,11 +19,11 @@ export function SandboxMessageItem({
 	onRewind,
 	isRewinding,
 }: SandboxMessageItemProps) {
-	const { isAi, messageText, createdAt, id } = message;
+	const { isAi, messageText, createdAt, id, analysisNote } = message;
 	const [showRewindDialog, setShowRewindDialog] = useState(false);
 
 	const handleRewindClick = () => {
-		if (!isAi) {
+		if (isAi) {
 			setShowRewindDialog(true);
 		}
 	};
@@ -56,17 +57,20 @@ export function SandboxMessageItem({
 							minute: "2-digit",
 						})}
 					</span>
-					{!isAi && (
+					{isAi && (
 						<Button
 							variant="ghost"
 							size="icon"
 							onClick={handleRewindClick}
 							disabled={isRewinding}
 							className="h-7 w-7 rounded-full text-muted-foreground hover:bg-accent hover:text-foreground"
-							title="Откатиться к этому ответу"
+							title="Откатиться к этому вопросу"
 						>
 							<RotateCcw className="size-4" />
 						</Button>
+					)}
+					{!isAi && analysisNote && (
+						<FeedbackDialog analysisNote={analysisNote} messageText={messageText} />
 					)}
 				</div>
 				<RewindDialog

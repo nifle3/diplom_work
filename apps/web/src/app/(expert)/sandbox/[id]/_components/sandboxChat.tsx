@@ -36,20 +36,13 @@ export function SandboxChat() {
 
 	return (
 		<div className="space-y-6">
-			{/* Session info badge */}
 			<div className="flex items-center justify-between">
 				<div className="flex items-center gap-2 text-muted-foreground text-sm">
 					<Sparkles className="size-4" />
 					<span>Sandbox режим — можно откатываться к любым ответам</span>
 				</div>
-				{sessionId && (
-					<code className="rounded bg-muted px-2 py-1 font-mono text-xs">
-						{sessionId.slice(0, 8)}...
-					</code>
-				)}
 			</div>
 
-			{/* Messages */}
 			<div className="space-y-6">
 				{messages.length === 0 ? (
 					<div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
@@ -68,7 +61,6 @@ export function SandboxChat() {
 				)}
 			</div>
 
-			{/* Typing indicator */}
 			{(isSending || isRewinding) && (
 				<div className="flex gap-3">
 					<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted">
@@ -81,7 +73,6 @@ export function SandboxChat() {
 				</div>
 			)}
 
-			{/* Input footer */}
 			<SandboxChatFooter />
 		</div>
 	);

@@ -12,12 +12,12 @@ import {
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-interface RewindDialogProps {
+type RewindDialogProps = {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	onConfirm: () => void;
 	isPending: boolean;
-}
+};
 
 export function RewindDialog({
 	open,

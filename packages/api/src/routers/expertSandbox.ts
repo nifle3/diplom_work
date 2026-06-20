@@ -461,10 +461,10 @@ export const expertSandboxRouter = router({
 			}
 
 			const selectedMessage = session.messages[selectedIndex];
-			if (!selectedMessage || selectedMessage.isAi) {
+			if (!selectedMessage || !selectedMessage.isAi) {
 				throw new TRPCError({
 					code: "BAD_REQUEST",
-					message: "Можно откатиться только к своему ответу",
+					message: "Можно откатиться только к вопросу ИИ",
 				});
 			}
 

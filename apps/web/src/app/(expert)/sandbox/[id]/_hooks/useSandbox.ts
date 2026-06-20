@@ -15,7 +15,7 @@ export function useSandbox(scriptId: string) {
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [inputValue, setInputValue] = useState("");
 	const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-	const [isCreating, setIsCreating] = useState(true);
+	const [isCreating, setIsCreating] = useState(false);
 	const [sessionId, setSessionId] = useState<string | null>(null);
 
 	const createSession = useMutation(
@@ -49,6 +49,7 @@ export function useSandbox(scriptId: string) {
 					id: m.id,
 					isAi: m.isAi,
 					messageText: m.messageText,
+					analysisNote: m.analysisNote,
 					createdAt: new Date(m.createdAt),
 				})),
 			);
@@ -66,12 +67,13 @@ export function useSandbox(scriptId: string) {
 
 				const previousMessages = messages;
 
-				const optimisticMessage: Message = {
-					id: crypto.randomUUID(),
-					isAi: false,
-					messageText: variables.content,
-					createdAt: new Date(),
-				};
+const optimisticMessage: Message = {
+				id: crypto.randomUUID(),
+				isAi: false,
+				messageText: variables.content,
+				analysisNote: null,
+				createdAt: new Date(),
+			};
 
 				setMessages((current) => [...current, optimisticMessage]);
 
@@ -191,7 +193,7 @@ export function useSandbox(scriptId: string) {
 		setInputValue,
 		isSending: sendAnswer.isPending,
 		isRewinding: rewindSession.isPending,
-		isCreating: isCreating || isLoadingSession,
+		isCreating: createSession.isPending || isLoadingSession,
 		currentQuestionIndex,
 		sessionId,
 		handleSend,
