@@ -18,9 +18,9 @@ export default async function UnauthLayout({
 	}
 
 	return (
-		<>
+		<div className="min-h-screen bg-white text-black dark:bg-black dark:text-white">
 			<PublicHeader />
 			{children}
-		</>
+		</div>
 	);
 }

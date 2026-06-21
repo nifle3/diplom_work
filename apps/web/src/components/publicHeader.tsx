@@ -4,7 +4,7 @@ import { ThemeToggle } from "./themeToggle";
 
 export default function PublicHeader() {
 	return (
-		<header className="bg-transparent">
+		<header className="bg-background">
 			<div className="mx-auto flex max-w-6xl flex-row items-center justify-between px-4 py-3">
 				<div className="flex items-center gap-6">
 					<Link href="/" className="font-semibold text-2xl">
