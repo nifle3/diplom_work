@@ -11,11 +11,14 @@ import { trpc } from "@/lib/trpc";
 const criteriaSchema = z.object({
 	id: z.uuid().nullable(),
 	typeId: z.number().int().positive(),
-	content: z.string().min(1, "Содержание критерия обязательно"),
+	content: z
+		.string()
+		.min(1, "Содержание критерия обязательно")
+		.max(300, "Максимум 300 символов"),
 });
 
 export const secondStepFormSchema = z.object({
-	context: z.string().max(1000, "Максимальное количество символов 1000"),
+	context: z.string().max(500, "Максимальное количество символов 500"),
 	criteria: z.array(criteriaSchema),
 	deletedCriteria: z.array(z.uuid()).nullable(),
 });

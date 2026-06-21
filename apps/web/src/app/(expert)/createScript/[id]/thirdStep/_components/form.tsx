@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/card";
 import { FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { FormFieldWrapper } from "../../_components/formFieldWrapper";
 import { StepNavigation } from "../../_components/stepNavigation";
 import { useThirdStepForm } from "../_hooks/useThirdStepForm";
@@ -123,7 +124,7 @@ export function ThirdStepForm({ initialData }: ThirdStepFormProps) {
 																errors={field.state.meta.errors}
 																isTouched={field.state.meta.isTouched}
 															>
-																<Input
+															<Textarea
 																	value={question.text}
 																	onChange={(e) => {
 																		const next = [...field.state.value];
@@ -134,6 +135,7 @@ export function ThirdStepForm({ initialData }: ThirdStepFormProps) {
 																		field.handleChange(next);
 																	}}
 																	placeholder="Введите текст вопроса..."
+																	maxLength={5000}
 																/>
 															</FormFieldWrapper>
 
@@ -175,6 +177,7 @@ export function ThirdStepForm({ initialData }: ThirdStepFormProps) {
 																					}}
 																					placeholder="Критерий оценки..."
 																					className="bg-background"
+																					maxLength={300}
 																				/>
 
 																				<Button

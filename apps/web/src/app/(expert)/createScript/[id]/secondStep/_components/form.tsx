@@ -165,6 +165,7 @@ export default function SecondStepForm({
 																field.handleChange(next);
 															}}
 															placeholder="Содержание критерия"
+															maxLength={300}
 														/>
 
 														<Button

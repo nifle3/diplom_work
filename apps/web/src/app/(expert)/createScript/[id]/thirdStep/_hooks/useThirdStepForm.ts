@@ -10,12 +10,18 @@ import { trpc } from "@/lib/trpc";
 
 const specificCriteriaSchema = z.object({
 	id: z.uuid().nullable(),
-	content: z.string().min(1, "Содержание критерия обязательно"),
+	content: z
+		.string()
+		.min(1, "Содержание критерия обязательно")
+		.max(300, "Максимум 300 символов"),
 });
 
 const questionTemplateSchema = z.object({
 	id: z.uuid().nullable(),
-	text: z.string().min(1, "Текст вопроса обязателен"),
+	text: z
+		.string()
+		.min(1, "Текст вопроса обязателен")
+		.max(5000, "Максимум 5000 символов"),
 	specificCriteria: z.array(specificCriteriaSchema),
 });
 
