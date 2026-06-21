@@ -28,7 +28,7 @@ export function CategoriesFilter({ categories }: CategoriesFilterProps) {
 						disabled={isPending}
 						aria-label="Показать все курсы"
 					/>
-					<Label htmlFor="category-all" className="cursor-pointer font-normal">
+					<Label htmlFor="category-all" className="max-w-[200px] cursor-pointer truncate font-normal">
 						Все курсы
 					</Label>
 				</div>
@@ -49,7 +49,8 @@ export function CategoriesFilter({ categories }: CategoriesFilterProps) {
 						/>
 						<Label
 							htmlFor={`category-${category.id}`}
-							className="cursor-pointer font-normal"
+							className="max-w-[200px] cursor-pointer truncate font-normal"
+							title={category.name}
 						>
 							{category.name}
 						</Label>
