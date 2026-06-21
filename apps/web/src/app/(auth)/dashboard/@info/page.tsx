@@ -9,7 +9,12 @@ export default async function Layout() {
 
 	return (
 		<>
-			<h1 className="font-bold text-3xl">Привет, {userStats.name}</h1>
+			<h1 className="min-w-0 font-bold text-3xl">
+				Привет,{" "}
+				<span className="inline-block max-w-[200px] truncate align-bottom" title={userStats.name}>
+					{userStats.name}
+				</span>
+			</h1>
 			<div className="rounded-full bg-yellow-200 px-3 py-1 font-medium text-sm text-yellow-900">
 				Стрик: {streak} дней
 			</div>
