@@ -75,12 +75,21 @@ export function useSandbox(scriptId: string) {
 
 				setMessages((current) => [...current, optimisticMessage]);
 
-				return { previousMessages };
+				return { previousMessages, optimisticId: optimisticMessage.id };
 			},
-			onSuccess: (result, _variables, _context) => {
+			onSuccess: (result, _variables, context) => {
 				setInputValue("");
 
 				if (result.type === "finished") {
+					if (result.analysisNote && context?.optimisticId) {
+						setMessages((current) =>
+							current.map((msg) =>
+								msg.id === context.optimisticId && !msg.isAi
+									? { ...msg, analysisNote: result.analysisNote }
+									: msg,
+							),
+						);
+					}
 					toast.success("Интервью завершено (sandbox)");
 					setMessages((current) => [
 						...current,
@@ -98,6 +107,15 @@ export function useSandbox(scriptId: string) {
 				}
 
 				if (result.type === "next-question") {
+					if (result.analysisNote && context?.optimisticId) {
+						setMessages((current) =>
+							current.map((msg) =>
+								msg.id === context.optimisticId && !msg.isAi
+									? { ...msg, analysisNote: result.analysisNote }
+									: msg,
+							),
+						);
+					}
 					setMessages((current) => [
 						...current,
 						{
