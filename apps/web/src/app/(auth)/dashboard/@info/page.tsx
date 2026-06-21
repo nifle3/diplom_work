@@ -11,7 +11,10 @@ export default async function Layout() {
 		<>
 			<h1 className="min-w-0 font-bold text-3xl">
 				Привет,{" "}
-				<span className="inline-block max-w-[200px] truncate align-bottom" title={userStats.name}>
+				<span
+					className="inline-block max-w-[200px] truncate align-bottom"
+					title={userStats.name}
+				>
 					{userStats.name}
 				</span>
 			</h1>

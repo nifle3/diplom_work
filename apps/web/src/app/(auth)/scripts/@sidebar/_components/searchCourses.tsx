@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useScriptsQuery } from "../../_hooks/useScriptsQuery";
 
-
 export function SearchCourses() {
 	const { isPending, currentParams, setSearch } = useScriptsQuery();
 	const [query, setQuery] = useState(currentParams.search || "");
@@ -54,7 +53,7 @@ export function SearchCourses() {
 					size="icon"
 					onClick={handleClear}
 					disabled={isPending}
-					className="absolute top-1/2 -translate-y-1/2 right-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+					className="absolute top-1/2 right-1 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
 					aria-label="Очистить поиск"
 				>
 					<X className="h-4 w-4" />

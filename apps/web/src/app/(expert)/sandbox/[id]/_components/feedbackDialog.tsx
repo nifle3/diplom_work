@@ -1,6 +1,7 @@
 "use client";
 
 import { MessageSquare, Star } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
 	Dialog,
 	DialogContent,
@@ -8,14 +9,16 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 
 interface FeedbackDialogProps {
 	analysisNote: string | null;
 	messageText: string;
 }
 
-export function FeedbackDialog({ analysisNote, messageText }: FeedbackDialogProps) {
+export function FeedbackDialog({
+	analysisNote,
+	messageText,
+}: FeedbackDialogProps) {
 	if (!analysisNote) {
 		return null;
 	}
@@ -41,16 +44,16 @@ export function FeedbackDialog({ analysisNote, messageText }: FeedbackDialogProp
 				</DialogHeader>
 				<div className="space-y-4">
 					<div className="rounded-lg bg-muted p-4">
-						<p className="font-medium text-sm text-muted-foreground mb-2">
+						<p className="mb-2 font-medium text-muted-foreground text-sm">
 							Ваш ответ:
 						</p>
-						<p className="text-sm whitespace-pre-wrap">{messageText}</p>
+						<p className="whitespace-pre-wrap text-sm">{messageText}</p>
 					</div>
-					<div className="rounded-lg bg-accent p-4 border border-border">
-						<p className="font-medium text-sm text-muted-foreground mb-2">
+					<div className="rounded-lg border border-border bg-accent p-4">
+						<p className="mb-2 font-medium text-muted-foreground text-sm">
 							Анализ ответа:
 						</p>
-						<p className="text-sm whitespace-pre-wrap">{analysisNote}</p>
+						<p className="whitespace-pre-wrap text-sm">{analysisNote}</p>
 					</div>
 				</div>
 			</DialogContent>

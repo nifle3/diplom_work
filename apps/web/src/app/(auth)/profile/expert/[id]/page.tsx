@@ -68,7 +68,10 @@ export default async function Page({ params, searchParams }: PageProps) {
 							<p className="text-sm text-white/70 uppercase tracking-[0.3em]">
 								Эксперт
 							</p>
-							<h1 className="mt-2 max-w-[300px] font-bold text-3xl tracking-tight sm:text-4xl" title={profile.expert.name}>
+							<h1
+								className="mt-2 max-w-[300px] font-bold text-3xl tracking-tight sm:text-4xl"
+								title={profile.expert.name}
+							>
 								<span className="block truncate">{profile.expert.name}</span>
 							</h1>
 						</div>

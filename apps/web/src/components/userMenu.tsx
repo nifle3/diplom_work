@@ -25,7 +25,11 @@ export default async function UserMenu({
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<Button variant="outline" className="max-w-[130px] truncate" title={username}>
+				<Button
+					variant="outline"
+					className="max-w-[130px] truncate"
+					title={username}
+				>
 					{username}
 				</Button>
 			</DropdownMenuTrigger>

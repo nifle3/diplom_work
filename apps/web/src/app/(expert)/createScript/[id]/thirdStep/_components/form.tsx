@@ -124,7 +124,7 @@ export function ThirdStepForm({ initialData }: ThirdStepFormProps) {
 																errors={field.state.meta.errors}
 																isTouched={field.state.meta.isTouched}
 															>
-															<Textarea
+																<Textarea
 																	value={question.text}
 																	onChange={(e) => {
 																		const next = [...field.state.value];

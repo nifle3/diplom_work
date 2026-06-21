@@ -41,7 +41,10 @@ const defaultColumns = (
 		cell: ({ row }) => {
 			if (isDraftTable) {
 				return (
-					<span className="max-w-[200px] truncate font-medium" title={row.original.title ?? undefined}>
+					<span
+						className="max-w-[200px] truncate font-medium"
+						title={row.original.title ?? undefined}
+					>
 						{row.original.title ?? "Без названия"}
 					</span>
 				);

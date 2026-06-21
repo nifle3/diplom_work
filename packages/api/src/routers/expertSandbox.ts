@@ -223,6 +223,7 @@ export const expertSandboxRouter = router({
 						userId,
 						startedAt: new Date(),
 						scriptId: input,
+						isSandbox: true,
 					})
 					.returning();
 

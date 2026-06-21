@@ -5,8 +5,8 @@ import { useState } from "react";
 import type { Message } from "@/app/(auth)/interview/[id]/(page)/_utils/type";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { RewindDialog } from "./rewindDialog";
 import { FeedbackDialog } from "./feedbackDialog";
+import { RewindDialog } from "./rewindDialog";
 
 interface SandboxMessageItemProps {
 	message: Message;
@@ -70,7 +70,10 @@ export function SandboxMessageItem({
 						</Button>
 					)}
 					{!isAi && analysisNote && (
-						<FeedbackDialog analysisNote={analysisNote} messageText={messageText} />
+						<FeedbackDialog
+							analysisNote={analysisNote}
+							messageText={messageText}
+						/>
 					)}
 				</div>
 				<RewindDialog

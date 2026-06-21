@@ -51,8 +51,11 @@ export const profileRouter = router({
 				},
 			}),
 			ctx.db.query.interviewSessionsTable.findMany({
-				where: (interviewSessionsTable, { eq }) =>
-					eq(interviewSessionsTable.userId, userId),
+				where: (interviewSessionsTable, { and, eq }) =>
+					and(
+						eq(interviewSessionsTable.userId, userId),
+						eq(interviewSessionsTable.isSandbox, false),
+					),
 				with: {
 					statusLogs: {
 						columns: {
@@ -87,8 +90,11 @@ export const profileRouter = router({
 	}),
 	getMyHistory: protectedProcedure.query(async ({ ctx }) => {
 		const sessions = await ctx.db.query.interviewSessionsTable.findMany({
-			where: (interviewSessionsTable, { eq }) =>
-				eq(interviewSessionsTable.userId, ctx.session.user.id),
+			where: (interviewSessionsTable, { and, eq }) =>
+				and(
+					eq(interviewSessionsTable.userId, ctx.session.user.id),
+					eq(interviewSessionsTable.isSandbox, false),
+				),
 			columns: {
 				id: true,
 				finalScore: true,

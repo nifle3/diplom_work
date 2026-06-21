@@ -253,44 +253,44 @@ export const mutateScriptRouter = router({
 						),
 					);
 
-			await Promise.all(
-				input.criteria
-					.filter((val) => val.id)
-					.map(async (val) => {
-						await tx
-							.update(scriptCriteriaTable)
-							.set({
-								content: val.content,
-								typeId: val.typeId,
-							})
-							.where(eq(scriptCriteriaTable.id, val.id ?? ""));
-					}),
-			);
-
-			if (input.criteria.filter((val) => !val.id).length > 0) {
-				await tx.insert(scriptCriteriaTable).values(
-					input.criteria
-						.filter((val) => !val.id)
-						.map((val) => ({
-							scriptId: input.scriptId,
-							typeId: val.typeId,
-							content: val.content,
-						})),
-				);
-			}
-
-			if (input.deletedCriteria && input.deletedCriteria.length > 0) {
 				await Promise.all(
-					input.deletedCriteria.map(async (val) => {
-						await tx
-							.update(scriptCriteriaTable)
-							.set({
-								deletedAt: new Date(),
-							})
-							.where(eq(scriptCriteriaTable.id, val));
-					}),
+					input.criteria
+						.filter((val) => val.id)
+						.map(async (val) => {
+							await tx
+								.update(scriptCriteriaTable)
+								.set({
+									content: val.content,
+									typeId: val.typeId,
+								})
+								.where(eq(scriptCriteriaTable.id, val.id ?? ""));
+						}),
 				);
-			}
+
+				if (input.criteria.filter((val) => !val.id).length > 0) {
+					await tx.insert(scriptCriteriaTable).values(
+						input.criteria
+							.filter((val) => !val.id)
+							.map((val) => ({
+								scriptId: input.scriptId,
+								typeId: val.typeId,
+								content: val.content,
+							})),
+					);
+				}
+
+				if (input.deletedCriteria && input.deletedCriteria.length > 0) {
+					await Promise.all(
+						input.deletedCriteria.map(async (val) => {
+							await tx
+								.update(scriptCriteriaTable)
+								.set({
+									deletedAt: new Date(),
+								})
+								.where(eq(scriptCriteriaTable.id, val));
+						}),
+					);
+				}
 			});
 
 			logger.info(

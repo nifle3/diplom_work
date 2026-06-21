@@ -144,6 +144,7 @@ export const interviewSessionsTable = pgTable("interview_sessions", {
 	currentQuestionIndex: integer("current_question_index").default(0).notNull(),
 	startedAt: timestamp("started_at").defaultNow().notNull(),
 	summarize: text("summarize"),
+	isSandbox: boolean("is_sandbox").default(false).notNull(),
 });
 
 export const interviewSessionStatusesTable = pgTable(
