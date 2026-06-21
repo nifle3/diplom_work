@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { SandboxChat } from "./_components/sandboxChat";
+import { SandboxChatFooter } from "./_components/sandboxChatFooter";
 import { SandboxProvider } from "./_components/sandboxProvider";
 
 export const metadata: Metadata = {
@@ -38,6 +39,12 @@ export default async function Page({
 						<SandboxChat />
 					</div>
 				</div>
+
+				<footer className="z-10 shrink-0 border-t bg-background p-4">
+					<div className="mx-auto max-w-3xl">
+						<SandboxChatFooter />
+					</div>
+				</footer>
 			</div>
 		</SandboxProvider>
 	);

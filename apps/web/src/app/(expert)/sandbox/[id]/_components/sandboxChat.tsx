@@ -1,7 +1,6 @@
 "use client";
 
 import { Loader2, MessageSquare, Sparkles } from "lucide-react";
-import { SandboxChatFooter } from "./sandboxChatFooter";
 import { SandboxMessageItem } from "./sandboxMessageItem";
 import { useSandboxContext } from "./sandboxProvider";
 
@@ -72,8 +71,6 @@ export function SandboxChat() {
 					</div>
 				</div>
 			)}
-
-			<SandboxChatFooter />
 		</div>
 	);
 }

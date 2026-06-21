@@ -21,13 +21,13 @@ export default async function ExpertLayout({
 	}
 
 	return (
-		<>
+		<div className="grid h-dvh grid-rows-[auto_minmax(0,1fr)] overflow-hidden">
 			<PrivateHeader
 				username={session.user.name}
 				email={session.user.email}
 				role={session.session.role}
 			/>
-			{children}
-		</>
+			<main className="min-h-0 overflow-y-auto">{children}</main>
+		</div>
 	);
 }
