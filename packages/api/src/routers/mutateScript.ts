@@ -55,7 +55,9 @@ const questionTemplateSchema = z.object({
 
 export const thirdStepScheme = z.object({
 	scriptId: z.uuid(),
-	questions: z.array(questionTemplateSchema),
+	questions: z
+		.array(questionTemplateSchema)
+		.min(1, "Добавьте хотя бы один вопрос"),
 	deletedQuestions: z.array(z.uuid()).nullable(),
 });
 
@@ -86,6 +88,21 @@ export const mutateScriptRouter = router({
 				throw new TRPCError({
 					code: "BAD_REQUEST",
 					message: "Сценарий должен быть заполненным",
+				});
+			}
+
+			const questionsCount = await ctx.db.$count(
+				questionTemplatesTable,
+				and(
+					eq(questionTemplatesTable.scriptId, input),
+					isNull(questionTemplatesTable.deletedAt),
+				),
+			);
+
+			if (questionsCount === 0) {
+				throw new TRPCError({
+					code: "BAD_REQUEST",
+					message: "Сценарий должен содержать хотя бы один вопрос",
 				});
 			}
 

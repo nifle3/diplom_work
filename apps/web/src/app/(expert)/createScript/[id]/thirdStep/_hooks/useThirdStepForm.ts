@@ -20,7 +20,9 @@ const questionTemplateSchema = z.object({
 });
 
 export const thirdStepFormSchema = z.object({
-	questions: z.array(questionTemplateSchema),
+	questions: z
+		.array(questionTemplateSchema)
+		.min(1, "Добавьте хотя бы один вопрос"),
 	deletedQuestions: z.array(z.uuid()).nullable(),
 });
 

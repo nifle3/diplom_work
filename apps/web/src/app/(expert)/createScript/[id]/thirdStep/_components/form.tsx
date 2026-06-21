@@ -13,7 +13,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { FieldLabel } from "@/components/ui/field";
+import { FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { FormFieldWrapper } from "../../_components/formFieldWrapper";
 import { StepNavigation } from "../../_components/stepNavigation";
@@ -218,6 +218,10 @@ export function ThirdStepForm({ initialData }: ThirdStepFormProps) {
 												>
 													+ Добавить новый вопрос
 												</Button>
+
+												{field.state.meta.isTouched && (
+													<FieldError errors={field.state.meta.errors} />
+												)}
 											</div>
 										)}
 									</form.Field>
