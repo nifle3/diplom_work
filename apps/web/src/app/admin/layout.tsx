@@ -22,7 +22,7 @@ export default async function Layout({
 	}
 
 	return (
-		<>
+		<div className="flex h-dvh flex-col overflow-hidden">
 			<PrivateHeader
 				username={session.user.name}
 				email={session.user.email}
@@ -37,6 +37,6 @@ export default async function Layout({
 					</footer>
 				</main>
 			</div>
-		</>
+		</div>
 	);
 }
