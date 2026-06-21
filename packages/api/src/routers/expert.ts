@@ -18,6 +18,7 @@ export const expertRouter = router({
 						where: (criteria, { isNull }) => isNull(criteria.deletedAt),
 					},
 					questions: {
+						where: (questions, { isNull }) => isNull(questions.deletedAt),
 						orderBy: (questions, { asc }) => [asc(questions.order)],
 						with: {
 							specificCriteria: true,
