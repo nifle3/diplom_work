@@ -123,14 +123,12 @@ describe("sessionRouter", () => {
 
 			throw new Error("Unexpected insert table");
 		});
-		const findMany = vi.fn().mockResolvedValue([]);
-
 		const transaction = vi.fn().mockImplementation(async (callback) => {
 			return callback({
 				insert,
 				query: {
 					interviewSessionsTable: {
-						findMany,
+						findMany: vi.fn().mockResolvedValue([]),
 					},
 				},
 			});
@@ -147,7 +145,6 @@ describe("sessionRouter", () => {
 
 		await expect(caller.createNewSession(scriptId)).resolves.toBe(sessionId);
 		expect(randomUUID).toHaveBeenCalledTimes(1);
-		expect(findMany).toHaveBeenCalledTimes(1);
 		expect(insertSessionValues).toHaveBeenCalledWith(
 			expect.objectContaining({
 				currentQuestionIndex: 0,
@@ -170,7 +167,7 @@ describe("sessionRouter", () => {
 		});
 	});
 
-	it("returns the active interview session when one is already in progress", async () => {
+	it("creates a new session even if user has an active session", async () => {
 		const scriptsFindFirst = vi.fn().mockResolvedValue({
 			context: "System context",
 			questions: [
@@ -179,9 +176,8 @@ describe("sessionRouter", () => {
 				},
 			],
 		});
-		vi.spyOn(crypto, "randomUUID").mockReturnValue(
-			"123e4567-e89b-12d3-a456-426614174099",
-		);
+		const newSessionId = "123e4567-e89b-12d3-a456-426614174099";
+		vi.spyOn(crypto, "randomUUID").mockReturnValue(newSessionId);
 
 		const findMany = vi.fn().mockResolvedValue([
 			{
@@ -194,7 +190,37 @@ describe("sessionRouter", () => {
 				],
 			},
 		]);
-		const insert = vi.fn();
+
+		const insertSessionReturning = vi
+			.fn()
+			.mockResolvedValue([{ id: newSessionId }]);
+		const insertSessionValues = vi.fn().mockReturnValue({
+			returning: insertSessionReturning,
+		});
+		const insertStatusValues = vi.fn().mockReturnValue(undefined);
+		const insertMessageValues = vi.fn().mockReturnValue(undefined);
+		const insert = vi.fn().mockImplementation((table: unknown) => {
+			if (table === interviewSessionsTable) {
+				return {
+					values: insertSessionValues,
+				};
+			}
+
+			if (table === interviewSessionStatusLogTable) {
+				return {
+					values: insertStatusValues,
+				};
+			}
+
+			if (table === chatMessagesTable) {
+				return {
+					values: insertMessageValues,
+				};
+			}
+
+			throw new Error("Unexpected insert table");
+		});
+
 		const transaction = vi.fn().mockImplementation(async (callback) =>
 			callback({
 				insert,
@@ -215,9 +241,25 @@ describe("sessionRouter", () => {
 				},
 				transaction,
 			}).createNewSession(scriptId),
-		).resolves.toBe(sessionId);
-		expect(insert).not.toHaveBeenCalled();
-		expect(findMany).toHaveBeenCalledTimes(1);
+		).resolves.toBe(newSessionId);
+		expect(insertSessionValues).toHaveBeenCalledWith(
+			expect.objectContaining({
+				currentQuestionIndex: 0,
+				userId: "user-1",
+				scriptId,
+			}),
+		);
+		expect(insertStatusValues).toHaveBeenCalledWith(
+			expect.objectContaining({
+				sessionId: newSessionId,
+				statusId: statusToId.active,
+			}),
+		);
+		expect(insertMessageValues).toHaveBeenCalledWith({
+			sessionId: newSessionId,
+			isAi: true,
+			messageText: "Tell me about yourself",
+		});
 	});
 
 	it("returns the script for an interview session", async () => {

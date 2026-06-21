@@ -31,36 +31,6 @@ type SessionStatusLog = {
 	};
 };
 
-async function getActiveInterviewSessionId(
-	db: Pick<Context["db"], "query">,
-	userId: string,
-) {
-	const sessions = await db.query.interviewSessionsTable.findMany({
-		where: (interviewSessionsTable, { eq }) =>
-			eq(interviewSessionsTable.userId, userId),
-		columns: {
-			id: true,
-		},
-		with: {
-			statusLogs: {
-				columns: {
-					statusId: true,
-					createdAt: true,
-				},
-				orderBy: (statusLogs, { desc }) => [desc(statusLogs.createdAt)],
-				limit: 1,
-			},
-		},
-		orderBy: (interviewSessionsTable, { desc }) => [
-			desc(interviewSessionsTable.startedAt),
-		],
-	});
-
-	return sessions.find(
-		(session) => session.statusLogs[0]?.statusId === statusToId.active,
-	)?.id;
-}
-
 function isTerminalStatus(statusId: number | undefined) {
 	return statusId === statusToId.complete || statusId === statusToId.canceled;
 }
@@ -448,14 +418,6 @@ export const sessionRouter = router({
 
 			const result = await ctx.db.transaction(async (tx) => {
 				const sessionId = crypto.randomUUID();
-				const activeSessionId = await getActiveInterviewSessionId(
-					tx,
-					ctx.session.user.id,
-				);
-
-				if (activeSessionId) {
-					return activeSessionId;
-				}
 
 				const { 0: addedSession } = await tx
 					.insert(interviewSessionsTable)
