@@ -25,15 +25,20 @@ export default async function Page() {
 								{user.name[0]?.toUpperCase() ?? "?"}
 							</AvatarFallback>
 						</Avatar>
-						<div className="absolute -right-2 -bottom-2 flex h-8 w-8 items-center justify-center rounded-full bg-amber-400 font-bold text-amber-900 text-sm shadow-lg">
-							{user.xp}
-						</div>
 					</div>
 					<div className="text-center sm:text-left">
-						<h1 className="max-w-[250px] font-bold text-3xl tracking-tight sm:max-w-none" title={user.name}>
+						<h1
+							className="max-w-[250px] font-bold text-3xl tracking-tight sm:max-w-none"
+							title={user.name}
+						>
 							<span className="block truncate sm:inline">{user.name}</span>
 						</h1>
-						<p className="mt-1 max-w-[250px] truncate text-white/80 sm:max-w-none" title={user.email}>{user.email}</p>
+						<p
+							className="mt-1 max-w-[250px] truncate text-white/80 sm:max-w-none"
+							title={user.email}
+						>
+							{user.email}
+						</p>
 					</div>
 				</div>
 				<ProfileSettingsDialogs

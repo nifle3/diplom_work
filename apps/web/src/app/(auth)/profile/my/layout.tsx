@@ -28,7 +28,7 @@ export default function Layout({
 							variant="ghost"
 							className="rounded-full hover:bg-gradient-to-r hover:from-violet-600 hover:to-indigo-600 hover:text-white"
 						>
-							📜 История
+							История
 						</Button>
 					</Link>
 					<Link href={{ pathname: "/profile/my/achievements" }} passHref>
@@ -36,7 +36,7 @@ export default function Layout({
 							variant="ghost"
 							className="rounded-full hover:bg-gradient-to-r hover:from-violet-600 hover:to-indigo-600 hover:text-white"
 						>
-							🏆 Достижения
+							Достижения
 						</Button>
 					</Link>
 					<Link href={{ pathname: "/profile/my/reports" }} passHref>
@@ -44,7 +44,7 @@ export default function Layout({
 							variant="ghost"
 							className="rounded-full hover:bg-gradient-to-r hover:from-violet-600 hover:to-indigo-600 hover:text-white"
 						>
-							🚩 Жалобы
+							Жалобы
 						</Button>
 					</Link>
 				</div>
