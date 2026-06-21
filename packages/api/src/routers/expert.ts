@@ -14,7 +14,9 @@ export const expertRouter = router({
 				where: (scriptsTable, { eq }) => eq(scriptsTable.id, input),
 				with: {
 					category: true,
-					globalCriteria: true,
+					globalCriteria: {
+						where: (criteria, { isNull }) => isNull(criteria.deletedAt),
+					},
 					questions: {
 						orderBy: (questions, { asc }) => [asc(questions.order)],
 						with: {

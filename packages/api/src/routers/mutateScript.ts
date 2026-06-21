@@ -236,9 +236,10 @@ export const mutateScriptRouter = router({
 						),
 					);
 
+			await Promise.all(
 				input.criteria
 					.filter((val) => val.id)
-					.forEach(async (val) => {
+					.map(async (val) => {
 						await tx
 							.update(scriptCriteriaTable)
 							.set({
@@ -246,26 +247,33 @@ export const mutateScriptRouter = router({
 								typeId: val.typeId,
 							})
 							.where(eq(scriptCriteriaTable.id, val.id ?? ""));
-					});
+					}),
+			);
 
-				input.criteria
-					.filter((val) => !val.id)
-					.forEach(async (val) => {
-						await tx.insert(scriptCriteriaTable).values({
+			if (input.criteria.filter((val) => !val.id).length > 0) {
+				await tx.insert(scriptCriteriaTable).values(
+					input.criteria
+						.filter((val) => !val.id)
+						.map((val) => ({
 							scriptId: input.scriptId,
 							typeId: val.typeId,
 							content: val.content,
-						});
-					});
+						})),
+				);
+			}
 
-				input.deletedCriteria?.forEach(async (val) => {
-					await tx
-						.update(scriptCriteriaTable)
-						.set({
-							deletedAt: new Date(),
-						})
-						.where(eq(scriptCriteriaTable.id, val));
-				});
+			if (input.deletedCriteria && input.deletedCriteria.length > 0) {
+				await Promise.all(
+					input.deletedCriteria.map(async (val) => {
+						await tx
+							.update(scriptCriteriaTable)
+							.set({
+								deletedAt: new Date(),
+							})
+							.where(eq(scriptCriteriaTable.id, val));
+					}),
+				);
+			}
 			});
 
 			logger.info(

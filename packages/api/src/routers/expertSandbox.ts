@@ -121,6 +121,7 @@ async function loadSandboxSession(
 				},
 				with: {
 					globalCriteria: {
+						where: (criteria, { isNull }) => isNull(criteria.deletedAt),
 						columns: {
 							content: true,
 						},

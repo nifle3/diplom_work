@@ -348,11 +348,13 @@ describe("mutateScriptRouter", () => {
 			}),
 		).resolves.toBeUndefined();
 		expect(transaction).toHaveBeenCalledTimes(1);
-		expect(insertValues).toHaveBeenCalledWith({
-			scriptId,
-			typeId: 2,
-			content: "Be specific",
-		});
+		expect(insertValues).toHaveBeenCalledWith([
+			{
+				scriptId,
+				typeId: 2,
+				content: "Be specific",
+			},
+		]);
 	});
 
 	it("rejects second step updates for missing or forbidden scripts", async () => {

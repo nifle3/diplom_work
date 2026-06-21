@@ -157,18 +157,19 @@ async function finalizeSession(
 					context: true,
 				},
 				with: {
-					globalCriteria: {
-						columns: {
-							content: true,
-						},
-						with: {
-							type: {
-								columns: {
-									name: true,
-								},
+				globalCriteria: {
+					where: (criteria, { isNull }) => isNull(criteria.deletedAt),
+					columns: {
+						content: true,
+					},
+					with: {
+						type: {
+							columns: {
+								name: true,
 							},
 						},
 					},
+				},
 					questions: {
 						where: (questions, { isNull }) => isNull(questions.deletedAt),
 						orderBy: (questions, { asc }) => [asc(questions.order)],
@@ -304,18 +305,19 @@ async function cancelInterviewSession(
 					context: true,
 				},
 				with: {
-					globalCriteria: {
-						columns: {
-							content: true,
-						},
-						with: {
-							type: {
-								columns: {
-									name: true,
-								},
+				globalCriteria: {
+					where: (criteria, { isNull }) => isNull(criteria.deletedAt),
+					columns: {
+						content: true,
+					},
+					with: {
+						type: {
+							columns: {
+								name: true,
 							},
 						},
 					},
+				},
 					questions: {
 						where: (questions, { isNull }) => isNull(questions.deletedAt),
 						orderBy: (questions, { asc }) => [asc(questions.order)],
