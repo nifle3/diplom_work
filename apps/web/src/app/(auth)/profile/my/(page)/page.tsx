@@ -30,8 +30,10 @@ export default async function Page() {
 						</div>
 					</div>
 					<div className="text-center sm:text-left">
-						<h1 className="font-bold text-3xl tracking-tight">{user.name}</h1>
-						<p className="mt-1 text-white/80">{user.email}</p>
+						<h1 className="max-w-[250px] font-bold text-3xl tracking-tight sm:max-w-none" title={user.name}>
+							<span className="block truncate sm:inline">{user.name}</span>
+						</h1>
+						<p className="mt-1 max-w-[250px] truncate text-white/80 sm:max-w-none" title={user.email}>{user.email}</p>
 					</div>
 				</div>
 				<ProfileSettingsDialogs
