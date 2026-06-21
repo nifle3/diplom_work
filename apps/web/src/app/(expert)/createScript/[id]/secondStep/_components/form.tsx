@@ -98,7 +98,7 @@ export default function SecondStepForm({
 													/>
 													<InputGroupAddon align="block-end">
 														<InputGroupText className="tabular-nums">
-															{field.state.value?.length ?? 0}/1000
+															{field.state.value?.length ?? 0}/500
 														</InputGroupText>
 													</InputGroupAddon>
 												</InputGroup>

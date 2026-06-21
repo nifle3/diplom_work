@@ -16,7 +16,7 @@ const criteriaSchema = z.object({
 
 export const secondStepFormSchema = z.object({
 	context: z.string().max(1000, "Максимальное количество символов 1000"),
-	criteria: z.array(criteriaSchema).min(1, "Добавьте хотя бы один критерий"),
+	criteria: z.array(criteriaSchema),
 	deletedCriteria: z.array(z.uuid()).nullable(),
 });
 

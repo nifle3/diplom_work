@@ -41,7 +41,7 @@ const defaultColumns = (
 		cell: ({ row }) => {
 			if (isDraftTable) {
 				return (
-					<span className="font-medium">
+					<span className="max-w-[200px] truncate font-medium" title={row.original.title ?? undefined}>
 						{row.original.title ?? "Без названия"}
 					</span>
 				);
@@ -49,8 +49,9 @@ const defaultColumns = (
 
 			return (
 				<Link
-					className="font-medium"
+					className="max-w-[200px] truncate font-medium"
 					href={{ pathname: `/script/${row.original.id}` }}
+					title={row.original.title ?? undefined}
 				>
 					{row.original.title ?? "Без названия"}
 				</Link>

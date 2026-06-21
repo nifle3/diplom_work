@@ -109,7 +109,7 @@ export default function FirstStepForm({
 													onBlur={field.handleBlur}
 													onChange={(e) => field.handleChange(e.target.value)}
 													placeholder="Например, Интервью на позицию middle frontend"
-													maxLength={100}
+													maxLength={50}
 												/>
 											</FormFieldWrapper>
 										)}
@@ -135,7 +135,7 @@ export default function FirstStepForm({
 													/>
 													<InputGroupAddon align="block-end">
 														<InputGroupText className="tabular-nums">
-															{field.state.value?.length ?? 0}/1000
+															{field.state.value?.length ?? 0}/500
 														</InputGroupText>
 													</InputGroupAddon>
 												</InputGroup>
