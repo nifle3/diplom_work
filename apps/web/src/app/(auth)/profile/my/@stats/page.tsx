@@ -54,6 +54,7 @@ export default async function Page() {
 			{stats.map((stat) => (
 				<Card
 					key={stat.label}
+					title={String(stat.value)}
 					className="group relative overflow-hidden border-0 p-5 shadow-md transition-all hover:-translate-y-1 hover:shadow-lg"
 				>
 					<div
