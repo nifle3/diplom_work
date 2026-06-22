@@ -15,18 +15,24 @@ type WindowWithSpeech = Window & {
 	webkitSpeechRecognition?: SpeechRecognitionCtor;
 };
 
-export function useInterview(sessionId: string) {
+export function useInterview(
+	sessionId: string,
+	initialMessages: Message[] = [],
+) {
 	const router = useRouter();
-	const [messages, setMessages] = useState<Message[]>([]);
+	const [messages, setMessages] = useState<Message[]>(initialMessages);
 	const [inputValue, setInputValue] = useState("");
 	const [sttSupported, setSttSupported] = useState(false);
 	const [ttsSupported, setTtsSupported] = useState(false);
 	const [isListening, setIsListening] = useState(false);
 	const [isSpeaking, setIsSpeaking] = useState(false);
-	const [ttsEnabled, setTtsEnabled] = useState(true);
+	const [ttsEnabled, setTtsEnabled] = useState(false);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const recognitionRef = useRef<any>(null);
 	const lastSpokenMessageIdRef = useRef<string | null>(null);
+	const speechUnlockedRef = useRef(false);
+	const russianVoiceRef = useRef<SpeechSynthesisVoice | null>(null);
+	const [isSpeechBlocked, setIsSpeechBlocked] = useState(false);
 
 	const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
 		messagesEndRef.current?.scrollIntoView({ behavior });
@@ -43,6 +49,22 @@ export function useInterview(sessionId: string) {
 		recognitionRef.current?.stop?.();
 		recognitionRef.current = null;
 		setIsListening(false);
+	};
+
+	const unlockSpeech = () => {
+		if (speechUnlockedRef.current) return;
+		if (typeof window === "undefined" || !window.speechSynthesis) return;
+
+		speechUnlockedRef.current = true;
+		setIsSpeechBlocked(false);
+
+		try {
+			const utterance = new SpeechSynthesisUtterance("");
+			window.speechSynthesis.speak(utterance);
+			window.speechSynthesis.cancel();
+		} catch {
+			// Игнорируем — API может быть недоступен
+		}
 	};
 
 	const appendTranscript = (transcript: string) => {
@@ -81,21 +103,19 @@ export function useInterview(sessionId: string) {
 
 		if (!normalizedText) return;
 
+		if (!speechUnlockedRef.current) {
+			setIsSpeechBlocked(true);
+			return;
+		}
+
 		stopListening();
 		stopSpeaking();
 
 		const utterance = new SpeechSynthesisUtterance(normalizedText);
-		const voices = window.speechSynthesis.getVoices();
-		const russianVoice =
-			voices.find((voice) => voice.lang.toLowerCase().startsWith("ru")) ??
-			voices.find((voice) => voice.lang.toLowerCase().startsWith("en")) ??
-			voices[0];
+		utterance.lang = "ru-RU";
 
-		if (russianVoice) {
-			utterance.voice = russianVoice;
-			utterance.lang = russianVoice.lang;
-		} else {
-			utterance.lang = "ru-RU";
+		if (russianVoiceRef.current) {
+			utterance.voice = russianVoiceRef.current;
 		}
 
 		utterance.rate = 1;
@@ -185,6 +205,7 @@ export function useInterview(sessionId: string) {
 		}
 
 		stopSpeaking();
+		unlockSpeech();
 
 		const recognition = new SpeechRecognition();
 		recognition.lang = "ru-RU";
@@ -196,7 +217,11 @@ export function useInterview(sessionId: string) {
 			appendTranscript(transcript);
 		};
 		recognition.onerror = (event: any) => {
-			if (event?.error !== "aborted") {
+			if (event?.error === "not-allowed" || event?.error === "permission-denied") {
+				toast.error(
+					"Пожалуйста, разрешите доступ к микрофону в настройках браузера",
+				);
+			} else if (event?.error !== "aborted") {
 				toast.error("Не удалось распознать речь");
 			}
 
@@ -229,7 +254,14 @@ export function useInterview(sessionId: string) {
 		startListening();
 	};
 
+	const toggleTts = () => {
+		unlockSpeech();
+		setTtsEnabled((current) => !current);
+	};
+
 	const speakLastAiMessage = () => {
+		unlockSpeech();
+
 		const lastAiMessage = [...messages]
 			.reverse()
 			.find((message) => message.isAi);
@@ -244,6 +276,8 @@ export function useInterview(sessionId: string) {
 	};
 
 	const handleSend = async () => {
+		unlockSpeech();
+
 		const content = inputValue.trim().slice(0, INTERVIEW_ANSWER_MAX_LENGTH);
 
 		if (
@@ -303,9 +337,32 @@ export function useInterview(sessionId: string) {
 	}, []);
 
 	useEffect(() => {
+		if (typeof window === "undefined" || !window.speechSynthesis) return;
+
+		const updateVoices = () => {
+			const voices = window.speechSynthesis.getVoices();
+
+			if (voices.length === 0) return;
+
+			russianVoiceRef.current =
+				voices.find((voice) => voice.lang.startsWith("ru")) ?? null;
+		};
+
+		updateVoices();
+		window.speechSynthesis.addEventListener("voiceschanged", updateVoices);
+		return () =>
+			window.speechSynthesis.removeEventListener("voiceschanged", updateVoices);
+	}, []);
+
+	useEffect(() => {
 		const lastMessage = messages[messages.length - 1];
 
 		if (!lastMessage?.isAi || !ttsEnabled || !ttsSupported) {
+			return;
+		}
+
+		if (!speechUnlockedRef.current) {
+			setIsSpeechBlocked(true);
 			return;
 		}
 
@@ -336,8 +393,9 @@ export function useInterview(sessionId: string) {
 		ttsSupported,
 		isListening,
 		isSpeaking,
+		isSpeechBlocked,
 		ttsEnabled,
-		setTtsEnabled,
+		toggleTts,
 		toggleListening,
 		speakLastAiMessage,
 		handleSend,

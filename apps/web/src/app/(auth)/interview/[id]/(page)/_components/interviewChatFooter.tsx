@@ -16,8 +16,9 @@ export function InterviewChatFooter() {
 		ttsSupported,
 		isListening,
 		isSpeaking,
+		isSpeechBlocked,
 		ttsEnabled,
-		setTtsEnabled,
+		toggleTts,
 		toggleListening,
 		speakLastAiMessage,
 	} = useInterviewContext();
@@ -34,9 +35,10 @@ export function InterviewChatFooter() {
 			ttsSupported={ttsSupported}
 			isListening={isListening}
 			isSpeaking={isSpeaking}
+			isSpeechBlocked={isSpeechBlocked}
 			ttsEnabled={ttsEnabled}
 			onToggleListening={toggleListening}
-			onToggleTts={() => setTtsEnabled((current) => !current)}
+			onToggleTts={toggleTts}
 			onSpeakLastAiMessage={speakLastAiMessage}
 		/>
 	);

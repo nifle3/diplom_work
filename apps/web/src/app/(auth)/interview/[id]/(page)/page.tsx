@@ -8,7 +8,7 @@ import { CancelInterviewButton } from "./_components/cancelInterviewButton";
 import { InterviewChatFooter } from "./_components/interviewChatFooter";
 import { InterviewLiveMessages } from "./_components/interviewLiveMessages";
 import { InterviewProvider } from "./_components/interviewProvider";
-import { MessageItem } from "./_components/messageItem";
+
 
 export const metadata = {
 	title: "Интервью",
@@ -28,7 +28,7 @@ export default async function InterviewPage({
 	const backHref = getBackHref(script?.id ?? null);
 
 	return (
-		<InterviewProvider interviewId={id}>
+		<InterviewProvider interviewId={id} initialMessages={data ?? []}>
 			<div className="flex h-full min-h-0 flex-col overflow-hidden bg-background text-foreground">
 				<header className="z-10 flex shrink-0 items-center justify-between gap-3 border-b bg-background px-4 py-3">
 					<h1 className="min-w-0 truncate font-semibold text-base">
@@ -47,9 +47,6 @@ export default async function InterviewPage({
 
 				<div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4">
 					<div className="mx-auto max-w-3xl space-y-6 py-6">
-						{(data ?? []).map((message) => (
-							<MessageItem key={message.id} message={message} />
-						))}
 						<InterviewLiveMessages />
 					</div>
 				</div>

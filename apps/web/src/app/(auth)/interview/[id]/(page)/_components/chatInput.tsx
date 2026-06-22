@@ -13,6 +13,7 @@ interface ChatInputProps {
 	ttsSupported?: boolean;
 	isListening?: boolean;
 	isSpeaking?: boolean;
+	isSpeechBlocked?: boolean;
 	ttsEnabled?: boolean;
 	onToggleListening?: () => void;
 	onToggleTts?: () => void;
@@ -29,6 +30,7 @@ export const ChatInput = ({
 	ttsSupported = false,
 	isListening = false,
 	isSpeaking = false,
+	isSpeechBlocked = false,
 	ttsEnabled = false,
 	onToggleListening = () => {},
 	onToggleTts = () => {},
@@ -85,15 +87,17 @@ export const ChatInput = ({
 					<Volume2 className="size-4" />
 					{isSpeaking ? "Читаю ответ" : "Повторить ответ"}
 				</Button>
-				<span className="text-muted-foreground text-xs">
-					{!sttSupported && !ttsSupported
-						? "Этот браузер не поддерживает STT и TTS"
-						: isListening
-							? "Слушаю..."
-							: isSpeaking
-								? "Озвучиваю ответ..."
+			<span className="text-muted-foreground text-xs">
+				{!sttSupported && !ttsSupported
+					? "Этот браузер не поддерживает STT и TTS"
+					: isListening
+						? "Слушаю..."
+						: isSpeaking
+							? "Озвучиваю ответ..."
+							: isSpeechBlocked
+								? "Нажмите на кнопку, чтобы включить озвучку"
 								: "Можно диктовать ответ или включить озвучку"}
-				</span>
+			</span>
 			</div>
 			<div className="flex gap-2">
 				<div className="min-w-0 flex-1 space-y-1">
