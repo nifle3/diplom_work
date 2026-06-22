@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import type { Message } from "../_utils/type";
@@ -82,15 +82,15 @@ export function useInterview(
 		messagesEndRef.current?.scrollIntoView({ behavior });
 	};
 
-	const stopSpeaking = () => {
+	const stopSpeaking = useCallback(() => {
 		if (typeof window === "undefined" || !window.speechSynthesis) return;
 
 		window.speechSynthesis.cancel();
 		setIsSpeaking(false);
 		utteranceRef.current = null;
-	};
+	}, []);
 
-	const stopListening = (abort = false) => {
+	const stopListening = useCallback((abort = false) => {
 		if (recognitionRef.current) {
 			try {
 				if (abort) {
@@ -102,9 +102,9 @@ export function useInterview(
 			recognitionRef.current = null;
 		}
 		setIsListening(false);
-	};
+	}, []);
 
-	const unlockSpeech = () => {
+	const unlockSpeech = useCallback(() => {
 		if (speechUnlockedRef.current) return;
 		if (typeof window === "undefined" || !window.speechSynthesis) return;
 
@@ -116,9 +116,9 @@ export function useInterview(
 			window.speechSynthesis.speak(utterance);
 			window.speechSynthesis.cancel();
 		} catch {}
-	};
+	}, []);
 
-	const appendTranscript = (transcript: string) => {
+	const appendTranscript = useCallback((transcript: string) => {
 		const normalizedTranscript = transcript.trim();
 
 		if (!normalizedTranscript) return;
@@ -143,56 +143,59 @@ export function useInterview(
 
 			return `${currentText} ${normalizedTranscript.slice(0, remainingLength)}`;
 		});
-	};
+	}, []);
 
-	const speakText = (text: string) => {
-		if (
-			!ttsSupported ||
-			typeof window === "undefined" ||
-			!window.speechSynthesis
-		) {
-			return;
-		}
-
-		const normalizedText = text.trim();
-
-		if (!normalizedText) return;
-
-		if (!speechUnlockedRef.current) {
-			setIsSpeechBlocked(true);
-			return;
-		}
-
-		stopListening();
-		stopSpeaking();
-
-		const utterance = new SpeechSynthesisUtterance(normalizedText);
-		utteranceRef.current = utterance;
-
-		utterance.lang = "ru-RU";
-
-		if (russianVoiceRef.current) {
-			utterance.voice = russianVoiceRef.current;
-		}
-
-		utterance.rate = 1.0;
-		utterance.pitch = 1.0;
-
-		utterance.onstart = () => setIsSpeaking(true);
-		utterance.onend = () => {
-			setIsSpeaking(false);
-			utteranceRef.current = null;
-		};
-		utterance.onerror = (event) => {
-			if (event.error !== "interrupted") {
-				console.error("SpeechSynthesis error:", event);
+	const speakText = useCallback(
+		(text: string) => {
+			if (
+				!ttsSupported ||
+				typeof window === "undefined" ||
+				!window.speechSynthesis
+			) {
+				return;
 			}
-			setIsSpeaking(false);
-			utteranceRef.current = null;
-		};
 
-		window.speechSynthesis.speak(utterance);
-	};
+			const normalizedText = text.trim();
+
+			if (!normalizedText) return;
+
+			if (!speechUnlockedRef.current) {
+				setIsSpeechBlocked(true);
+				return;
+			}
+
+			stopListening();
+			stopSpeaking();
+
+			const utterance = new SpeechSynthesisUtterance(normalizedText);
+			utteranceRef.current = utterance;
+
+			utterance.lang = "ru-RU";
+
+			if (russianVoiceRef.current) {
+				utterance.voice = russianVoiceRef.current;
+			}
+
+			utterance.rate = 1.0;
+			utterance.pitch = 1.0;
+
+			utterance.onstart = () => setIsSpeaking(true);
+			utterance.onend = () => {
+				setIsSpeaking(false);
+				utteranceRef.current = null;
+			};
+			utterance.onerror = (event) => {
+				if (event.error !== "interrupted") {
+					console.error("SpeechSynthesis error:", event);
+				}
+				setIsSpeaking(false);
+				utteranceRef.current = null;
+			};
+
+			window.speechSynthesis.speak(utterance);
+		},
+		[ttsSupported, stopListening, stopSpeaking],
+	);
 
 	const newMessage = useMutation(
 		trpc.session.addNewMessage.mutationOptions({
@@ -253,8 +256,8 @@ export function useInterview(
 		}),
 	);
 
-	const startListening = () => {
-		if (!sttSupported || isListening || newMessage.isPending) {
+	const startListening = useCallback(() => {
+		if (isListening || newMessage.isPending) {
 			return;
 		}
 
@@ -324,23 +327,29 @@ export function useInterview(
 			setIsListening(false);
 			recognitionRef.current = null;
 		}
-	};
+	}, [
+		isListening,
+		newMessage.isPending,
+		stopSpeaking,
+		unlockSpeech,
+		appendTranscript,
+	]);
 
-	const toggleListening = () => {
+	const toggleListening = useCallback(() => {
 		if (isListening) {
 			stopListening();
 			return;
 		}
 
 		startListening();
-	};
+	}, [isListening, stopListening, startListening]);
 
-	const toggleTts = () => {
+	const toggleTts = useCallback(() => {
 		unlockSpeech();
 		setTtsEnabled((current) => !current);
-	};
+	}, [unlockSpeech]);
 
-	const speakLastAiMessage = () => {
+	const speakLastAiMessage = useCallback(() => {
 		unlockSpeech();
 
 		const lastAiMessage = [...messages]
@@ -354,9 +363,9 @@ export function useInterview(
 
 		lastSpokenMessageIdRef.current = lastAiMessage.id;
 		speakText(lastAiMessage.messageText);
-	};
+	}, [messages, unlockSpeech, speakText]);
 
-	const handleSend = async () => {
+	const handleSend = useCallback(async () => {
 		unlockSpeech();
 
 		const content = inputValue.trim().slice(0, INTERVIEW_ANSWER_MAX_LENGTH);
@@ -385,25 +394,47 @@ export function useInterview(
 		]);
 
 		await newMessage.mutateAsync({ sessionId, content });
-	};
+	}, [
+		inputValue,
+		sessionId,
+		newMessage.isPending,
+		finishInterview.isPending,
+		cancelInterview.isPending,
+		unlockSpeech,
+		stopListening,
+		stopSpeaking,
+		newMessage.mutateAsync,
+	]);
 
-	const handleFinish = async () => {
+	const handleFinish = useCallback(async () => {
 		if (finishInterview.isPending) return;
 
 		stopListening();
 		stopSpeaking();
 
 		await finishInterview.mutateAsync(sessionId);
-	};
+	}, [
+		finishInterview.isPending,
+		sessionId,
+		stopListening,
+		stopSpeaking,
+		finishInterview.mutateAsync,
+	]);
 
-	const handleCancel = async () => {
+	const handleCancel = useCallback(async () => {
 		if (cancelInterview.isPending) return;
 
 		stopListening();
 		stopSpeaking();
 
 		await cancelInterview.mutateAsync(sessionId);
-	};
+	}, [
+		cancelInterview.isPending,
+		sessionId,
+		stopListening,
+		stopSpeaking,
+		cancelInterview.mutateAsync,
+	]);
 
 	useEffect(() => {
 		if (typeof window === "undefined") return;
@@ -478,7 +509,7 @@ export function useInterview(
 			stopListening(true); // Применяем abort для мгновенного освобождения микрофона
 			stopSpeaking();
 		};
-	}, []);
+	}, [stopListening, stopSpeaking]);
 
 	return {
 		messages,

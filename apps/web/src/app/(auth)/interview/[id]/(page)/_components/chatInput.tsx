@@ -51,7 +51,7 @@ export const ChatInput = ({
 					variant={isListening ? "default" : "outline"}
 					size="sm"
 					onClick={onToggleListening}
-					disabled={!sttSupported || disabled}
+					disabled={disabled}
 					className="rounded-full"
 				>
 					{isListening ? (
@@ -87,17 +87,17 @@ export const ChatInput = ({
 					<Volume2 className="size-4" />
 					{isSpeaking ? "Читаю ответ" : "Повторить ответ"}
 				</Button>
-			<span className="text-muted-foreground text-xs">
-				{!sttSupported && !ttsSupported
-					? "Этот браузер не поддерживает STT и TTS"
-					: isListening
-						? "Слушаю..."
-						: isSpeaking
-							? "Озвучиваю ответ..."
-							: isSpeechBlocked
-								? "Нажмите на кнопку, чтобы включить озвучку"
-								: "Можно диктовать ответ или включить озвучку"}
-			</span>
+				<span className="text-muted-foreground text-xs">
+					{!sttSupported && !ttsSupported
+						? "Этот браузер не поддерживает STT и TTS"
+						: isListening
+							? "Слушаю..."
+							: isSpeaking
+								? "Озвучиваю ответ..."
+								: isSpeechBlocked
+									? "Нажмите на кнопку, чтобы включить озвучку"
+									: "Можно диктовать ответ или включить озвучку"}
+				</span>
 			</div>
 			<div className="flex gap-2">
 				<div className="min-w-0 flex-1 space-y-1">
