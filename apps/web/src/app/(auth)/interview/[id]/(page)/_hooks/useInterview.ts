@@ -8,12 +8,54 @@ import type { Message } from "../_utils/type";
 
 export const INTERVIEW_ANSWER_MAX_LENGTH = 4000;
 
-type SpeechRecognitionCtor = new () => any;
+// Описание типов Web Speech API в соответствии со стандартами W3C
+interface SpeechRecognitionEvent extends Event {
+	readonly resultIndex: number;
+	readonly results: SpeechRecognitionResultList;
+}
 
-type WindowWithSpeech = Window & {
-	SpeechRecognition?: SpeechRecognitionCtor;
-	webkitSpeechRecognition?: SpeechRecognitionCtor;
-};
+interface SpeechRecognitionErrorEvent extends Event {
+	readonly error: string;
+	readonly message: string;
+}
+
+interface SpeechRecognition extends EventTarget {
+	continuous: boolean;
+	interimResults: boolean;
+	lang: string;
+	maxAlternatives: number;
+	onaudioend: ((this: SpeechRecognition, ev: Event) => void) | null;
+	onaudiostart: ((this: SpeechRecognition, ev: Event) => void) | null;
+	onend: ((this: SpeechRecognition, ev: Event) => void) | null;
+	onerror:
+		| ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => void)
+		| null;
+	onnomatch:
+		| ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => void)
+		| null;
+	onresult:
+		| ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => void)
+		| null;
+	onsoundend: ((this: SpeechRecognition, ev: Event) => void) | null;
+	onsoundstart: ((this: SpeechRecognition, ev: Event) => void) | null;
+	onspeechend: ((this: SpeechRecognition, ev: Event) => void) | null;
+	onspeechstart: ((this: SpeechRecognition, ev: Event) => void) | null;
+	onstart: ((this: SpeechRecognition, ev: Event) => void) | null;
+	start(): void;
+	stop(): void;
+	abort(): void;
+}
+
+interface SpeechRecognitionConstructor {
+	new (): SpeechRecognition;
+}
+
+declare global {
+	interface Window {
+		SpeechRecognition?: SpeechRecognitionConstructor;
+		webkitSpeechRecognition?: SpeechRecognitionConstructor;
+	}
+}
 
 export function useInterview(
 	sessionId: string,
@@ -28,7 +70,9 @@ export function useInterview(
 	const [isSpeaking, setIsSpeaking] = useState(false);
 	const [ttsEnabled, setTtsEnabled] = useState(false);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
-	const recognitionRef = useRef<any>(null);
+
+	const recognitionRef = useRef<SpeechRecognition | null>(null);
+	const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null); // Ссылка для предотвращения Garbage Collection бага в Chrome
 	const lastSpokenMessageIdRef = useRef<string | null>(null);
 	const speechUnlockedRef = useRef(false);
 	const russianVoiceRef = useRef<SpeechSynthesisVoice | null>(null);
@@ -39,15 +83,24 @@ export function useInterview(
 	};
 
 	const stopSpeaking = () => {
-		if (typeof window === "undefined") return;
+		if (typeof window === "undefined" || !window.speechSynthesis) return;
 
 		window.speechSynthesis.cancel();
 		setIsSpeaking(false);
+		utteranceRef.current = null;
 	};
 
-	const stopListening = () => {
-		recognitionRef.current?.stop?.();
-		recognitionRef.current = null;
+	const stopListening = (abort = false) => {
+		if (recognitionRef.current) {
+			try {
+				if (abort) {
+					recognitionRef.current.abort();
+				} else {
+					recognitionRef.current.stop();
+				}
+			} catch {}
+			recognitionRef.current = null;
+		}
 		setIsListening(false);
 	};
 
@@ -62,9 +115,7 @@ export function useInterview(
 			const utterance = new SpeechSynthesisUtterance("");
 			window.speechSynthesis.speak(utterance);
 			window.speechSynthesis.cancel();
-		} catch {
-			// Игнорируем — API может быть недоступен
-		}
+		} catch {}
 	};
 
 	const appendTranscript = (transcript: string) => {
@@ -74,13 +125,13 @@ export function useInterview(
 
 		setInputValue((currentValue) => {
 			const currentText = currentValue.trimEnd();
-			const currentLength = currentText.trim().length;
+			const currentLength = currentText.length;
 
 			if (currentLength >= INTERVIEW_ANSWER_MAX_LENGTH) {
 				return currentText;
 			}
 
-			if (!currentText.trim()) {
+			if (!currentText) {
 				return normalizedTranscript.slice(0, INTERVIEW_ANSWER_MAX_LENGTH);
 			}
 
@@ -95,7 +146,11 @@ export function useInterview(
 	};
 
 	const speakText = (text: string) => {
-		if (!ttsSupported || typeof window === "undefined") {
+		if (
+			!ttsSupported ||
+			typeof window === "undefined" ||
+			!window.speechSynthesis
+		) {
 			return;
 		}
 
@@ -112,17 +167,29 @@ export function useInterview(
 		stopSpeaking();
 
 		const utterance = new SpeechSynthesisUtterance(normalizedText);
+		utteranceRef.current = utterance;
+
 		utterance.lang = "ru-RU";
 
 		if (russianVoiceRef.current) {
 			utterance.voice = russianVoiceRef.current;
 		}
 
-		utterance.rate = 1;
-		utterance.pitch = 1;
+		utterance.rate = 1.0;
+		utterance.pitch = 1.0;
+
 		utterance.onstart = () => setIsSpeaking(true);
-		utterance.onend = () => setIsSpeaking(false);
-		utterance.onerror = () => setIsSpeaking(false);
+		utterance.onend = () => {
+			setIsSpeaking(false);
+			utteranceRef.current = null;
+		};
+		utterance.onerror = (event) => {
+			if (event.error !== "interrupted") {
+				console.error("SpeechSynthesis error:", event);
+			}
+			setIsSpeaking(false);
+			utteranceRef.current = null;
+		};
 
 		window.speechSynthesis.speak(utterance);
 	};
@@ -195,9 +262,8 @@ export function useInterview(
 			return;
 		}
 
-		const speechWindow = window as WindowWithSpeech;
 		const SpeechRecognition =
-			speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
+			window.SpeechRecognition ?? window.webkitSpeechRecognition;
 
 		if (!SpeechRecognition) {
 			toast.error("Распознавание речи недоступно в этом браузере");
@@ -210,31 +276,46 @@ export function useInterview(
 		const recognition = new SpeechRecognition();
 		recognition.lang = "ru-RU";
 		recognition.interimResults = false;
-		recognition.continuous = false;
+		recognition.continuous = true;
 		recognition.maxAlternatives = 1;
-		recognition.onresult = (event: any) => {
-			const transcript = event.results?.[0]?.[0]?.transcript ?? "";
-			appendTranscript(transcript);
+
+		recognition.onstart = () => {
+			setIsListening(true);
 		};
-		recognition.onerror = (event: any) => {
-			if (event?.error === "not-allowed" || event?.error === "permission-denied") {
+
+		recognition.onresult = (event) => {
+			let speechToText = "";
+			for (let i = event.resultIndex; i < event.results.length; i++) {
+				if (event.results[i].isFinal) {
+					speechToText += event.results[i][0].transcript;
+				}
+			}
+			if (speechToText) {
+				appendTranscript(speechToText);
+			}
+		};
+
+		recognition.onerror = (event) => {
+			if (
+				event.error === "not-allowed" ||
+				event.error === "permission-denied"
+			) {
 				toast.error(
 					"Пожалуйста, разрешите доступ к микрофону в настройках браузера",
 				);
-			} else if (event?.error !== "aborted") {
+			} else if (event.error !== "aborted") {
 				toast.error("Не удалось распознать речь");
 			}
-
 			setIsListening(false);
 			recognitionRef.current = null;
 		};
+
 		recognition.onend = () => {
 			setIsListening(false);
 			recognitionRef.current = null;
 		};
 
 		recognitionRef.current = recognition;
-		setIsListening(true);
 
 		try {
 			recognition.start();
@@ -327,11 +408,8 @@ export function useInterview(
 	useEffect(() => {
 		if (typeof window === "undefined") return;
 
-		const speechWindow = window as WindowWithSpeech;
 		setSttSupported(
-			Boolean(
-				speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition,
-			),
+			Boolean(window.SpeechRecognition ?? window.webkitSpeechRecognition),
 		);
 		setTtsSupported(Boolean(window.speechSynthesis));
 	}, []);
@@ -344,16 +422,36 @@ export function useInterview(
 
 			if (voices.length === 0) return;
 
-			russianVoiceRef.current =
-				voices.find((voice) => voice.lang.startsWith("ru")) ?? null;
+			// Ищем локальные улучшенные русские голоса, иначе берем первый русский
+			const ruVoice =
+				voices.find(
+					(voice) =>
+						(voice.lang.startsWith("ru") || voice.lang.startsWith("ru-RU")) &&
+						voice.localService,
+				) ??
+				voices.find(
+					(voice) =>
+						voice.lang.startsWith("ru") || voice.lang.startsWith("ru-RU"),
+				) ??
+				null;
+
+			russianVoiceRef.current = ruVoice;
 		};
 
 		updateVoices();
-		window.speechSynthesis.addEventListener("voiceschanged", updateVoices);
-		return () =>
-			window.speechSynthesis.removeEventListener("voiceschanged", updateVoices);
+
+		if (window.speechSynthesis.onvoiceschanged !== undefined) {
+			window.speechSynthesis.onvoiceschanged = updateVoices;
+		}
+
+		return () => {
+			if (window.speechSynthesis) {
+				window.speechSynthesis.onvoiceschanged = null;
+			}
+		};
 	}, []);
 
+	// Озвучивание новых сообщений от ИИ
 	useEffect(() => {
 		const lastMessage = messages[messages.length - 1];
 
@@ -372,11 +470,12 @@ export function useInterview(
 
 		lastSpokenMessageIdRef.current = lastMessage.id;
 		speakText(lastMessage.messageText);
-	}, [messages, ttsEnabled, ttsSupported]);
+	}, [messages, ttsEnabled, ttsSupported, speakText]);
 
+	// Очистка при размонтировании
 	useEffect(() => {
 		return () => {
-			stopListening();
+			stopListening(true); // Применяем abort для мгновенного освобождения микрофона
 			stopSpeaking();
 		};
 	}, []);
